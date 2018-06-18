@@ -1,0 +1,19 @@
+build/
+bin/
+
+boxes/*.tar.gz
+boxes/*.deb
+
+*.sw[mnopq]
+*~
+pin.log
+*.xml
+
+*.tar.gz
+
+// Various pycharm test related outputs
+*.log
+*.pyc
+.idea
+.cache
+__pycache__
