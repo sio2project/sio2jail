@@ -128,6 +128,7 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         TCLAP::ValueArg<args::MemoryArgument> argOutputLimit("", "output-limit", "Output file size limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. Default is kilobytes. Use 0 for no limit.", false, args::MemoryArgument(), "string", cmd);
 
         TCLAP::SwitchArg argShowStderr("s", "stderr", "Pass stderr to console", cmd, false);
+        TCLAP::ValueArg<int> argResultsFD("f", "resultsfd", "File descriptor to write results to", false, 2 /* stderr */, "fd", cmd);
 
         TCLAP::ValueArg<args::AmountArgument> argInstructionCountLimit("", "instruction-count-limit", "Instruction count limit. Use with k,m,g sufixes for 10**{3,6,9} respectively. Use 0 for no limit", false, args::AmountArgument(), "amount specifier", cmd);
 
@@ -209,6 +210,7 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         usTimelimitUs = argUStimelimit.getValue();
 
         suppressStderr = !argShowStderr.getValue();
+        resultsFD = argResultsFD.getValue();
     }
     catch (const TCLAP::ArgException& ex) {
         outputGenerator.failure(ex);

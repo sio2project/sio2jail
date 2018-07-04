@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "ApplicationException.h"
 
 #include "executor/Executor.h"
 #include "tracer/TraceExecutor.h"
@@ -83,6 +84,10 @@ Application::ExitCode Application::handleRun() {
     auto filesListener          = std::make_shared<files::FilesListener>(settings_.suppressStderr);
     auto loggerListener         = std::make_shared<logger::LoggerListener>();
 
+    auto resultsFD = FD(settings_.resultsFD, false);
+    if (!resultsFD.good())
+        throw InvalidConfigurationException("invalid results file descriptor");
+
     // Some listeners can return output
     auto outputBuilder = settings_.createOutputBuilder();
     forEachListener<s2j::printer::OutputSource>(
@@ -129,7 +134,7 @@ Application::ExitCode Application::handleRun() {
     executor->execute();
 
     // ...and display output.
-    std::cerr << outputBuilder->dump();
+    resultsFD.write(outputBuilder->dump());
     return ExitCode::OK;
 }
 
