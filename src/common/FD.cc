@@ -32,12 +32,19 @@ void FD::close() {
 }
 
 FD& FD::operator<<(const std::string& str) {
-    // Do _not_ handle partial writes here, to handle partial writes use
-    // (and implement) version of write that does it.
-    ssize_t written = s2j::withErrnoCheck("write", ::write, fd_, str.c_str(), str.size());
-    if (written < 0 || static_cast<size_t>(written) != str.size())
-        throw SystemException("Partial write: " + std::to_string(written) + "/" + std::to_string(str.size()));
+    write(str, false);
     return *this;
+}
+
+void FD::write(const std::string& str, bool allowPartialWrites) {
+    for (size_t written = 0; written < str.size();) {
+        ssize_t result = s2j::withErrnoCheck(
+                "write", {EAGAIN, EINTR}, ::write, fd_, str.c_str() + written, str.size() - written);
+        if (result > 0)
+            written += result;
+        if (!allowPartialWrites && written != str.size())
+            throw SystemException("Partial write: " + std::to_string(written) + "/" + std::to_string(str.size()));
+    }
 }
 
 FD FD::open(const std::string& path, int flags) {
@@ -50,6 +57,17 @@ FD FD::open(const std::string& path, int flags, mode_t mode) {
 
 FD::operator int() const {
     return fd_;
+}
+
+bool FD::good() const {
+    int errnoCode = 0;
+    do {
+        errnoCode = s2j::withErrnoCheck(
+                "fcntl", std::initializer_list<int>{EBADF, EINTR, EAGAIN}, ::fcntl, fd_, F_GETFD).getErrnoCode();
+        if (errnoCode == EBADF)
+            return false;
+    } while (errnoCode < 0);
+    return true;
 }
 
 }
