@@ -41,9 +41,9 @@ PerfListener::~PerfListener() {
 void PerfListener::onPreFork() {
     TRACE();
 
-    barrier_ = reinterpret_cast<pthread_barrier_t*>(
+    barrier_ =
             withErrnoCheck("mmap shared memory", mmap,
-                nullptr, sizeof(pthread_barrier_t), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, 0, 0));
+                nullptr, sizeof(pthread_barrier_t), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, 0, 0).as<pthread_barrier_t*>();
 
     pthread_barrierattr_t attr;
     pthread_barrierattr_init(&attr);

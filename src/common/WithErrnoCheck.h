@@ -11,13 +11,37 @@
 
 namespace s2j {
 
+template<typename T>
+class ResultErrnoPair {
+public:
+    ResultErrnoPair(T&& t, int errnoCode)
+        : value_(std::forward<T>(t)), errnoCode_(errnoCode) {}
+
+    operator T() {
+        return value_;
+    }
+
+    template<typename U>
+    U as() {
+        return reinterpret_cast<U>(value_);
+    }
+
+    int getErrnoCode() const {
+        return errnoCode_;
+    }
+
+private:
+    T value_;
+    int errnoCode_;
+};
+
 template<typename Operation, typename ErrnoCollection, typename ...Args>
 auto withErrnoCheck(
         const std::string& description,
         const ErrnoCollection& ignoredErrnos,
         Operation&& operation,
         Args&& ...args)
-        -> decltype(operation(args...)) {
+        -> ResultErrnoPair<decltype(operation(args...))> {
     TRACE(description);
 
     errno = 0;
@@ -36,7 +60,7 @@ auto withErrnoCheck(
         if (std::find(ignoredErrnos.begin(), ignoredErrnos.end(), returnedErrno) == ignoredErrnos.end())
             throw SystemException(description + " failed: " + strerror(returnedErrno), returnedErrno);
     }
-    return result;
+    return ResultErrnoPair<decltype(operation(args...))>(std::move(result), returnedErrno);
 }
 
 template<typename Operation, typename ...Args>
