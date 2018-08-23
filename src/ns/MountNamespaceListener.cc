@@ -30,8 +30,10 @@ const std::string MountNamespaceListener::newExecutablePath = "/exe";
 const Feature MountNamespaceListener::feature = Feature::MOUNT_NAMESPACE;
 
 MountNamespaceListener::MountNamespaceListener(const Settings& settings, const std::string& executablePath, const bool mountProc)
-    : newRoot_(createTemporaryDirectory()), executablePath_(executablePath), bindMounts_(settings.bindMounts), mountProc_(mountProc) {
-    bindMounts_.emplace_back(BindMount(executablePath_, newExecutablePath, BindMount::Mode::RO));
+    : newRoot_(createTemporaryDirectory()), executablePath_(executablePath), bindMounts_(settings.bindMounts), mountProc_(mountProc), bindExecutable_(settings.bindExecutable) {
+    if (bindExecutable_) {
+        bindMounts_.emplace_back(BindMount(executablePath_, newExecutablePath, BindMount::Mode::RO));
+    }
 
     if (bindMounts_.front().targetPath != "/") {
         throw Exception("Invalid configration, first bind mount must be root bind mount if namespace listener is used");
@@ -61,8 +63,10 @@ void MountNamespaceListener::onPostForkChild() {
     // chroot because pivot_root manpage says so
     withErrnoCheck("chroot", chroot, ".");
 
-    for (auto listener: EventProvider<MountEventListener>::eventListeners_)
-        listener->onProgramNameChange(newExecutablePath);
+    if (bindExecutable_) {
+        for (auto listener: EventProvider<MountEventListener>::eventListeners_)
+            listener->onProgramNameChange(newExecutablePath);
+    }
 
     if (mountProc_) {
         // mount new /proc

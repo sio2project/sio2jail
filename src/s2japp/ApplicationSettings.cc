@@ -142,6 +142,8 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 
         TCLAP::MultiArg<std::string> argBindMounts("b", "bind", "Bind mount path:path_inside_jail[:(rw|ro)]", false, "string", cmd);
 
+        TCLAP::SwitchArg argNoDefaultBinds("B", "no-default-binds", "Don't add default bind-mounts (i.e. binding the executable at /exe)", cmd, false);
+
         TCLAP::ValueArg<std::string> argLoggerPath("l", "log", "Logging file, use - for stderr", false, "", "path", cmd);
 
         TCLAP::UnlabeledValueArg<std::string> argProgramName("path", "Name of program to run", true, "", "path", cmd);
@@ -198,6 +200,8 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         for (auto& bindMount: argBindMounts) {
             addBindMount(bindMount);
         }
+
+        bindExecutable = !argNoDefaultBinds.getValue();
 
         if (argInstructionCountLimit.isSet() && !features.count(Feature::PERF)) {
             throw InvalidConfigurationException("Instruction count limit can only be used if PERF is enabled");
