@@ -64,7 +64,7 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(const executor::ExecuteEve
             // Since our child is pid 1 we have to kill on delivery on uncaught
             // signal in favour of kernel.
             uint64_t caughtSignals = procfs::readProcFS(traceePid_, procfs::Field::SIG_CGT);
-            if (!(caughtSignals && (1 << signal))) {
+            if (!(caughtSignals & (1 << signal))) {
                 outputBuilder_->setKillSignal(signal);
                 logger::debug("Delivery of uncaught signal ", signal, " killing instead");
                 signal = SIGKILL;
