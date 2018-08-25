@@ -21,6 +21,7 @@ public:
 
 private:
     void dumpStatus(std::ostream& ss) const;
+    int encodeStatusCode() const;
 
     static const uint64_t CYCLES_PER_SECOND = 2'000'000'000;
 
