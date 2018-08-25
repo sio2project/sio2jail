@@ -23,8 +23,6 @@ OutputBuilder& OITimeToolOutputBuilder::setMemoryPeak(uint64_t memoryPeakKb) {
 OutputBuilder& OITimeToolOutputBuilder::setExitStatus(uint32_t exitStatus) {
     if (exitStatus_ == 0) {
         exitStatus_ = exitStatus;
-        if (exitStatus > 128)
-            setKillSignal(exitStatus - 128);
     }
     return *this;
 }
@@ -67,6 +65,9 @@ void OITimeToolOutputBuilder::dumpStatus(std::ostream& ss) const {
     }
     else if (killSignal_ > 0) {
         ss << "process exited due to signal " << killSignal_;
+    }
+    else if (exitStatus_ > 0) {
+        ss << "runtime error " << exitStatus_;
     }
     else {
         ss << "ok";
