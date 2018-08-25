@@ -124,7 +124,7 @@ executor::ExecuteAction PerfListener::onSigioSignal() {
     uint64_t instructionsUsed = getInstructionsUsed();
     if (instructionCountLimit_ != 0 && instructionsUsed >= instructionCountLimit_) {
         logger::debug("Killing tracee after instructions count ", instructionsUsed, " exceeded limit");
-        outputBuilder_->setKillReason("time limit exceeded");
+        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::TLE, "time limit exceeded");
         return executor::ExecuteAction::KILL;
     }
     return executor::ExecuteAction::CONTINUE;

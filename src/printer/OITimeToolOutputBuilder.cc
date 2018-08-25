@@ -37,10 +37,13 @@ OutputBuilder& OITimeToolOutputBuilder::setKillSignal(uint32_t killSignal) {
     return *this;
 }
 
-OutputBuilder& OITimeToolOutputBuilder::setKillReason(const std::string& reason) {
+OutputBuilder& OITimeToolOutputBuilder::setKillReason(KillReason reason, const std::string& comment) {
     // Remember only first kill reason
-    if (killReason_.empty())
+    if (killReason_ == OK) {
         killReason_ = reason;
+        killReasonComment_ = comment;
+    }
+
     return *this;
 }
 
@@ -59,8 +62,8 @@ std::string OITimeToolOutputBuilder::dump() const {
 }
 
 void OITimeToolOutputBuilder::dumpStatus(std::ostream& ss) const {
-    if (!killReason_.empty()) {
-        ss << killReason_;
+    if (killReason_ != OK) {
+            ss << killReasonComment_;
     }
     else if (killSignal_ > 0) {
         ss << "process exited due to signal " << killSignal_;
