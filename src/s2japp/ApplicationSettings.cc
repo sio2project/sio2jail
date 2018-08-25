@@ -3,6 +3,7 @@
 #include "ApplicationArguments.h"
 
 #include "printer/OITimeToolOutputBuilder.h"
+#include "printer/AugmentedOIOutputBuilder.h"
 #include "common/Utils.h"
 
 #include <seccomp.h>
@@ -82,7 +83,7 @@ const std::string ApplicationSettings::VERSION = "1.0.1";
 
 const std::string ApplicationSettings::DESCRIPTION = "SIO2jail, a sandbox for programming contests.";
 
-const std::vector<std::string> ApplicationSettings::OUTPUT_FORMATS_NAMES({"oitt"});
+const std::vector<std::string> ApplicationSettings::OUTPUT_FORMATS_NAMES({"oitt", "oiaug"});
 
 const std::map<std::string, std::pair<Feature, bool>> ApplicationSettings::FEATURE_BY_NAME({
         {"ptrace",          {Feature::PTRACE, true}},
@@ -228,6 +229,8 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 std::shared_ptr<s2j::printer::OutputBuilder> ApplicationSettings::createOutputBuilder() const {
     if (outputFormatName == s2j::printer::OITimeToolOutputBuilder::FORMAT_NAME)
         return std::make_shared<s2j::printer::OITimeToolOutputBuilder>();
+    if (outputFormatName == s2j::printer::AugmentedOIOutputBuilder::FORMAT_NAME)
+        return std::make_shared<s2j::printer::AugmentedOIOutputBuilder>();
     return std::make_shared<s2j::printer::OutputBuilder>();
 }
 

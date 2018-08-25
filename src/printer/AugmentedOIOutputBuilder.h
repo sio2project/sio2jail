@@ -5,7 +5,7 @@
 namespace s2j {
 namespace printer {
 
-class OITimeToolOutputBuilder : public OIModelOutputBuilder {
+class AugmentedOIOutputBuilder : public OIModelOutputBuilder {
 public:
     std::string dump() const override;
 

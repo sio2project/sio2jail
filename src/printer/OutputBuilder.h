@@ -11,6 +11,18 @@ public:
         NONE, RE, RV, TLE, MLE, OLE
     };
 
+    static std::string killReasonName(KillReason reason) {
+        switch (reason) {
+            case KillReason::NONE: return "OK";
+            case KillReason::RE: return "RE";
+            case KillReason::RV: return "RV";
+            case KillReason::TLE: return "TLE";
+            case KillReason::MLE: return "MLE";
+            case KillReason::OLE: return "OLE";
+        }
+        __builtin_unreachable();
+    }
+
     virtual ~OutputBuilder() = default;
 
     virtual OutputBuilder& setCyclesUsed(uint64_t cyclesUsed) { return *this; }
