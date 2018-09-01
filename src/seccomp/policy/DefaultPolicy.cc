@@ -206,7 +206,7 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
         rules_.emplace_back(SeccompRule(
                     "open",
                     action::ActionAllow(),
-                    (filter::SyscallArg(1) & O_RDWR) == 0));
+                    (filter::SyscallArg(1) & (O_RDWR | O_WRONLY)) == 0));
 
         for (const auto& syscall: {
                 "unlink",
