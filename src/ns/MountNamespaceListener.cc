@@ -90,9 +90,12 @@ void MountNamespaceListener::onPostExecute() {
 void MountNamespaceListener::BindMount::mount(const std::string& root) {
     TRACE(root);
 
-    uint32_t flags = MS_NODEV | MS_NOSUID;
+    uint32_t flags = MS_NOSUID;
     if (mode == Mode::RO) {
         flags |= MS_RDONLY;
+    }
+    if (!dev) {
+        flags |= MS_NODEV;
     }
     // NOTE: On bind mount, any flags other than MS_BIND and MS_REC are ignored by the kernel
     withErrnoCheck("bind mount " + sourcePath + " -> " + targetPath,

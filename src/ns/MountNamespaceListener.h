@@ -37,6 +37,7 @@ public:
 
         std::string sourcePath, targetPath;
         Mode mode;
+        bool dev = false;
     };
 
     struct Settings {
