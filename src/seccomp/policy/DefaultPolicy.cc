@@ -193,8 +193,11 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
             "llistxattr",
             "flistxattr",
             "readlink",
+            "readlinkat",
             "access",
+            "faccessat",
             "getdents",
+            "getdents64",
             });
 
     rules_.emplace_back(SeccompRule(
@@ -206,14 +209,23 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
         rules_.emplace_back(SeccompRule(
                     "open",
                     action::ActionAllow(),
-                    (filter::SyscallArg(1) & O_RDWR) == 0));
+                    (filter::SyscallArg(1) & (O_RDWR | O_WRONLY)) == 0));
+
+        rules_.emplace_back(SeccompRule(
+                    "openat",
+                    action::ActionAllow(),
+                    (filter::SyscallArg(2) & (O_RDWR | O_WRONLY)) == 0));
 
         for (const auto& syscall: {
                 "unlink",
                 "unlinkat",
                 "symlink",
+                "symlinkat",
                 "mkdir",
-                "fsetxattr"
+                "mkdirat",
+                "setxattr",
+                "lsetxattr",
+                "fsetxattr",
                 }) {
             rules_.emplace_back(SeccompRule(
                         syscall,
@@ -223,10 +235,16 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
     else {
         allowSyscalls({
                 "open",
+                "openat",
                 "unlink",
                 "unlinkat",
                 "symlink",
-                "mkdir"
+                "symlinkat",
+                "mkdir",
+                "mkdirat",
+                "setxattr",
+                "lsetxattr",
+                "fsetxattr",
                 });
     }
 }

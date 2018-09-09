@@ -233,14 +233,25 @@ void ApplicationSettings::addBindMount(const std::string& bindMountLine) {
 
     ns::MountNamespaceListener::BindMount bindMount{tokens[0], tokens[1], ns::MountNamespaceListener::BindMount::Mode::RO};
     if (tokens.size() == 3) {
-        if (tokens[2] == "ro") {
+        auto flags = split(tokens[2], ",");
+        if (flags.size() < 1) {
+            throw InvalidConfigurationException("Empty bind mount mode: " + tokens[2]);
+        }
+        if (flags[0] == "ro") {
             bindMount.mode = ns::MountNamespaceListener::BindMount::Mode::RO;
         }
-        else if (tokens[2] == "rw") {
+        else if (flags[0] == "rw") {
             bindMount.mode = ns::MountNamespaceListener::BindMount::Mode::RW;
         }
         else {
-            throw InvalidConfigurationException("No such bind mount mode: " + tokens[2]);
+            throw InvalidConfigurationException("No such bind mount mode: " + flags[0]);
+        }
+        if (flags.size() >= 2) {
+            if (flags[1] == "dev") {
+                bindMount.dev = true;
+            } else {
+                throw InvalidConfigurationException("No such bind mount flag: " + flags[1]);
+            }
         }
     }
 

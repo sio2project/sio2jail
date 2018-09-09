@@ -42,6 +42,8 @@ void TraceExecutor::onPostForkParent(pid_t childPid) {
 executor::ExecuteAction TraceExecutor::onExecuteEvent(const executor::ExecuteEvent& executeEvent) {
     TRACE();
 
+    static const uint64_t IGNORED_SIGNALS = (1 << SIGCHLD) | (1 << SIGCLD) | (1 << SIGURG) | (1 << SIGWINCH);
+
     TraceEvent event { executeEvent };
     Tracee tracee(traceePid_);
 
@@ -64,6 +66,7 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(const executor::ExecuteEve
             // Since our child is pid 1 we have to kill on delivery on uncaught
             // signal in favour of kernel.
             uint64_t caughtSignals = procfs::readProcFS(traceePid_, procfs::Field::SIG_CGT);
+            caughtSignals |= IGNORED_SIGNALS;
             if (!(caughtSignals & (1 << signal))) {
                 outputBuilder_->setKillSignal(signal);
                 logger::debug("Delivery of uncaught signal ", signal, " killing instead");
