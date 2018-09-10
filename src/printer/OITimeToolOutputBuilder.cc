@@ -37,7 +37,7 @@ OutputBuilder& OITimeToolOutputBuilder::setKillSignal(uint32_t killSignal) {
 
 OutputBuilder& OITimeToolOutputBuilder::setKillReason(KillReason reason, const std::string& comment) {
     // Remember only first kill reason
-    if (killReason_ == OK) {
+    if (killReason_ == KillReason::NONE) {
         killReason_ = reason;
         killReasonComment_ = comment;
     }
@@ -60,7 +60,7 @@ std::string OITimeToolOutputBuilder::dump() const {
 }
 
 void OITimeToolOutputBuilder::dumpStatus(std::ostream& ss) const {
-    if (killReason_ != OK) {
+    if (killReason_ != KillReason::NONE) {
             ss << killReasonComment_;
     }
     else if (killSignal_ > 0) {
@@ -76,7 +76,7 @@ void OITimeToolOutputBuilder::dumpStatus(std::ostream& ss) const {
 
 int OITimeToolOutputBuilder::encodeStatusCode() const {
     static const int CODES[] = {
-        [KillReason::OK] = 0,
+        [KillReason::NONE] = 0,
         [KillReason::RE] = 100,
         [KillReason::RV] = 121,
         [KillReason::TLE] = 125,
@@ -86,7 +86,7 @@ int OITimeToolOutputBuilder::encodeStatusCode() const {
     static const int CODE_SIG_BASE = 0;
     static const int CODE_RE_BASE = 200;
 
-    if (killReason_ == KillReason::OK) {
+    if (killReason_ == KillReason::NONE) {
         // NOTE: order of ifs is important, as nonzero killSignal also sets exitStatus_
         if (killSignal_ > 0) {
             return CODE_SIG_BASE + killSignal_;

@@ -32,7 +32,7 @@ private:
     uint32_t killSignal_;
 
     // TODO
-    KillReason killReason_ = KillReason::OK;
+    KillReason killReason_ = KillReason::NONE;
     std::string killReasonComment_;
 };
 
