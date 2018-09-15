@@ -7,7 +7,7 @@ namespace printer {
 
 class OutputBuilder {
 public:
-    enum KillReason {
+    enum class KillReason {
         NONE, RE, RV, TLE, MLE, OLE
     };
 
