@@ -116,7 +116,7 @@ tracer::TraceAction SeccompListener::onTraceEvent(const tracer::TraceEvent& trac
 
     if (traceEventMsg == 0) {
         logger::debug("Default syscall filter action after syscall ", syscallName);
-        outputBuilder_->setKillReason("intercepted forbidden syscall " + syscallName);
+        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::RV, "intercepted forbidden syscall " + syscallName);
         return tracer::TraceAction::KILL;
     }
 

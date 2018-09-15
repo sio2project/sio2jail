@@ -134,7 +134,6 @@ void Executor::executeParent() {
                 outputBuilder_->setExitStatus(event.exitStatus);
             }
             if (event.killed) {
-                outputBuilder_->setExitStatus(128 + event.signal);
                 outputBuilder_->setKillSignal(event.signal);
             }
             break;

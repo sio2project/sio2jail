@@ -13,7 +13,7 @@ public:
     OutputBuilder& setMemoryPeak(uint64_t memoryPeakKb) override;
     OutputBuilder& setExitStatus(uint32_t exitStatus) override;
     OutputBuilder& setKillSignal(uint32_t killSignal) override;
-    OutputBuilder& setKillReason(const std::string& reason) override;
+    OutputBuilder& setKillReason(KillReason reason, const std::string& comment) override;
 
     std::string dump() const override;
 
@@ -21,6 +21,7 @@ public:
 
 private:
     void dumpStatus(std::ostream& ss) const;
+    int encodeStatusCode() const;
 
     static const uint64_t CYCLES_PER_SECOND = 2'000'000'000;
 
@@ -31,7 +32,8 @@ private:
     uint32_t killSignal_;
 
     // TODO
-    std::string killReason_;
+    KillReason killReason_ = KillReason::NONE;
+    std::string killReasonComment_;
 };
 
 }

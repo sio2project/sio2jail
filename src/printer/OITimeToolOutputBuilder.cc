@@ -1,4 +1,5 @@
 #include "OITimeToolOutputBuilder.h"
+#include "common/Exception.h"
 
 #include <sstream>
 
@@ -23,8 +24,6 @@ OutputBuilder& OITimeToolOutputBuilder::setMemoryPeak(uint64_t memoryPeakKb) {
 OutputBuilder& OITimeToolOutputBuilder::setExitStatus(uint32_t exitStatus) {
     if (exitStatus_ == 0) {
         exitStatus_ = exitStatus;
-        if (exitStatus > 128)
-            setKillSignal(exitStatus - 128);
     }
     return *this;
 }
@@ -37,17 +36,20 @@ OutputBuilder& OITimeToolOutputBuilder::setKillSignal(uint32_t killSignal) {
     return *this;
 }
 
-OutputBuilder& OITimeToolOutputBuilder::setKillReason(const std::string& reason) {
+OutputBuilder& OITimeToolOutputBuilder::setKillReason(KillReason reason, const std::string& comment) {
     // Remember only first kill reason
-    if (killReason_.empty())
+    if (killReason_ == KillReason::NONE) {
         killReason_ = reason;
+        killReasonComment_ = comment;
+    }
+
     return *this;
 }
 
 std::string OITimeToolOutputBuilder::dump() const {
     // mimic orginal oititmetools' output
     std::stringstream ss;
-    ss << "__RESULT__ " << exitStatus_
+    ss << "__RESULT__ " << encodeStatusCode()
         << " " << milliSecondsElapsed_
         << " " << 0ULL
         << " " << memoryPeakKb_
@@ -59,15 +61,42 @@ std::string OITimeToolOutputBuilder::dump() const {
 }
 
 void OITimeToolOutputBuilder::dumpStatus(std::ostream& ss) const {
-    if (!killReason_.empty()) {
-        ss << killReason_;
+    if (killReason_ != KillReason::NONE) {
+            ss << killReasonComment_;
     }
     else if (killSignal_ > 0) {
         ss << "process exited due to signal " << killSignal_;
     }
+    else if (exitStatus_ > 0) {
+        ss << "runtime error " << exitStatus_;
+    }
     else {
         ss << "ok";
     }
+}
+
+int OITimeToolOutputBuilder::encodeStatusCode() const {
+    static const int CODE_SIG_BASE = 0;
+    static const int CODE_RE_BASE = 200;
+
+    if (killReason_ == KillReason::NONE) {
+        // NOTE: order of ifs is important, as nonzero killSignal also sets exitStatus_
+        if (killSignal_ > 0) {
+            return CODE_SIG_BASE + killSignal_;
+        } else if (exitStatus_ > 0) {
+            return CODE_RE_BASE + exitStatus_;
+        }
+    }
+
+    switch (killReason_){
+        case KillReason::NONE: return 0;
+        case KillReason::RE:  return 100;
+        case KillReason::RV:  return 121;
+        case KillReason::TLE: return 125;
+        case KillReason::MLE: return 124;
+        case KillReason::OLE: return 120;
+    };
+    __builtin_unreachable();
 }
 
 }

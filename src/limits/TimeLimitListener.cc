@@ -77,21 +77,21 @@ void TimeLimitListener::onPostExecute() {
 
 executor::ExecuteAction TimeLimitListener::verifyTimeUsage() {
     if (rTimelimitUs_ != 0 && getRealTimeUsage() > rTimelimitUs_) {
-        outputBuilder_->setKillReason("real time limit exceeded");
+        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::TLE, "real time limit exceeded");
         return executor::ExecuteAction::KILL;
     }
     if (uTimelimitUs_ != 0 || sTimelimitUs_ != 0 || usTimelimitUs_ != 0) {
         ProcessTimeUsage ptu = getProcessTimeUsage();
         if (uTimelimitUs_ != 0 && ptu.uTimeUs > uTimelimitUs_) {
-            outputBuilder_->setKillReason("user time limit exceeded");
+            outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::TLE, "user time limit exceeded");
             return executor::ExecuteAction::KILL;
         }
         if (sTimelimitUs_ != 0 && ptu.sTimeUs > sTimelimitUs_) {
-            outputBuilder_->setKillReason("system time limit exceeded");
+            outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::TLE, "system time limit exceeded");
             return executor::ExecuteAction::KILL;
         }
         if (usTimelimitUs_ != 0 && ptu.uTimeUs + ptu.sTimeUs > usTimelimitUs_) {
-            outputBuilder_->setKillReason("user+system time limit exceeded");
+            outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::TLE, "user+system time limit exceeded");
             return executor::ExecuteAction::KILL;
         }
     }

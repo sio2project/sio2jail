@@ -46,7 +46,7 @@ executor::ExecuteAction OutputLimitListener::onExecuteEvent(const executor::Exec
 
     if (outputLimitB_ > 0 && executeEvent.signal == SIGXFSZ) {
         logger::info("Tracee got SIGXFSZ, assuming output limit exceeded");
-        outputBuilder_->setKillReason("output limit exceeded");
+        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::OLE, "output limit exceeded");
         return executor::ExecuteAction::KILL;
     }
 

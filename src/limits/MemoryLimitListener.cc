@@ -46,7 +46,7 @@ MemoryLimitListener::MemoryLimitListener(uint64_t memoryLimitKb)
                             logger::debug("Memory usage after mmap ", VAR(memoryUsage), ", ", VAR(memoryPeakKb_));
 
                             if (memoryUsage > memoryLimitKb_) {
-                                outputBuilder_->setKillReason("memory limit exceeded");
+                                outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::MLE, "memory limit exceeded");
                                 logger::debug("Limit ", VAR(memoryLimitKb_), " exceeded, killing tracee");
                                 return tracer::TraceAction::KILL;
                             }
@@ -91,7 +91,7 @@ executor::ExecuteAction MemoryLimitListener::onExecuteEvent(const executor::Exec
 
     outputBuilder_->setMemoryPeak(memoryPeakKb_);
     if (memoryLimitKb_ > 0 && memoryPeakKb_ > memoryLimitKb_) {
-        outputBuilder_->setKillReason("memory limit exceeded");
+        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::MLE, "memory limit exceeded");
         logger::debug("Limit ", VAR(memoryLimitKb_), " exceeded, killing tracee");
         return executor::ExecuteAction::KILL;
     }
