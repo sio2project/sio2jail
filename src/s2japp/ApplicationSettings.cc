@@ -129,15 +129,15 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 
         TCLAP::SwitchArg argShowStderr("s", "stderr", "Pass stderr to console", cmd, false);
 
-        TCLAP::ValueArg<args::AmountArgument> argInstructionCountLimit("", "instruction-count-limit", "Instruction count limit. Use with k,m,g sufixes for 10**{3,6,9} respectively. 0 for no limit", false, args::AmountArgument(), "amount specifier", cmd);
+        TCLAP::ValueArg<args::AmountArgument> argInstructionCountLimit("", "instruction-count-limit", "Instruction count limit. Use with k,m,g sufixes for 10**{3,6,9} respectively. Use 0 for no limit", false, args::AmountArgument(), "amount specifier", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argRtimelimit("", "rtimelimit", "Real time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defualts to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argRtimelimit("", "rtimelimit", "Real time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argUtimelimit("", "utimelimit", "User time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defualts to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argUtimelimit("", "utimelimit", "User time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argStimelimit("", "stimelimit", "System time. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defualts to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argStimelimit("", "stimelimit", "System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argUStimelimit("", "ustimelimit", "User+System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defualts to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argUStimelimit("", "ustimelimit", "User+System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
 
         TCLAP::MultiArg<std::string> argBindMounts("b", "bind", "Bind mount path:path_inside_jail[:(rw|ro)]", false, "string", cmd);
 
