@@ -25,8 +25,8 @@ which you can install (e.g. on Debian) with:
 
 You may need to run
 
-  sysctl -w kernel.perf\_event\_paranoid=-1
-  sysctl -w kernel.unprivileged\_userns\_clone=1
+    sysctl -w kernel.perf_event_paranoid=-1
+    sysctl -w kernel.unprivileged_userns_clone=1
 
 or to enable these options in your /etc/sysctl.conf in order
 to run sio2jail.
