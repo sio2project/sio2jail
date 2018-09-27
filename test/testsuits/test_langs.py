@@ -33,4 +33,4 @@ class TestLanguages(unittest.TestCase):
 
     def test_python3(self):
         self.perform(self.PYTHON3_PROGRAM_PATH, box='python3',
-                     extra_options=['-b', '/dev/urandom:/dev/urandom:ro'])
+                     extra_options=['-b', '/dev/urandom:/dev/urandom:ro,dev'])
