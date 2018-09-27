@@ -117,9 +117,13 @@ void DefaultPolicy::addMemoryManagementRules() {
 void DefaultPolicy::addSystemInformationRules() {
     allowSyscalls({
             "getuid",
+            "getuid32",
             "getgid",
+            "getgid32",
             "geteuid",
+            "geteuid32",
             "getegid",
+            "getegid32",
             "getrlimit",
             "ugetrlimit",
             "getcpu",
