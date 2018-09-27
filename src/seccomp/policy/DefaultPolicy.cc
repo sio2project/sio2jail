@@ -128,6 +128,7 @@ void DefaultPolicy::addSystemInformationRules() {
             "ugetrlimit",
             "getcpu",
             "gettid",
+            "getcwd",
             "uname",
             "olduname",
             "oldolduname",
