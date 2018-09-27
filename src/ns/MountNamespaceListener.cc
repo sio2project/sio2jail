@@ -30,14 +30,16 @@ const std::string MountNamespaceListener::newExecutablePath = "/exe";
 const Feature MountNamespaceListener::feature = Feature::MOUNT_NAMESPACE;
 
 MountNamespaceListener::MountNamespaceListener(const Settings& settings, const std::string& executablePath, const bool mountProc)
-    : newRoot_(createTemporaryDirectory()), executablePath_(executablePath), bindMounts_(settings.bindMounts), mountProc_(mountProc), bindExecutable_(settings.bindExecutable) {
+    : executablePath_(executablePath), bindMounts_(settings.bindMounts), mountProc_(mountProc), bindExecutable_(settings.bindExecutable) {
     if (bindExecutable_) {
         bindMounts_.emplace_back(BindMount(executablePath_, newExecutablePath, BindMount::Mode::RO));
     }
 
-    if (bindMounts_.front().targetPath != "/") {
+    if (bindMounts_.empty() || bindMounts_.front().targetPath != "/") {
         throw Exception("Invalid configration, first bind mount must be root bind mount if namespace listener is used");
     }
+    newRoot_ = std::move(bindMounts_.front());
+    bindMounts_.erase(bindMounts_.begin());
 }
 
 void MountNamespaceListener::onPostForkChild() {
@@ -48,14 +50,15 @@ void MountNamespaceListener::onPostForkChild() {
     // make-private on everything
     withErrnoCheck("mount make-private", mount, "none", "/", nullptr, MS_PRIVATE|MS_REC, nullptr);
 
+    const std::string& newRootPath = newRoot_.sourcePath;
     // bind-mount newRoot
-    withErrnoCheck("mount bind " + newRoot_, mount, newRoot_.c_str(), newRoot_.c_str(), "", MS_BIND, nullptr);
+    withErrnoCheck("mount bind " + newRootPath, mount, newRootPath.c_str(), newRootPath.c_str(), "", MS_BIND, nullptr);
     for (auto& bindMount: bindMounts_) {
-        bindMount.mount(newRoot_);
+        bindMount.mount(newRootPath);
     }
 
     // cd to newRoot
-    withErrnoCheck("chdir " + newRoot_, chdir, newRoot_.c_str());
+    withErrnoCheck("chdir " + newRootPath, chdir, newRootPath.c_str());
 
     // move to new root, and put old root on top
     pivot_root(".", ".");
@@ -82,18 +85,14 @@ void MountNamespaceListener::onPostForkChild() {
     // now detach the old root
     // NOTE: this needs to be done AFTER new proc is already mounted, unless we don't want proc at all
     withErrnoCheck("umount detach old root", umount2, "/", MNT_DETACH);
-    withErrnoCheck("remount root rdolny", mount, "none", "/", nullptr, MS_REMOUNT|MS_BIND|MS_RDONLY|MS_NODEV|MS_NOSUID, nullptr);
+    withErrnoCheck("remount root rdolny", mount, "none", "/", nullptr, MS_REMOUNT|MS_BIND| newRoot_.flags(), nullptr);
 }
 
 void MountNamespaceListener::onPostExecute() {
     TRACE();
-
-    withErrnoCheck("rmdir " + newRoot_, rmdir, newRoot_.c_str());
 }
 
-void MountNamespaceListener::BindMount::mount(const std::string& root) {
-    TRACE(root);
-
+uint32_t MountNamespaceListener::BindMount::flags() const {
     uint32_t flags = MS_NOSUID;
     if (mode == Mode::RO) {
         flags |= MS_RDONLY;
@@ -101,12 +100,18 @@ void MountNamespaceListener::BindMount::mount(const std::string& root) {
     if (!dev) {
         flags |= MS_NODEV;
     }
+    return flags;
+}
+
+void MountNamespaceListener::BindMount::mount(const std::string& root) {
+    TRACE(root);
+
     // NOTE: On bind mount, any flags other than MS_BIND and MS_REC are ignored by the kernel
     withErrnoCheck("bind mount " + sourcePath + " -> " + targetPath,
                    ::mount, sourcePath.c_str(), (root + "/" + targetPath).c_str(), "", MS_BIND, nullptr);
     // remount to apply flags
     withErrnoCheck("bind remount " + targetPath,
-                   ::mount, "none", (root + "/" + targetPath).c_str(), nullptr, MS_REMOUNT | MS_BIND | flags, nullptr);
+                   ::mount, "none", (root + "/" + targetPath).c_str(), nullptr, MS_REMOUNT | MS_BIND | flags(), nullptr);
 }
 
 void MountNamespaceListener::BindMount::umount(const std::string& root) {

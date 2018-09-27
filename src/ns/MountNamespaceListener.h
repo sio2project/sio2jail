@@ -29,9 +29,12 @@ public:
             RO, RW
         };
 
+        BindMount() {}
+
         BindMount(const std::string& sourcePath, const std::string& targetPath, Mode mode)
             : sourcePath(sourcePath), targetPath(targetPath), mode(mode) {}
 
+        uint32_t flags() const;
         void mount(const std::string& root);
         void umount(const std::string& root);
 
@@ -54,7 +57,7 @@ public:
     static const Feature feature;
 
 private:
-    std::string newRoot_;
+    BindMount newRoot_;
     std::string executablePath_;
     std::vector<BindMount> bindMounts_;
     bool mountProc_;
