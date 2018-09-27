@@ -209,6 +209,17 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
                 action::ActionAllow(),
                 filter::SyscallArg(0) >= 3));
 
+    for (const auto& syscall: {
+            "statfs",
+            "statfs64",
+            "fstatfs",
+            "fstatfs64",
+            }) {
+        rules_.emplace_back(SeccompRule(
+                    syscall,
+                    action::ActionErrno(ENOSYS)));
+    }
+
     if (readOnly) {
         rules_.emplace_back(SeccompRule(
                     "open",
