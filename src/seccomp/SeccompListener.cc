@@ -21,8 +21,10 @@ const Feature SeccompListener::feature = Feature::SECCOMP;
 const uint32_t SeccompListener::TRACE_EVENT_ID_BASE = 0;
 
 SeccompListener::SeccompListener()
-    : basePolicy_(std::make_unique<policy::DefaultPolicy>())
-    , lastSyscallArch_(tracer::Arch::X86) {}
+    : SeccompListener(std::make_shared<policy::DefaultPolicy>()) {}
+
+SeccompListener::SeccompListener(std::shared_ptr<policy::BaseSyscallPolicy> basePolicy)
+    : basePolicy_(basePolicy), lastSyscallArch_(tracer::Arch::X86) {}
 
 void SeccompListener::onPreFork() {
     TRACE();
@@ -114,13 +116,12 @@ tracer::TraceAction SeccompListener::onTraceEvent(const tracer::TraceEvent& trac
 
     logger::debug("Detected syscall architecture ", to_string(lastSyscallArch_), " from ", VAR(traceEventMsg), " for ", syscallName);
 
+    std::shared_ptr<action::SeccompAction> seccompAction = nullptr;
     if (traceEventMsg == 0) {
         logger::debug("Default syscall filter action after syscall ", syscallName);
-        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::RV, "intercepted forbidden syscall " + syscallName);
-        return tracer::TraceAction::KILL;
+        seccompAction = basePolicy_->getDefaultAction();
     }
 
-    std::shared_ptr<action::SeccompAction> seccompAction = nullptr;
     auto ruleSetIter = rulesById_.find(traceEventMsg >> SeccompContext::SECCOMP_TRACE_MSG_NUM_SHIFT);
     if (ruleSetIter != rulesById_.end()) {
         for (auto& rule: ruleSetIter->second->second) {
@@ -134,7 +135,11 @@ tracer::TraceAction SeccompListener::onTraceEvent(const tracer::TraceEvent& trac
     assert(seccompAction != nullptr, "trace triggered rule is handled by some rule");
 
     logger::debug("Returning with action " + to_string(seccompAction->getType()));
-    return seccompAction->execute(tracee);
+    tracer::TraceAction traceAction = seccompAction->execute(tracee);
+    if (traceAction == tracer::TraceAction::KILL) {
+        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::RV, "intercepted forbidden syscall " + syscallName);
+    }
+    return traceAction;
 }
 
 void SeccompListener::addPolicy(const policy::SyscallPolicy& policy) {

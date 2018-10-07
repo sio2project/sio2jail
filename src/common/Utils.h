@@ -1,9 +1,21 @@
 #pragma once
 
+#include <functional>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace s2j {
+
+/**
+ * Common typedefs for factories and their maps
+ */
+template<typename InterfaceType>
+using Factory = std::function<std::shared_ptr<InterfaceType>()>;
+
+template<typename InterfaceType>
+using FactoryMap = std::map<std::string, Factory<InterfaceType>>;
 
 /**
  * Creates a c-style string and returns pointer it. Caller is responsible for
