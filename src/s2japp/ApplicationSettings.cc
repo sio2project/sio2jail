@@ -124,22 +124,42 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         std::vector<std::string> outputFormats = OUTPUT_FORMATS_NAMES; TCLAP::ValuesConstraint<std::string> outputFormatsConstraint(outputFormats);
         TCLAP::ValueArg<std::string> argOutputFormat("o", "output", "Output format", false, "oitt", &outputFormatsConstraint, cmd);
 
-        TCLAP::ValueArg<args::MemoryArgument> argMemoryLimit("m", "memory-limit", "Memory limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. Default is kilobytes. Use 0 for no limit.", false, args::MemoryArgument(), "string", cmd);
+        TCLAP::ValueArg<args::MemoryArgument> argMemoryLimit("m", "memory-limit",
+                "Memory limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. "
+                "Default is kilobytes. Use 0 for no limit.",
+                false, args::MemoryArgument(), "string", cmd);
 
-        TCLAP::ValueArg<args::MemoryArgument> argOutputLimit("", "output-limit", "Output file size limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. Default is kilobytes. Use 0 for no limit.", false, args::MemoryArgument(), "string", cmd);
+        TCLAP::ValueArg<args::MemoryArgument> argOutputLimit("", "output-limit",
+                "Output file size limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. "
+                "Default is kilobytes. Use 0 for no limit.",
+                false, args::MemoryArgument(), "string", cmd);
 
         TCLAP::SwitchArg argShowStderr("s", "stderr", "Pass stderr to console", cmd, false);
         TCLAP::ValueArg<int> argResultsFD("f", "resultsfd", "File descriptor to write results to", false, 2 /* stderr */, "fd", cmd);
 
-        TCLAP::ValueArg<args::AmountArgument> argInstructionCountLimit("", "instruction-count-limit", "Instruction count limit. Use with k,m,g sufixes for 10**{3,6,9} respectively. Use 0 for no limit", false, args::AmountArgument(), "amount specifier", cmd);
+        TCLAP::ValueArg<args::AmountArgument> argInstructionCountLimit("", "instruction-count-limit",
+                "Instruction count limit. Use with k,m,g sufixes for 10**{3,6,9} respectively. Use 0 for no limit",
+                false, args::AmountArgument(), "amount specifier", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argRtimelimit("", "rtimelimit", "Real time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argRtimelimit("", "rtimelimit",
+                "Real time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, "
+                "hours and days respectively. Defaults to microseconds. Use 0 for no limit",
+                false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argUtimelimit("", "utimelimit", "User time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argUtimelimit("", "utimelimit",
+                "User time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, "
+                "hours and days respectively. Defaults to microseconds. Use 0 for no limit",
+                false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argStimelimit("", "stimelimit", "System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argStimelimit("", "stimelimit",
+                "System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, "
+                "hours and days respectively. Defaults to microseconds. Use 0 for no limit",
+                false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argUStimelimit("", "ustimelimit", "User+System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argUStimelimit("", "ustimelimit",
+                "User+System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, "
+                "minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit",
+                false, args::TimeArgument(), "time limit", cmd);
 
         TCLAP::MultiArg<std::string> argBindMounts("b", "bind", "Bind mount path:path_inside_jail[:(rw|ro)]", false, "string", cmd);
 
@@ -149,7 +169,6 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 
         TCLAP::UnlabeledValueArg<std::string> argProgramName("path", "Name of program to run", true, "", "path", cmd);
         TCLAP::UnlabeledMultiArg<std::string> argProgramArgv("argv", "Arguments of supervised program", false, "argv", cmd);
-
 
 
         cmd.parse(argc, argv);
