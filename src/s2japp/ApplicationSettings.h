@@ -2,6 +2,7 @@
 
 #include "common/Feature.h"
 #include "printer/OutputBuilder.h"
+#include "seccomp/policy/SyscallPolicy.h"
 #include "ns/MountNamespaceListener.h"
 
 #include "common/Utils.h"
@@ -28,6 +29,8 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     static const std::string DESCRIPTION;
     static const FactoryMap<s2j::printer::OutputBuilder> OUTPUT_FORMATS;
     static const std::string DEFAULT_OUTPUT_FORMAT;
+    static const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy> SYSCALL_POLICIES;
+    static const std::string DEFAULT_SYSCALL_POLICY;
     static const std::map<std::string, std::pair<Feature, bool>> FEATURE_BY_NAME;
 
     Action action;
@@ -52,6 +55,7 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     std::vector<std::string> programArgv;
 
     Factory<s2j::printer::OutputBuilder> outputBuilderFactory;
+    Factory<s2j::seccomp::policy::BaseSyscallPolicy> syscallPolicyFactory;
     std::set<Feature> features;
 
     bool suppressStderr;

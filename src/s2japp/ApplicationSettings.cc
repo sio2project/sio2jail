@@ -4,6 +4,8 @@
 
 #include "printer/OITimeToolOutputBuilder.h"
 #include "printer/AugmentedOIOutputBuilder.h"
+#include "seccomp/policy/DefaultPolicy.h"
+#include "seccomp/policy/PermissivePolicy.h"
 #include "common/Utils.h"
 
 #include <seccomp.h>
@@ -89,6 +91,12 @@ const FactoryMap<s2j::printer::OutputBuilder> ApplicationSettings::OUTPUT_FORMAT
         });
 const std::string ApplicationSettings::DEFAULT_OUTPUT_FORMAT = "oitt";
 
+const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy> ApplicationSettings::SYSCALL_POLICIES({
+        {"default", std::make_shared<s2j::seccomp::policy::DefaultPolicy>},
+        {"permissive", std::make_shared<s2j::seccomp::policy::PermissivePolicy>}
+        });
+const std::string ApplicationSettings::DEFAULT_SYSCALL_POLICY = "default";
+
 const std::map<std::string, std::pair<Feature, bool>> ApplicationSettings::FEATURE_BY_NAME({
         {"ptrace",          {Feature::PTRACE, true}},
         {"perf",            {Feature::PERF, true}},
@@ -107,7 +115,8 @@ const std::vector<std::string> ApplicationSettings::FLAGS_OFF({"off", "no", "0"}
 
 ApplicationSettings::ApplicationSettings()
     : action(Action::PRINT_HELP)
-    , outputBuilderFactory([](){ return nullptr; }) {}
+    , outputBuilderFactory([](){ return nullptr; })
+    , syscallPolicyFactory([](){ return nullptr; }) {}
 
 ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
     : ApplicationSettings() { StringOutputGenerator outputGenerator(*this);
@@ -127,6 +136,9 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 
         args::ImplementationNameArgument<s2j::printer::OutputBuilder> outputFormat("output format", DEFAULT_OUTPUT_FORMAT, OUTPUT_FORMATS);
         TCLAP::ValueArg<decltype(outputFormat)> argOutputFormat("o", "output", "Output format", false, outputFormat, &outputFormat, cmd);
+
+        args::ImplementationNameArgument<s2j::seccomp::policy::BaseSyscallPolicy> syscallPolicy("syscall policy", DEFAULT_SYSCALL_POLICY, SYSCALL_POLICIES);
+        TCLAP::ValueArg<decltype(syscallPolicy)> argSyscallPolicy("p", "policy", "Syscall policy", false, syscallPolicy, &syscallPolicy, cmd);
 
         TCLAP::ValueArg<args::MemoryArgument> argMemoryLimit("m", "memory-limit",
                 "Memory limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. "
@@ -204,6 +216,7 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         programArgv = argProgramArgv.getValue();
 
         outputBuilderFactory = argOutputFormat.getValue().getFactory();
+        syscallPolicyFactory = argSyscallPolicy.getValue().getFactory();
 
         loggerPath = argLoggerPath.getValue();
 
