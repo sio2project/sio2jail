@@ -89,7 +89,7 @@ Application::ExitCode Application::handleRun() {
         throw InvalidConfigurationException("invalid results file descriptor");
 
     // Some listeners can return output
-    auto outputBuilder = settings_.createOutputBuilder();
+    auto outputBuilder = settings_.outputBuilderFactory();
     forEachListener<s2j::printer::OutputSource>(
             [outputBuilder](auto listener) { listener->setOutputBuilder(outputBuilder); },
             executor, traceExecutor, perfListener, seccompListener, memoryLimitListener, outputLimitListener, timeLimitListener);
