@@ -2,6 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 INCLUDE(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 INCLUDE(external/libseccomp.cmake)
+INCLUDE(external/scdoc.cmake)
 
 SET(CMAKE_C_FLAGS "-std=gnu99 -Wall -static")
 SET(CMAKE_C_FLAGS_DEBUG "-g -pedantic")
