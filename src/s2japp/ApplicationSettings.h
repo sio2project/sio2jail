@@ -2,11 +2,13 @@
 
 #include "common/Feature.h"
 #include "printer/OutputBuilder.h"
+#include "seccomp/policy/SyscallPolicy.h"
 #include "ns/MountNamespaceListener.h"
+
+#include "common/Utils.h"
 
 #include <string>
 #include <vector>
-#include <memory>
 #include <set>
 #include <map>
 
@@ -23,11 +25,12 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     ApplicationSettings();
     ApplicationSettings(int argc, const char* argv[]);
 
-    std::shared_ptr<s2j::printer::OutputBuilder> createOutputBuilder() const;
-
     static const std::string VERSION;
     static const std::string DESCRIPTION;
-    static const std::vector<std::string> OUTPUT_FORMATS_NAMES;
+    static const FactoryMap<s2j::printer::OutputBuilder> OUTPUT_FORMATS;
+    static const std::string DEFAULT_OUTPUT_FORMAT;
+    static const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy> SYSCALL_POLICIES;
+    static const std::string DEFAULT_SYSCALL_POLICY;
     static const std::map<std::string, std::pair<Feature, bool>> FEATURE_BY_NAME;
 
     Action action;
@@ -51,7 +54,8 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     std::string programName;
     std::vector<std::string> programArgv;
 
-    std::string outputFormatName;
+    Factory<s2j::printer::OutputBuilder> outputBuilderFactory;
+    Factory<s2j::seccomp::policy::BaseSyscallPolicy> syscallPolicyFactory;
     std::set<Feature> features;
 
     bool suppressStderr;

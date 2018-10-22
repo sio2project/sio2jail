@@ -28,6 +28,7 @@ public:
     using syscall_t = int;
 
     SeccompListener();
+    SeccompListener(std::shared_ptr<policy::BaseSyscallPolicy> basePolicy);
 
     /* Create seccomp context and build syscall filter. */
     void onPreFork() override;
@@ -58,7 +59,7 @@ private:
 
     std::unique_ptr<SeccompContext> context_;
 
-    std::unique_ptr<policy::DefaultPolicy> basePolicy_;
+    std::shared_ptr<policy::BaseSyscallPolicy> basePolicy_;
 
     std::map<syscall_t, std::vector<SeccompRule>> rules_;
     std::map<uint16_t, decltype(rules_)::iterator> rulesById_;

@@ -74,7 +74,7 @@ Application::ExitCode Application::handleRun() {
                                                                              settings_.programName,
                                                                              settings_.features.count(Feature::MOUNT_PROCFS) > 0);
     auto privListener           = createListener<priv::PrivListener>();
-    auto seccompListener        = createListener<seccomp::SeccompListener>();
+    auto seccompListener        = createListener<seccomp::SeccompListener>(settings_.syscallPolicyFactory());
     auto memoryLimitListener    = std::make_shared<limits::MemoryLimitListener>(settings_.memoryLimitKb);
     auto outputLimitListener    = std::make_shared<limits::OutputLimitListener>(settings_.outputLimitB);
     auto timeLimitListener      = std::make_shared<limits::TimeLimitListener>(settings_.rTimelimitUs,
@@ -89,7 +89,7 @@ Application::ExitCode Application::handleRun() {
         throw InvalidConfigurationException("invalid results file descriptor");
 
     // Some listeners can return output
-    auto outputBuilder = settings_.createOutputBuilder();
+    auto outputBuilder = settings_.outputBuilderFactory();
     forEachListener<s2j::printer::OutputSource>(
             [outputBuilder](auto listener) { listener->setOutputBuilder(outputBuilder); },
             executor, traceExecutor, perfListener, seccompListener, memoryLimitListener, outputLimitListener, timeLimitListener);

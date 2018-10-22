@@ -11,7 +11,8 @@ namespace s2j {
 namespace seccomp {
 namespace policy {
 
-DefaultPolicy::DefaultPolicy() {
+DefaultPolicy::DefaultPolicy()
+    : BaseSyscallPolicy(std::make_shared<action::ActionKill>()) {
     addExecutionControlRules();
     addMemoryManagementRules();
     addSystemInformationRules();

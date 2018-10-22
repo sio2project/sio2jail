@@ -4,6 +4,8 @@
 
 #include "printer/OITimeToolOutputBuilder.h"
 #include "printer/AugmentedOIOutputBuilder.h"
+#include "seccomp/policy/DefaultPolicy.h"
+#include "seccomp/policy/PermissivePolicy.h"
 #include "common/Utils.h"
 
 #include <seccomp.h>
@@ -83,7 +85,17 @@ const std::string ApplicationSettings::VERSION = "1.1.0";
 
 const std::string ApplicationSettings::DESCRIPTION = "SIO2jail, a sandbox for programming contests.";
 
-const std::vector<std::string> ApplicationSettings::OUTPUT_FORMATS_NAMES({"oitt", "oiaug"});
+const FactoryMap<s2j::printer::OutputBuilder> ApplicationSettings::OUTPUT_FORMATS({
+        {"oitt", std::make_shared<s2j::printer::OITimeToolOutputBuilder>},
+        {"oiaug", std::make_shared<s2j::printer::AugmentedOIOutputBuilder>}
+        });
+const std::string ApplicationSettings::DEFAULT_OUTPUT_FORMAT = "oitt";
+
+const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy> ApplicationSettings::SYSCALL_POLICIES({
+        {"default", std::make_shared<s2j::seccomp::policy::DefaultPolicy>},
+        {"permissive", std::make_shared<s2j::seccomp::policy::PermissivePolicy>}
+        });
+const std::string ApplicationSettings::DEFAULT_SYSCALL_POLICY = "default";
 
 const std::map<std::string, std::pair<Feature, bool>> ApplicationSettings::FEATURE_BY_NAME({
         {"ptrace",          {Feature::PTRACE, true}},
@@ -103,7 +115,8 @@ const std::vector<std::string> ApplicationSettings::FLAGS_OFF({"off", "no", "0"}
 
 ApplicationSettings::ApplicationSettings()
     : action(Action::PRINT_HELP)
-    , outputFormatName(s2j::printer::OITimeToolOutputBuilder::FORMAT_NAME) {}
+    , outputBuilderFactory([](){ return nullptr; })
+    , syscallPolicyFactory([](){ return nullptr; }) {}
 
 ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
     : ApplicationSettings() { StringOutputGenerator outputGenerator(*this);
@@ -121,25 +134,48 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
                         "", featureIter.first, "Control feature " + featureIter.first, false, (featureIter.second.second ? "on" : "off"), "on|off", cmd));
         }
 
-        std::vector<std::string> outputFormats = OUTPUT_FORMATS_NAMES; TCLAP::ValuesConstraint<std::string> outputFormatsConstraint(outputFormats);
-        TCLAP::ValueArg<std::string> argOutputFormat("o", "output", "Output format", false, "oitt", &outputFormatsConstraint, cmd);
+        args::ImplementationNameArgument<s2j::printer::OutputBuilder> outputFormat("output format", DEFAULT_OUTPUT_FORMAT, OUTPUT_FORMATS);
+        TCLAP::ValueArg<decltype(outputFormat)> argOutputFormat("o", "output", "Output format", false, outputFormat, &outputFormat, cmd);
 
-        TCLAP::ValueArg<args::MemoryArgument> argMemoryLimit("m", "memory-limit", "Memory limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. Default is kilobytes. Use 0 for no limit.", false, args::MemoryArgument(), "string", cmd);
+        args::ImplementationNameArgument<s2j::seccomp::policy::BaseSyscallPolicy> syscallPolicy("syscall policy", DEFAULT_SYSCALL_POLICY, SYSCALL_POLICIES);
+        TCLAP::ValueArg<decltype(syscallPolicy)> argSyscallPolicy("p", "policy", "Syscall policy", false, syscallPolicy, &syscallPolicy, cmd);
 
-        TCLAP::ValueArg<args::MemoryArgument> argOutputLimit("", "output-limit", "Output file size limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. Default is kilobytes. Use 0 for no limit.", false, args::MemoryArgument(), "string", cmd);
+        TCLAP::ValueArg<args::MemoryArgument> argMemoryLimit("m", "memory-limit",
+                "Memory limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. "
+                "Default is kilobytes. Use 0 for no limit.",
+                false, args::MemoryArgument(), "string", cmd);
+
+        TCLAP::ValueArg<args::MemoryArgument> argOutputLimit("", "output-limit",
+                "Output file size limit. Use with K,M,G sufixes (case-insensitive) for 1024**{1,2,3} bytes respectively. "
+                "Default is kilobytes. Use 0 for no limit.",
+                false, args::MemoryArgument(), "string", cmd);
 
         TCLAP::SwitchArg argShowStderr("s", "stderr", "Pass stderr to console", cmd, false);
         TCLAP::ValueArg<int> argResultsFD("f", "resultsfd", "File descriptor to write results to", false, 2 /* stderr */, "fd", cmd);
 
-        TCLAP::ValueArg<args::AmountArgument> argInstructionCountLimit("", "instruction-count-limit", "Instruction count limit. Use with k,m,g sufixes for 10**{3,6,9} respectively. Use 0 for no limit", false, args::AmountArgument(), "amount specifier", cmd);
+        TCLAP::ValueArg<args::AmountArgument> argInstructionCountLimit("", "instruction-count-limit",
+                "Instruction count limit. Use with k,m,g sufixes for 10**{3,6,9} respectively. Use 0 for no limit",
+                false, args::AmountArgument(), "amount specifier", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argRtimelimit("", "rtimelimit", "Real time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argRtimelimit("", "rtimelimit",
+                "Real time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, "
+                "hours and days respectively. Defaults to microseconds. Use 0 for no limit",
+                false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argUtimelimit("", "utimelimit", "User time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argUtimelimit("", "utimelimit",
+                "User time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, "
+                "hours and days respectively. Defaults to microseconds. Use 0 for no limit",
+                false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argStimelimit("", "stimelimit", "System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argStimelimit("", "stimelimit",
+                "System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, "
+                "hours and days respectively. Defaults to microseconds. Use 0 for no limit",
+                false, args::TimeArgument(), "time limit", cmd);
 
-        TCLAP::ValueArg<args::TimeArgument> argUStimelimit("", "ustimelimit", "User+System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit", false, args::TimeArgument(), "time limit", cmd);
+        TCLAP::ValueArg<args::TimeArgument> argUStimelimit("", "ustimelimit",
+                "User+System time limit. Use with u,ms,s,m,h,d sufixes (case-insensitive) for microseconds, miliseconds, seconds, "
+                "minutes, hours and days respectively. Defaults to microseconds. Use 0 for no limit",
+                false, args::TimeArgument(), "time limit", cmd);
 
         TCLAP::MultiArg<std::string> argBindMounts("b", "bind", "Bind mount path:path_inside_jail[:(rw|ro)]", false, "string", cmd);
 
@@ -149,7 +185,6 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 
         TCLAP::UnlabeledValueArg<std::string> argProgramName("path", "Name of program to run", true, "", "path", cmd);
         TCLAP::UnlabeledMultiArg<std::string> argProgramArgv("argv", "Arguments of supervised program", false, "argv", cmd);
-
 
 
         cmd.parse(argc, argv);
@@ -180,7 +215,8 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         programName = argProgramName.getValue();
         programArgv = argProgramArgv.getValue();
 
-        outputFormatName = argOutputFormat.getValue();
+        outputBuilderFactory = argOutputFormat.getValue().getFactory();
+        syscallPolicyFactory = argSyscallPolicy.getValue().getFactory();
 
         loggerPath = argLoggerPath.getValue();
 
@@ -224,14 +260,6 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
     catch (const TCLAP::ExitException& ex) {
         action = Action::PRINT_HELP;
     }
-}
-
-std::shared_ptr<s2j::printer::OutputBuilder> ApplicationSettings::createOutputBuilder() const {
-    if (outputFormatName == s2j::printer::OITimeToolOutputBuilder::FORMAT_NAME)
-        return std::make_shared<s2j::printer::OITimeToolOutputBuilder>();
-    if (outputFormatName == s2j::printer::AugmentedOIOutputBuilder::FORMAT_NAME)
-        return std::make_shared<s2j::printer::AugmentedOIOutputBuilder>();
-    return std::make_shared<s2j::printer::OutputBuilder>();
 }
 
 void ApplicationSettings::addBindMount(const std::string& bindMountLine) {

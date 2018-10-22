@@ -13,7 +13,7 @@ namespace policy {
  * Class that represents generic, tweakable (TODO) syscall
  * policy used in sio2jail
  */
-class DefaultPolicy : public SyscallPolicy {
+class DefaultPolicy : public BaseSyscallPolicy {
 public:
     DefaultPolicy();
 
