@@ -104,7 +104,16 @@ of the hardware sio2jail runs on.
 	  which the sandboxed program shouldn't be allowed to use
 	  anyway (eg. *mount*(2))
 
-	Currently, there is only one, hardcoded syscall policy.
+	To select syscall policy use *--policy*.
+
+*-p* _policy_, *--policy* _policy_
+	Select *seccomp*(2) syscall policy. Requires seccomp.
+
+	_policy_ must be one of available syscall policies:
+
+	*default* - allows a minimal set of syscalls required by static binaries
+
+	*permissive* - allows every possible syscall
 
 *--ptrace* *on*|*off*
 	Enable or disable use of *ptrace*(2). Enabled by default.
