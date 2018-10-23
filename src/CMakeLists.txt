@@ -4,5 +4,6 @@ FILE(GLOB_RECURSE sources *.cc)
 
 ADD_EXECUTABLE(sio2jail ${sources})
 TARGET_LINK_LIBRARIES(sio2jail seccomp rt pthread)
+ADD_DEPENDENCIES(sio2jail libcap)
 
 INSTALL(TARGETS sio2jail DESTINATION ${INSTALLATION_DIR})
