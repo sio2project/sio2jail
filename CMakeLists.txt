@@ -4,6 +4,7 @@ INCLUDE(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 INCLUDE(external/libseccomp.cmake)
 INCLUDE(external/scdoc.cmake)
 INCLUDE(external/libcap.cmake)
+INCLUDE(external/libtclap.cmake)
 
 SET(CMAKE_C_FLAGS "-std=gnu99 -Wall -static")
 SET(CMAKE_C_FLAGS_DEBUG "-g -pedantic")
