@@ -37,4 +37,5 @@ IF(scdoc_BINARY_PATH MATCHES NOTFOUND)
     MESSAGE(FATAL_ERROR "scdoc binary not found, run with -DSCDOC_BUILD_OWN=YES to build one from source")
 ENDIF()
 
-MESSAGE("-- Using scdoc from: ${scdoc_BINARY_PATH}")
+MESSAGE("-- Scdoc configuration:")
+MESSAGE("-- - binary: ${scdoc_BINARY_PATH}")
