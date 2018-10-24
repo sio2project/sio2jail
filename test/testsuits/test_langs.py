@@ -8,8 +8,8 @@ from base.paths import *
 class TestLanguages(unittest.TestCase):
     C_PROGRAM_PATH       = os.path.join(TEST_BIN_PATH, 'sum_c')
     CXX_PROGRAM_PATH     = os.path.join(TEST_BIN_PATH, 'sum_cxx')
-    PYTHON2_PROGRAM_PATH = os.path.join(TEST_BIN_PATH, 'sum_python2.py')
-    PYTHON3_PROGRAM_PATH = os.path.join(TEST_BIN_PATH, 'sum_python3.py')
+    PYTHON2_PROGRAM_PATH = os.path.join(SOURCE_PATH, './test/src/sum_python2.py')
+    PYTHON3_PROGRAM_PATH = os.path.join(SOURCE_PATH, './test/src/sum_python3.py')
 
     def setUp(self):
         self.sio2jail = SIO2Jail()

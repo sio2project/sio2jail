@@ -41,20 +41,9 @@ SET_TARGET_PROPERTIES(sum_c
 # Other
 ADD_EXECUTABLE(stderr-write stderr-write.c)
 
-INSTALL(TARGETS 1-sec-prog
-                1-sec-evil
-                infinite-loop
-                leak-tiny_32
-                leak-dive_32
-                leak-huge_32
-                leak-tiny_64
-                leak-dive_64
-                leak-huge_64
-                sum_c
-                sum_cxx
-                stderr-write
-        DESTINATION ${INSTALLATION_DIR}/test/)
-
-INSTALL(PROGRAMS sum_python2.py
-                 sum_python3.py
-        DESTINATION ${INSTALLATION_DIR}/test/)
+ADD_CUSTOM_TARGET(test-binaries
+    DEPENDS
+        1-sec-prog 1-sec-evil infinite-loop
+        leak-tiny_32 leak-huge_32 leak-dive_32
+        leak-tiny_64 leak-huge_64 leak-dive_64
+        sum_c sum_cxx stderr-write)
