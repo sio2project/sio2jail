@@ -26,5 +26,5 @@ ADD_CUSTOM_TARGET(boxes
     )
 
 INSTALL(FILES download_boxes.sh make_boxes.sh utils.sh
-    DESTINATION ${INSTALLATION_DIR}/boxes
+    DESTINATION "${CMAKE_INSTALL_FULL_DATADIR}/sio2jail/boxes"
     PERMISSIONS  OWNER_READ OWNER_EXECUTE)
