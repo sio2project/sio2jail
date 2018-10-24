@@ -2,16 +2,29 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 INCLUDE(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/GNUInstallDirs.cmake)
+
+IF(NOT DEFINED LINK)
+    SET(LINK "STATIC")
+ENDIF()
+IF(NOT LINK MATCHES "STATIC|DYNAMIC")
+    MESSAGE(FATAL_ERROR "LINK should be one of STATIC, DYNAMIC")
+ENDIF()
+
 INCLUDE(external/libseccomp.cmake)
 INCLUDE(external/libcap.cmake)
 INCLUDE(external/libtclap.cmake)
 
-SET(CMAKE_C_FLAGS "-std=gnu99 -Wall -static")
+SET(CMAKE_C_FLAGS "-std=gnu99 -Wall")
 SET(CMAKE_C_FLAGS_DEBUG "-g -pedantic")
 SET(CMAKE_C_FLAGS_RELEASE "-O2")
-SET(CMAKE_CXX_FLAGS "-std=gnu++14 -Wall -static")
+SET(CMAKE_CXX_FLAGS "-std=gnu++14 -Wall")
 SET(CMAKE_CXX_FLAGS_DEBUG "-g -pedantic")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+IF(LINK STREQUAL "STATIC")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
+ENDIF()
 
 EXECUTE_PROCESS(COMMAND uname -r
     OUTPUT_VARIABLE BUILD_KERNEL_RELEASE)

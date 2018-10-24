@@ -5,9 +5,14 @@ ENDIF()
 ADD_LIBRARY(seccomp STATIC IMPORTED)
 
 IF(NOT DEFINED LIBSECCOMP_BUILD_OWN OR LIBSECCOMP_BUILD_OWN STREQUAL "NO")
+    IF(LINK STREQUAL "STATIC")
+        SET(libseccomp_LIB_FILE_NAME "libseccomp.a")
+    ELSE()
+        SET(libseccomp_LIB_FILE_NAME "libseccomp.so")
+    ENDIF()
     FIND_FILE(
         libseccomp_LIB_PATH
-        NAMES libseccomp.a
+        NAMES "${libseccomp_LIB_FILE_NAME}"
         PATHS "${LIBSECCOMP_PREFIX}" "${LIBSECCOMP_PREFIX}/lib" "${LIBSECCOMP_PREFIX}/usr/lib"
         )
     FIND_PATH(
@@ -52,7 +57,11 @@ IF((NOT DEFINED LIBSECCOMP_BUILD_OWN AND (NOT EXISTS "${libseccomp_LIB_PATH}" OR
 
     ExternalProject_Get_Property(seccomp_project
         INSTALL_DIR)
-    SET(libseccomp_LIB_PATH "${INSTALL_DIR}/lib/libseccomp.a")
+    IF(LINK STREQUAL "STATIC")
+        SET(libseccomp_LIB_PATH "${INSTALL_DIR}/lib/libseccomp.a")
+    ELSE()
+        SET(libseccomp_LIB_PATH "${INSTALL_DIR}/lib/libseccomp.so")
+    ENDIF()
     SET(libseccomp_INC_PATH "${INSTALL_DIR}/include")
 
     ADD_DEPENDENCIES(seccomp seccomp_project)

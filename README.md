@@ -46,6 +46,11 @@ and wheather to install boxes scripts (NO by default):
 
     -DWITH_BOXES=YES|NO
 
+To control wheather sio2jail binary is statically or dinamically linked use
+option (STATIC by default):
+
+    -DLINK=STATIC|DYNAMIC
+
 For example, to skip man pages, use libtclap from /opt/tclap directory and
 ignore system libseccomp run:
 
