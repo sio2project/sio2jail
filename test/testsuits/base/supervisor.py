@@ -21,6 +21,7 @@ class Supervisor(object):
 
         options = extra_options + [program]
 
+        print "running:\n{}\n".format(" ".join([self.SUPERVISOR_BIN] + options))
         process = subprocess.Popen([self.SUPERVISOR_BIN] + options,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
@@ -30,6 +31,7 @@ class Supervisor(object):
         if process.poll() is None:
             process.kill()
             process.poll()
+        print "result: {}\n\nstdout:\n{}\nstderr:\n{}\n".format(process.poll(), stdout.strip(), stderr.strip())
 
         result = self.Result()
         self.parse_results(result, stdout, stderr)
@@ -43,7 +45,7 @@ class Supervisor(object):
 
 
 class SIO2Jail(Supervisor):
-    SUPERVISOR_BIN = os.path.join(BIN_PATH, 'sio2jail')
+    SUPERVISOR_BIN = SIO2JAIL_BIN_PATH
     MINIMAL_BOX_PATH = os.path.join(BOXES_PATH, './minimal/')
 
     def run(self, program, box=None, memory=None, stdin=None, extra_options=None):
@@ -67,10 +69,3 @@ class SIO2Jail(Supervisor):
         result.return_code = int(lines[-2].split()[1])
         result.memory = int(lines[-2].split()[4])
         result.time = int(lines[-2].split()[2]) / 1000.0
-
-class Oitimetool(Supervisor):
-    SUPERVISOR_BIN = os.path.join(OITIMETOOL_BIN_PATH, 'oitimetool')
-
-    def parse_results(self, result, stdout, stderr):
-        lines = [s.strip() for s in stderr.split('\n') if len(s.strip()) > 0]
-        result.time = float(lines[-1].strip('s'))
