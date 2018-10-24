@@ -5,23 +5,54 @@ sio2jail
 building
 --------
 
-You need a CMake, a C/C++ compiler with multilib support, python2 and a
-number of libraries (see below). To build sio2jail and install binary
-files into ./bin/ directory run:
+You need a CMake, a C/C++ compiler with multilib support and python2. Any
+external libraries sio2jail use (see below) can be either installed
+system-wide, or downloaded and built during the process. To build sio2jail and
+install files to ~/local directory run:
 
     mkdir build && cd build
     
-    cmake -DCMAKE_BUILD_TYPE=Release ..
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/local ..
     make && make install
 
-Our sio2jail uses some external libraries:
+Our sio2jail uses some external libraries and programs:
   * libcap
   * libseccomp (>= 2.3.0)
   * libtclap
+  * scdoc (for generating man pages)
 
-which you can install (e.g. on Debian) with:
+some of which you can install (e.g. on Debian) with:
 
     apt-get install libcap-dev libtclap-dev libseccomp-dev
+
+By default sio2jail searches for this libraries in system paths and in case they
+aren't found their sources are downloaded and libraries are built in working
+directory. You can tune this behaviour with cmake options:
+
+    -D<DEPENDENCY>_PREFIX=<PATH>
+    -D<DEPENDENCY>_BUILD_OWN=YES|NO
+
+where DEPENDENCY is one of
+  * LIBCAP
+  * LIBSECCOMP
+  * LIBTCLAP
+  * SCDOC
+
+You can also control wheather to generate man pages with option (YES by default):
+
+    -DWITH_DOCS=YES|NO
+
+and wheather to install boxes scripts (NO by default):
+
+    -DWITH_BOXES=YES|NO
+
+For example, to skip man pages, use libtclap from /opt/tclap directory and
+ignore system libseccomp run:
+
+    cmake -DWITH_DOCS=NO -DLIBTCLAP_PREFIX=/opt/tclap -DLIBSECCOMP_BUILD_OWN=YES ..
+
+running
+-------
 
 You may need to run
 
@@ -34,9 +65,6 @@ to run sio2jail.
 running tests
 -------------
 
-To run test suit, firstly build project and install files into ./bin/
-directory. Then then run `main.py` executable, e.g:
+To run test suit use 'check' target, e.g in build directory run:
 
-    ./test/testsuits/main.py
-
-Remember that many tests will work only on 3.\* kernels versions.
+    make check
