@@ -20,7 +20,7 @@ IF(NOT DEFINED LIBSECCOMP_BUILD_OWN OR LIBSECCOMP_BUILD_OWN STREQUAL "NO")
         bash -c "
             exe=`mktemp`
             echo -e '#include<stdio.h>\n#include<seccomp.h>\nint main(){printf(\"%d.%d\",SCMP_VER_MAJOR,SCMP_VER_MINOR);}' \
-                | gcc -I ${libseccomp_INC_PATH} -xc /dev/stdin -o $exe && $exe
+                | gcc -I ${libseccomp_INC_PATH} -xc /dev/stdin -o $exe >/dev/null 2>&1 && $exe
             rc=$?
             rm -f $exe
             exit $rc"
