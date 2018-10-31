@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 int foo(long unsigned int* used) {
-    if (*used >= 2ULL * 1024 * 1024 * 1024)
+    if (*used >= 64UL * 1024 * 1024)
         return 0;
 
     *used += sizeof(int) * 1024;
