@@ -56,7 +56,7 @@ class SIO2Jail(Supervisor):
         else:
             box = os.path.join(BOXES_PATH, box)
 
-        extra_options = ['-b', box + ':/:ro'] + extra_options
+        extra_options = ['-b', box + ':/:ro', '-o', 'oiaug'] + extra_options
 
         if memory is not None:
             extra_options.extend(['-m', str(memory)])
@@ -66,6 +66,7 @@ class SIO2Jail(Supervisor):
     def parse_results(self, result, stdout, stderr):
         lines = [s.strip() for s in stderr.split('\n') if len(s.strip()) > 0]
         result.message = lines[-1]
+        result.status = lines[-2].split()[0]
         result.return_code = int(lines[-2].split()[1])
         result.memory = int(lines[-2].split()[4])
         result.time = int(lines[-2].split()[2]) / 1000.0

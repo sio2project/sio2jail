@@ -14,4 +14,4 @@ class TestPolicy(unittest.TestCase):
     def test_1_sec_program(self):
         result = self.sio2jail.run(self.EVIL_PROGRAM_PATH)
         self.assertIn('forbidden syscall', result.message)
-        self.assertIn(result.return_code, [121])
+        self.assertEqual('RV', result.status)
