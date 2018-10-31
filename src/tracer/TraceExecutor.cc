@@ -48,6 +48,7 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(const executor::ExecuteEve
     Tracee tracee(traceePid_);
 
     if (!hasExecved_ && executeEvent.trapped && executeEvent.signal == (SIGTRAP | (PTRACE_EVENT_EXEC << 8))) {
+        logger::debug("Process has started");
         hasExecved_ = true;
         for (auto& listener: eventListeners_)
             listener->onPostExec(event);

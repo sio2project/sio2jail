@@ -83,8 +83,16 @@ void MemoryLimitListener::onPostExec(const tracer::TraceEvent& /* traceEvent */)
 executor::ExecuteAction MemoryLimitListener::onExecuteEvent(const executor::ExecuteEvent& executeEvent) {
     TRACE();
 
-    if (!vmPeakValid_)
+    if (!vmPeakValid_) {
+        // This case happens when process has bigger .bss section than ulimit virtual memory limit.
+        // It gets killed by SIGSEGV before PTRACE_EVENT_EXEC, and values in procfs aren't bigger than limit.
+        if ((executeEvent.killed || executeEvent.trapped) && executeEvent.signal == SIGSEGV) {
+            logger::debug("Process has been killed by SIGSEGV before exec event, assuming memory limit exceeded");
+            outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::MLE,
+                    "process exited due to signal 11 before exec event, assuming memory limit exceeded");
+        }
         return executor::ExecuteAction::CONTINUE;
+    }
 
     memoryPeakKb_ = std::max(memoryPeakKb_, getMemoryPeakKb());
     logger::debug("Read new memory peak ", VAR(memoryPeakKb_));
