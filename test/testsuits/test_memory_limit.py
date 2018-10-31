@@ -42,7 +42,7 @@ class TestMemoryLimit(unittest.TestCase):
         self.assertEqual(result.supervisor_return_code, 0)
         if expect_mle:
             self.assertGreater(result.memory, memory_limit)
-            self.assertEqual('memory limit exceeded', result.message)
+            self.assertEqual('MLE', result.status)
         else:
             self.assertAlmostEqual(result.memory, expected_memory,
                     delta=memory_delta)
