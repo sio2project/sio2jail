@@ -10,7 +10,7 @@ class MemoryLimitExceededMeta(type):
         def create_mle_test(program):
             def test(self):
                 self._run_memory_test(program, 16 * self.MB, expect_mle=True)
-                self._run_memory_test(program, self.GB, expect_mle=True)
+                self._run_memory_test(program, 64 * self.MB, expect_mle=True)
             return test
 
         test_cases = [

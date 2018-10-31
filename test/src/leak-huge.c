@@ -14,7 +14,7 @@ int main() {
             break;
 
         res += tmp[128 * 1024 * 1024 / sizeof(int) - 1];
-    } while (used < 2ULL * 1024 * 1024 * 1024);
+    } while (used < 64UL * 1024 * 1024);
 
     printf("FAIL used %lumb\n", used / 1024 / 1024, res);
     return 0;
