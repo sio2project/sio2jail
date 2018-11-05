@@ -14,6 +14,8 @@ class MemoryLimitExceededMeta(type):
                         check_memory=check_memory)
                 self._run_memory_test(program, 64 * self.MB, expect_mle=True,
                         check_memory=check_memory)
+                self._run_memory_test(program, 96 * self.MB, expect_mle=False,
+                        expected_memory=66 * self.MB, memory_delta=2 * self.MB)
             return test
 
         test_cases = [
@@ -50,7 +52,7 @@ class TestMemoryLimit(unittest.TestCase):
         else:
             self.assertAlmostEqual(result.memory, expected_memory,
                     delta=memory_delta)
-            self.assertEqual('ok', result.message)
+            self.assertEqual('OK', result.status)
 
     def test_memory_result(self):
         self._run_memory_test('1-sec-prog', None, 1024, False)
