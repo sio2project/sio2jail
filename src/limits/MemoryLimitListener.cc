@@ -90,6 +90,7 @@ executor::ExecuteAction MemoryLimitListener::onExecuteEvent(const executor::Exec
             logger::debug("Process has been killed by SIGSEGV before exec event, assuming memory limit exceeded");
             outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::MLE,
                     "process exited due to signal 11 before exec event, assuming memory limit exceeded");
+            return executor::ExecuteAction::KILL;
         }
         return executor::ExecuteAction::CONTINUE;
     }
