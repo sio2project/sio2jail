@@ -20,21 +20,30 @@ IF(NOT DEFINED LIBSECCOMP_BUILD_OWN OR LIBSECCOMP_BUILD_OWN STREQUAL "NO")
         NAMES seccomp.h
         PATHS "${LIBSECCOMP_PREFIX}" "${LIBSECCOMP_PREFIX}/usr/include"
         )
-    EXECUTE_PROCESS(
-        COMMAND
-        bash -c "
-            exe=`mktemp`
-            echo -e '#include<stdio.h>\n#include<seccomp.h>\nint main(){printf(\"%d.%d\",SCMP_VER_MAJOR,SCMP_VER_MINOR);}' \
-                | gcc -I ${libseccomp_INC_PATH} -xc /dev/stdin -o $exe >/dev/null 2>&1 && $exe
-            rc=$?
-            rm -f $exe
-            exit $rc"
-        OUTPUT_VARIABLE libseccomp_VERSION
-        RESULT_VARIABLE libseccomp_VERSION_RC
-        )
-    IF(NOT libseccomp_VERSION_RC EQUAL 0 OR libseccomp_VERSION VERSION_LESS 2.3)
-        SET(libseccomp_LIB_PATH "libseccomp_LIB_PATH-NOTFOUND")
-        SET(libseccomp_INC_PATH "libseccomp_INC_PATH-NOTFOUND")
+    IF(libseccomp_LIB_FILE_NAME MATCHES "NOTFOUND")
+        MESSAGE("-- Libseccomp not found")
+    ELSE()
+        EXECUTE_PROCESS(
+            COMMAND
+            bash -c "
+                exe=`mktemp`
+                echo -e '#include<stdio.h>\n#include<seccomp.h>\nint main(){printf(\"%d.%d\",SCMP_VER_MAJOR,SCMP_VER_MINOR);}' \
+                    | gcc -I ${libseccomp_INC_PATH} -xc /dev/stdin -o $exe >/dev/null 2>&1 && $exe
+                rc=$?
+                rm -f $exe
+                exit $rc"
+            OUTPUT_VARIABLE libseccomp_VERSION
+            RESULT_VARIABLE libseccomp_VERSION_RC
+            )
+        IF(NOT libseccomp_VERSION_RC EQUAL 0 OR libseccomp_VERSION VERSION_LESS 2.3)
+            SET(libseccomp_LIB_PATH "libseccomp_LIB_PATH-NOTFOUND")
+            SET(libseccomp_INC_PATH "libseccomp_INC_PATH-NOTFOUND")
+            IF (NOT libseccomp_VERSION_RC EQUAL 0)
+                MESSAGE("-- failed to compile Libseccomp test program")
+            ELSE()
+                MESSAGE("-- found Libseccomp in version ${libseccomp_VERSION}, but minimal required version is 2.3")
+            ENDIF()
+        ENDIF()
     ENDIF()
 ENDIF()
 
@@ -48,7 +57,6 @@ IF((NOT DEFINED LIBSECCOMP_BUILD_OWN AND (NOT EXISTS "${libseccomp_LIB_PATH}" OR
             <SOURCE_DIR>/configure
             --prefix=<INSTALL_DIR>
             --enable-static
-            --enable-shared
         BUILD_COMMAND
             make
         INSTALL_COMMAND
@@ -60,7 +68,7 @@ IF((NOT DEFINED LIBSECCOMP_BUILD_OWN AND (NOT EXISTS "${libseccomp_LIB_PATH}" OR
     IF(LINK STREQUAL "STATIC")
         SET(libseccomp_LIB_PATH "${INSTALL_DIR}/lib/libseccomp.a")
     ELSE()
-        SET(libseccomp_LIB_PATH "${INSTALL_DIR}/lib/libseccomp.so")
+        MESSAGE(FATAL_ERROR "-- Can't dynamically link to custom Libseccomp build")
     ENDIF()
     SET(libseccomp_INC_PATH "${INSTALL_DIR}/include")
 
