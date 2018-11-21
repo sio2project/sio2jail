@@ -61,6 +61,9 @@ IF((NOT DEFINED LIBSECCOMP_BUILD_OWN AND (NOT EXISTS "${libseccomp_LIB_PATH}" OR
             make
         INSTALL_COMMAND
             make install
+
+        BUILD_BYPRODUCTS
+            <INSTALL_DIR>/lib/libseccomp.a
         )
 
     ExternalProject_Get_Property(seccomp_project
