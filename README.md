@@ -51,6 +51,15 @@ option (STATIC by default):
 
     -DLINK=STATIC|DYNAMIC
 
+There is also a possibility to control wheather output binary should run on other
+architecture than the defualt one (or force given architecture):
+
+    -DARCH=i386|x86_64
+
+Note, that when using ARCH other than build host architecture it may be necessary
+(depending on libraries installation) to build sio2jail with custom libseccomp (more
+precisly with flag -DLIBSECCOMP\_BUILD\_OWN=YES).
+
 For example, to skip man pages, use libtclap from /opt/tclap directory and
 ignore system libseccomp run:
 
