@@ -1,5 +1,6 @@
 #include "Tracee.h"
 
+#include "common/Assert.h"
 #include "common/Exception.h"
 #include "common/WithErrnoCheck.h"
 
@@ -41,13 +42,20 @@ Arch Tracee::getSyscallArch() const {
     return syscallArch_;
 }
 
-uint64_t Tracee::getSyscallNumber() {
+reg_t Tracee::getSyscallNumber() {
     if (syscallArch_ == Arch::UNKNOWN)
         throw Exception("Can't get syscall number, unknown syscall arch");
+#if defined(__x86_64__)
     return regs_.orig_rax;
+#elif defined(__i386__)
+    return regs_.orig_eax;
+#else
+#error "arch not supported"
+#endif
 }
 
-uint64_t Tracee::getSyscallArgument(uint8_t argumentNumber) {
+reg_t Tracee::getSyscallArgument(uint8_t argumentNumber) {
+#if defined(__x86_64__)
     if (syscallArch_ == Arch::X86) {
         if (argumentNumber == 0)
             return static_cast<uint32_t>(regs_.rbx);
@@ -76,6 +84,27 @@ uint64_t Tracee::getSyscallArgument(uint8_t argumentNumber) {
         else if (argumentNumber == 5)
             return regs_.r9;
     }
+#elif defined(__i386__)
+    if (syscallArch_ == Arch::X86) {
+        if (argumentNumber == 0)
+            return static_cast<uint32_t>(regs_.ebx);
+        else if (argumentNumber == 1)
+            return static_cast<uint32_t>(regs_.ecx);
+        else if (argumentNumber == 2)
+            return static_cast<uint32_t>(regs_.edx);
+        else if (argumentNumber == 3)
+            return static_cast<uint32_t>(regs_.esi);
+        else if (argumentNumber == 4)
+            return static_cast<uint32_t>(regs_.edi);
+        else if (argumentNumber == 5)
+            return static_cast<uint32_t>(regs_.ebp);
+    }
+    else if (syscallArch_ == Arch::X86_64) {
+        throw s2j::AssertionException("Tracing 64bit program from 32bit not implemented");
+    }
+#else
+#error "arch not supported"
+#endif
     else {
         throw Exception("Can't get syscall argument, unknown syscall arch");
     }
@@ -98,9 +127,16 @@ std::string Tracee::getMemoryString(uint64_t address, size_t sizeLimit) {
     */
 }
 
-void Tracee::cancelSyscall(uint64_t returnValue) {
+void Tracee::cancelSyscall(reg_t returnValue) {
+#if defined(__x86_64__)
     regs_.orig_rax = -1;
     regs_.rax = returnValue;
+#elif defined(__i386__)
+    regs_.orig_eax = -1;
+    regs_.eax = returnValue;
+#else
+#error "arch not supported"
+#endif
     withErrnoCheck("ptrace setregs", ptrace, PTRACE_SETREGS, traceePid_, nullptr, &regs_);
 }
 

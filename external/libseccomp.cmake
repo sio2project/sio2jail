@@ -49,12 +49,21 @@ ENDIF()
 
 IF((NOT DEFINED LIBSECCOMP_BUILD_OWN AND (NOT EXISTS "${libseccomp_LIB_PATH}" OR NOT EXISTS "${libseccomp_LIB_PATH}"))
         OR LIBSECCOMP_BUILD_OWN STREQUAL "YES")
+
+    IF(ARCH STREQUAL "i386")
+        SET(EXTRA_FLAGS "-m32")
+    ELSEIF(ARCH STREQUAL "x86_64")
+        SET(EXTRA_FLAGS "-m64")
+    ELSE()
+        SET(EXTRA_FLAGS "")
+    ENDIF()
+
     ExternalProject_Add(seccomp_project
         URL https://github.com/seccomp/libseccomp/releases/download/v2.3.3/libseccomp-2.3.3.tar.gz
         URL_HASH SHA256=7fc28f4294cc72e61c529bedf97e705c3acf9c479a8f1a3028d4cd2ca9f3b155
 
         CONFIGURE_COMMAND
-            <SOURCE_DIR>/configure
+            CFLAGS=${EXTRA_FLAGS} CXXFLAGS=${EXTRA_FLAGS} <SOURCE_DIR>/configure
             --prefix=<INSTALL_DIR>
             --enable-static
         BUILD_COMMAND
