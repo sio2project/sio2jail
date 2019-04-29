@@ -35,10 +35,11 @@ private:
     int errnoCode_;
 };
 
-template<typename Operation, typename ErrnoCollection, typename ...Args>
+template<typename Operation, typename ErrnoCollection, typename ResultChecker, typename ...Args>
 auto withErrnoCheck(
         const std::string& description,
         const ErrnoCollection& ignoredErrnos,
+        ResultChecker&& resultChecker,
         Operation&& operation,
         Args&& ...args)
         -> ResultErrnoPair<decltype(operation(args...))> {
@@ -49,18 +50,33 @@ auto withErrnoCheck(
     auto returnedErrno = errno;
     logger::trace("Operation returned ", result, " errno ", strerror(returnedErrno));
 
-    using CompareType =
-        typename std::conditional<std::numeric_limits<
-            decltype(result)>::is_integer,
-            decltype(result),
-            int64_t
-        >::type;
-
-    if (reinterpret_cast<CompareType>(result) < 0) {
+    if (!resultChecker(result)) {
         if (std::find(ignoredErrnos.begin(), ignoredErrnos.end(), returnedErrno) == ignoredErrnos.end())
             throw SystemException(description + " failed: " + strerror(returnedErrno), returnedErrno);
     }
-    return ResultErrnoPair<decltype(operation(args...))>(std::move(result), returnedErrno);
+    return ResultErrnoPair<decltype(operation(args...))>(std::move(result), returnedErrno); }
+
+template<typename Operation, typename ErrnoCollection, typename ...Args>
+auto withErrnoCheck(
+        const std::string& description,
+        const ErrnoCollection& ignoredErrnos,
+        Operation&& operation,
+        Args&& ...args)
+        -> ResultErrnoPair<decltype(operation(args...))> {
+
+    using CompareType =
+        typename std::conditional<
+            std::numeric_limits<std::result_of_t<Operation(Args...)>>::is_integer,
+            std::result_of_t<Operation(Args...)>,
+            int64_t
+        >::type;
+
+    return withErrnoCheck(
+            description,
+            ignoredErrnos,
+            [](auto&& result) -> bool { return reinterpret_cast<CompareType>(result) >= 0; },
+            operation,
+            args...);
 }
 
 template<typename Operation, typename ...Args>
@@ -74,6 +90,12 @@ auto withErrnoCheck(
             ignoredErrnos,
             std::forward<Operation>(operation),
             std::forward<Args>(args)...);
+}
+
+template<typename Operation, typename ResultChecker, typename ...Args>
+auto withGuardedErrnoCheck(const std::string& description, ResultChecker&& resultChecker, Operation&& operation, Args&& ...args) {
+    return withErrnoCheck<Operation, std::initializer_list<int>, ResultChecker, Args...>(
+            description, {}, std::forward<ResultChecker>(resultChecker), std::forward<Operation>(operation), std::forward<Args>(args)...);
 }
 
 template<typename Operation, typename ...Args>
