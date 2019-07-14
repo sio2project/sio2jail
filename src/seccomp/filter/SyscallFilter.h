@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tracer/Tracee.h"
 #include "tracer/TraceEvent.h"
+#include "tracer/Tracee.h"
 
 #include <seccomp.h>
 
@@ -26,14 +26,16 @@ public:
     /**
      * Checks wheather conditions in this filter match given event.
      */
-    virtual bool match(const tracer::TraceEvent& event, tracer::Tracee& tracee) const = 0;
+    virtual bool match(const tracer::TraceEvent& event, tracer::Tracee& tracee)
+            const = 0;
 
 protected:
     friend class s2j::seccomp::SeccompContext;
 
-    virtual const std::vector<struct scmp_arg_cmp>& createLibSeccompFilter() const = 0;
+    virtual const std::vector<struct scmp_arg_cmp>& createLibSeccompFilter()
+            const = 0;
 };
 
-}
-}
-}
+} // namespace filter
+} // namespace seccomp
+} // namespace s2j

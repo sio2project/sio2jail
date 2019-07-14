@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common/Feature.h"
-#include "printer/OutputSource.h"
 #include "executor/ExecuteEventListener.h"
+#include "printer/OutputSource.h"
 
 namespace s2j {
 namespace ns {
@@ -18,5 +18,5 @@ public:
     const static Feature feature;
 };
 
-}
-}
+} // namespace ns
+} // namespace s2j

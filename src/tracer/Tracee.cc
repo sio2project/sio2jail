@@ -4,18 +4,23 @@
 #include "common/Exception.h"
 #include "common/WithErrnoCheck.h"
 
-#include <sys/ptrace.h>
 #include <signal.h>
+#include <sys/ptrace.h>
 
 namespace s2j {
 namespace tracer {
 
 Tracee::Tracee(pid_t traceePid)
-    : traceePid_(traceePid)
-    , syscallArch_(Arch::UNKNOWN) {
+        : traceePid_(traceePid), syscallArch_(Arch::UNKNOWN) {
     if (isAlive()) {
         try {
-            withErrnoCheck("ptrace getregs", ptrace, PTRACE_GETREGS, traceePid_, nullptr, &regs_);
+            withErrnoCheck(
+                    "ptrace getregs",
+                    ptrace,
+                    PTRACE_GETREGS,
+                    traceePid_,
+                    nullptr,
+                    &regs_);
         }
         catch (const SystemException& e) {
             if (e.getErrno() != ESRCH)
@@ -30,7 +35,13 @@ bool Tracee::isAlive() {
 
 int64_t Tracee::getEventMsg() {
     int64_t code;
-    withErrnoCheck("ptrace geteventmsg", ptrace, PTRACE_GETEVENTMSG, traceePid_, nullptr, &code);
+    withErrnoCheck(
+            "ptrace geteventmsg",
+            ptrace,
+            PTRACE_GETEVENTMSG,
+            traceePid_,
+            nullptr,
+            &code);
     return code;
 }
 
@@ -100,7 +111,8 @@ reg_t Tracee::getSyscallArgument(uint8_t argumentNumber) {
             return static_cast<uint32_t>(regs_.ebp);
     }
     else if (syscallArch_ == Arch::X86_64) {
-        throw s2j::AssertionException("Tracing 64bit program from 32bit not implemented");
+        throw s2j::AssertionException(
+                "Tracing 64bit program from 32bit not implemented");
     }
 #else
 #error "arch not supported"
@@ -108,20 +120,20 @@ reg_t Tracee::getSyscallArgument(uint8_t argumentNumber) {
     else {
         throw Exception("Can't get syscall argument, unknown syscall arch");
     }
-    throw Exception("No such syscall argument number " + std::to_string(argumentNumber));
+    throw Exception(
+            "No such syscall argument number " +
+            std::to_string(argumentNumber));
 }
 
 std::string Tracee::getMemoryString(uint64_t address, size_t sizeLimit) {
     NOT_IMPLEMENTED();
-    // This code is broken in may ways. Implement using process_vm_readv syscall.
+    // This code is broken in may ways. Implement using process_vm_readv
+    // syscall.
     /*
     for (size_t ptr = address; str.size() < sizeLimit; ptr += sizeof(int)) {
-        int word = withErrnoCheck("ptrace peektext", ptrace, PTRACE_PEEKTEXT, traceePid_, ptr, nullptr);
-        for (size_t i = 0; i < sizeof(word); ++i) {
-            char byte = (word >> (8 * i));
-            if (byte == '\0')
-                return str;
-            str += byte;
+        int word = withErrnoCheck("ptrace peektext", ptrace, PTRACE_PEEKTEXT,
+    traceePid_, ptr, nullptr); for (size_t i = 0; i < sizeof(word); ++i) { char
+    byte = (word >> (8 * i)); if (byte == '\0') return str; str += byte;
         }
     }
     */
@@ -137,20 +149,26 @@ void Tracee::cancelSyscall(reg_t returnValue) {
 #else
 #error "arch not supported"
 #endif
-    withErrnoCheck("ptrace setregs", ptrace, PTRACE_SETREGS, traceePid_, nullptr, &regs_);
+    withErrnoCheck(
+            "ptrace setregs",
+            ptrace,
+            PTRACE_SETREGS,
+            traceePid_,
+            nullptr,
+            &regs_);
 }
 
-}
+} // namespace tracer
 
 std::string to_string(const tracer::Arch arch) {
     switch (arch) {
-        case tracer::Arch::X86:
-            return "x86";
-        case tracer::Arch::X86_64:
-            return "x86_64";
-        default:
-            return "UNKNOWN";
+    case tracer::Arch::X86:
+        return "x86";
+    case tracer::Arch::X86_64:
+        return "x86_64";
+    default:
+        return "UNKNOWN";
     }
 }
 
-}
+} // namespace s2j

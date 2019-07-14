@@ -2,10 +2,10 @@
 
 #include "MountEventListener.h"
 
-#include "common/Feature.h"
 #include "common/EventProvider.h"
-#include "printer/OutputSource.h"
+#include "common/Feature.h"
 #include "executor/ExecuteEventListener.h"
+#include "printer/OutputSource.h"
 
 #include <tclap/CmdLine.h>
 
@@ -21,18 +21,20 @@ namespace ns {
  * Note: it'd be way more useful if the child
  * didn't have access to parent's /proc
  */
-class MountNamespaceListener : public executor::ExecuteEventListener,
-                               public EventProvider<MountEventListener> {
+class MountNamespaceListener
+        : public executor::ExecuteEventListener
+        , public EventProvider<MountEventListener> {
 public:
     struct BindMount {
-        enum class Mode {
-            RO, RW
-        };
+        enum class Mode { RO, RW };
 
         BindMount() {}
 
-        BindMount(const std::string& sourcePath, const std::string& targetPath, Mode mode)
-            : sourcePath(sourcePath), targetPath(targetPath), mode(mode) {}
+        BindMount(
+                const std::string& sourcePath,
+                const std::string& targetPath,
+                Mode mode)
+                : sourcePath(sourcePath), targetPath(targetPath), mode(mode) {}
 
         uint32_t flags() const;
         void mount(const std::string& root);
@@ -48,7 +50,10 @@ public:
         bool bindExecutable;
     };
 
-    MountNamespaceListener(const Settings& settings, const std::string& executablePath, bool mountProc);
+    MountNamespaceListener(
+            const Settings& settings,
+            const std::string& executablePath,
+            bool mountProc);
 
     void onPostForkChild() override;
     void onPostExecute() override;
@@ -64,5 +69,5 @@ private:
     bool bindExecutable_;
 };
 
-}
-}
+} // namespace ns
+} // namespace s2j

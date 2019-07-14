@@ -3,8 +3,8 @@
 #include "common/Exception.h"
 #include "common/WithErrnoCheck.h"
 
-#include <unistd.h>
 #include <linux/sched.h>
+#include <unistd.h>
 
 namespace s2j {
 namespace ns {
@@ -17,9 +17,14 @@ void UTSNamespaceListener::onPostForkChild() {
     withErrnoCheck("unshare newuts", unshare, CLONE_NEWUTS);
 
     std::string hostname = "sio2jail";
-    withErrnoCheck("set hostname", sethostname, hostname.c_str(), hostname.length());
-    withErrnoCheck("set domainname", setdomainname, hostname.c_str(), hostname.length());
+    withErrnoCheck(
+            "set hostname", sethostname, hostname.c_str(), hostname.length());
+    withErrnoCheck(
+            "set domainname",
+            setdomainname,
+            hostname.c_str(),
+            hostname.length());
 }
 
-}
-}
+} // namespace ns
+} // namespace s2j

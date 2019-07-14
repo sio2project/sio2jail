@@ -12,11 +12,12 @@ namespace action {
 class ActionTrace : public SeccompAction {
 public:
     template<typename Handler>
-    ActionTrace(Handler&& handler)
-        : handler_(handler) {}
+    ActionTrace(Handler&& handler) : handler_(handler) {}
 
     ActionTrace()
-        : ActionTrace([](auto& tracee) { return tracer::TraceAction::CONTINUE; }) {}
+            : ActionTrace([](auto& tracee) {
+                return tracer::TraceAction::CONTINUE;
+            }) {}
 
     Type getType() const override;
 
@@ -29,6 +30,6 @@ private:
     std::function<tracer::TraceAction(tracer::Tracee&)> handler_;
 };
 
-}
-}
-}
+} // namespace action
+} // namespace seccomp
+} // namespace s2j

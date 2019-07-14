@@ -1,14 +1,15 @@
 #pragma once
 
 #include "common/Feature.h"
-#include "printer/OutputSource.h"
 #include "executor/ExecuteEventListener.h"
+#include "printer/OutputSource.h"
 
 namespace s2j {
 namespace perf {
 
-class PerfListener : public executor::ExecuteEventListener
-                   , public printer::OutputSource {
+class PerfListener
+        : public executor::ExecuteEventListener
+        , public printer::OutputSource {
 public:
     PerfListener(uint64_t instructionCountLimit);
     ~PerfListener();
@@ -32,5 +33,5 @@ private:
     pthread_barrier_t* barrier_;
 };
 
-}
-}
+} // namespace perf
+} // namespace s2j

@@ -15,5 +15,5 @@ protected:
     std::shared_ptr<OutputBuilder> outputBuilder_;
 };
 
-}
-}
+} // namespace printer
+} // namespace s2j

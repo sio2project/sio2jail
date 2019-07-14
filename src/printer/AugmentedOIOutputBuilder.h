@@ -16,5 +16,5 @@ private:
     int encodeStatusCode() const;
 };
 
-}
-}
+} // namespace printer
+} // namespace s2j

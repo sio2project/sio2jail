@@ -20,6 +20,6 @@ uint32_t ActionKill::createLibSeccompAction() const {
     return SCMP_ACT_KILL;
 }
 
-}
-}
-}
+} // namespace action
+} // namespace seccomp
+} // namespace s2j

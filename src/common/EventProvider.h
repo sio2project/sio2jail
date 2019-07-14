@@ -18,4 +18,4 @@ protected:
     std::vector<std::shared_ptr<EventListenerType>> eventListeners_;
 };
 
-}
+} // namespace s2j

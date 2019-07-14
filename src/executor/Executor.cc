@@ -1,8 +1,8 @@
 #include "Executor.h"
 
 #include "common/Exception.h"
-#include "common/WithErrnoCheck.h"
 #include "common/Utils.h"
+#include "common/WithErrnoCheck.h"
 #include "logger/Logger.h"
 
 #include <fcntl.h>
@@ -29,13 +29,17 @@ void signalSigalrmHandler(int signum) {
     sigalrmOccurred = 1;
 }
 
-}
+} // namespace
 
 namespace s2j {
 namespace executor {
 
-Executor::Executor(const std::string& childProgramName, const std::vector<std::string>& childProgramArgv)
-    : childProgramName_(childProgramName), childProgramArgv_(childProgramArgv), childPid_(0) {}
+Executor::Executor(
+        const std::string& childProgramName,
+        const std::vector<std::string>& childProgramArgv)
+        : childProgramName_(childProgramName)
+        , childProgramArgv_(childProgramArgv)
+        , childPid_(0) {}
 
 void Executor::execute() {
     TRACE();
@@ -60,7 +64,7 @@ void Executor::executeChild() {
 
     // Create plain C arrays with program arguments
     char* programName = stringToCStr(childProgramName_);
-    char** programArgv = new char* [childProgramArgv_.size() + 2];
+    char** programArgv = new char*[childProgramArgv_.size() + 2];
 
     programArgv[0] = programName;
     for (size_t argIndex = 0; argIndex < childProgramArgv_.size(); ++argIndex) {
@@ -73,7 +77,8 @@ void Executor::executeChild() {
 
     std::stringstream ss;
     ss << "execve(" << programName << ", {";
-    for (size_t argIndex = 0; argIndex < childProgramArgv_.size() + 2; ++argIndex) {
+    for (size_t argIndex = 0; argIndex < childProgramArgv_.size() + 2;
+         ++argIndex) {
         if (programArgv[argIndex] != nullptr) {
             ss << programArgv[argIndex] << ", ";
             delete[] programArgv[argIndex];
@@ -102,10 +107,12 @@ void Executor::executeParent() {
             killChild();
 
         // Potential race condition here.
-        int returnValue = waitid(P_PID, childPid_, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
+        int returnValue = waitid(
+                P_PID, childPid_, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
         if (returnValue == -1) {
             if (errno != EINTR)
-                throw SystemException(std::string("waitid failed: ") + strerror(errno));
+                throw SystemException(
+                        std::string("waitid failed: ") + strerror(errno));
             continue;
         }
 
@@ -113,7 +120,9 @@ void Executor::executeParent() {
             event.exited = true;
             event.exitStatus = waitInfo.si_status;
         }
-        else if (waitInfo.si_code == CLD_KILLED || waitInfo.si_code == CLD_DUMPED) {
+        else if (
+                waitInfo.si_code == CLD_KILLED ||
+                waitInfo.si_code == CLD_DUMPED) {
             event.killed = true;
             event.signal = waitInfo.si_status;
         }
@@ -193,11 +202,11 @@ void Executor::killChild() {
         logger::debug("Killing trace after execute action kill");
         withErrnoCheck("kill child", kill, childPid_, SIGKILL);
     }
-    catch (const s2j::SystemException &ex) {
+    catch (const s2j::SystemException& ex) {
         if (ex.getErrno() != ESRCH)
             throw;
     }
 }
 
-}
-}
+} // namespace executor
+} // namespace s2j

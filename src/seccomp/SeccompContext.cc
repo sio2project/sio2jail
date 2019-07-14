@@ -8,9 +8,10 @@
 namespace s2j {
 namespace seccomp {
 
-const std::map<tracer::Arch, uint32_t> SeccompContext::SECCOMP_FILTER_ARCHITECTURES({
-        {tracer::Arch::X86, SCMP_ARCH_X86},
-        {tracer::Arch::X86_64, SCMP_ARCH_X86_64}});
+const std::map<tracer::Arch, uint32_t>
+        SeccompContext::SECCOMP_FILTER_ARCHITECTURES(
+                {{tracer::Arch::X86, SCMP_ARCH_X86},
+                 {tracer::Arch::X86_64, SCMP_ARCH_X86_64}});
 
 const uint32_t SeccompContext::SECCOMP_TRACE_MSG_NUM_SHIFT = 3;
 
@@ -28,7 +29,9 @@ SeccompContext::Builder::Builder() {
 }
 
 SeccompContext::Builder::~Builder() {
-    std::for_each(ctx_.begin(), ctx_.end(), [](auto ctx) { seccomp_release(ctx.second); });
+    std::for_each(ctx_.begin(), ctx_.end(), [](auto ctx) {
+        seccomp_release(ctx.second);
+    });
     ctx_.clear();
 }
 
@@ -38,19 +41,23 @@ SeccompContext SeccompContext::Builder::build() && {
     return SeccompContext(std::move(*this));
 }
 
-void SeccompContext::Builder::addRule(const SeccompRule& rule, uint32_t actionGroupId) {
+void SeccompContext::Builder::addRule(
+        const SeccompRule& rule,
+        uint32_t actionGroupId) {
     TRACE(rule.syscall, actionGroupId);
 
     auto filter = rule.filter->createLibSeccompFilter();
     for (auto& arch: SECCOMP_FILTER_ARCHITECTURES) {
-        int32_t ruleId = (actionGroupId << SECCOMP_TRACE_MSG_NUM_SHIFT) | static_cast<uint8_t>(arch.first);
+        int32_t ruleId = (actionGroupId << SECCOMP_TRACE_MSG_NUM_SHIFT) |
+                         static_cast<uint8_t>(arch.first);
 
         rule.action->setRuleId(ruleId);
         auto action = rule.action->createLibSeccompAction();
         if (!rule.filter->isPureLibSeccompFilter()) {
             /**
-             * When filter is too complex to be expressed by libseccomp filters, always trace
-             * when rule is matched. Later filter will be checked by tracer.
+             * When filter is too complex to be expressed by libseccomp filters,
+             * always trace when rule is matched. Later filter will be checked
+             * by tracer.
              */
             action = SCMP_ACT_TRACE(ruleId);
         }
@@ -59,21 +66,36 @@ void SeccompContext::Builder::addRule(const SeccompRule& rule, uint32_t actionGr
 
         /**
          * XXX
-         * Libseccomp seems to optimize cases when there is an action without any filter conditions. In these
-         * cases other rules are discarded. As we rely on order and masking of rules always include at least
-         * one filter condition.
+         * Libseccomp seems to optimize cases when there is an action without
+         * any filter conditions. In these cases other rules are discarded. As
+         * we rely on order and masking of rules always include at least one
+         * filter condition.
          */
         if (filter.size() > 0) {
-            res = seccomp_rule_add_array(ctx_[arch.first], action, rule.syscall, filter.size(), &filter[0]);
+            res = seccomp_rule_add_array(
+                    ctx_[arch.first],
+                    action,
+                    rule.syscall,
+                    filter.size(),
+                    &filter[0]);
         }
         else {
-            res = seccomp_rule_add(ctx_[arch.first], action, rule.syscall, 1, SCMP_CMP(0, SCMP_CMP_GE, 0));
+            res = seccomp_rule_add(
+                    ctx_[arch.first],
+                    action,
+                    rule.syscall,
+                    1,
+                    SCMP_CMP(0, SCMP_CMP_GE, 0));
             if (res > 0)
-                res = seccomp_rule_add(ctx_[arch.first], action, rule.syscall, 1, SCMP_CMP(0, SCMP_CMP_LT, 0));
+                res = seccomp_rule_add(
+                        ctx_[arch.first],
+                        action,
+                        rule.syscall,
+                        1,
+                        SCMP_CMP(0, SCMP_CMP_LT, 0));
         }
         if (res < 0)
             throw SystemException("Can't add rule to seccomp filter", -res);
-
     }
 }
 
@@ -87,7 +109,8 @@ SeccompContext::SeccompContext(Builder&& builder) {
         ctx_ = builder.ctx_.begin()->second;
         builder.ctx_.erase(builder.ctx_.begin());
 
-        for (auto it = builder.ctx_.begin(); it != builder.ctx_.end(); it = builder.ctx_.erase(it))
+        for (auto it = builder.ctx_.begin(); it != builder.ctx_.end();
+             it = builder.ctx_.erase(it))
             if (seccomp_merge(ctx_, it->second) < 0)
                 throw Exception("Can't merge libseccomp filters");
     }
@@ -120,7 +143,8 @@ std::string SeccompContext::exportFilter() const {
     std::string pseudoCode;
     while (true) {
         char buff[32 * 4096];
-        ssize_t bytesRead = withErrnoCheck("read", read, fd, buff, sizeof(buff) - 1);
+        ssize_t bytesRead =
+                withErrnoCheck("read", read, fd, buff, sizeof(buff) - 1);
         if (bytesRead <= 0)
             break;
 
@@ -134,5 +158,5 @@ std::string SeccompContext::exportFilter() const {
     return pseudoCode;
 }
 
-}
-}
+} // namespace seccomp
+} // namespace s2j

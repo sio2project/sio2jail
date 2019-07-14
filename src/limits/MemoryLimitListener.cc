@@ -1,16 +1,16 @@
 #include "MemoryLimitListener.h"
 
-#include "common/WithErrnoCheck.h"
 #include "common/ProcFS.h"
+#include "common/WithErrnoCheck.h"
 #include "logger/Logger.h"
 #include "seccomp/SeccompRule.h"
-#include "seccomp/action/ActionTrace.h"
 #include "seccomp/action/ActionAllow.h"
+#include "seccomp/action/ActionTrace.h"
 #include "seccomp/filter/LibSeccompFilter.h"
 
 #include <signal.h>
-#include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/time.h>
 
 #include <fstream>
 #include <iostream>
@@ -21,38 +21,47 @@ namespace limits {
 const uint64_t MemoryLimitListener::MEMORY_LIMIT_MARGIN = 8 * 1024 * 1024;
 
 MemoryLimitListener::MemoryLimitListener(uint64_t memoryLimitKb)
-    : memoryPeakKb_(0)
-    , memoryLimitKb_(memoryLimitKb)
-    , vmPeakValid_(false)
-    , childPid_(-1) {
+        : memoryPeakKb_(0)
+        , memoryLimitKb_(memoryLimitKb)
+        , vmPeakValid_(false)
+        , childPid_(-1) {
     TRACE(memoryLimitKb);
 
-    // Possible memory problem here, we will return this references to *this. User is
-    // responsible for ensuring that MemoryLimitListener last at least as long as any
-    // reference to it's rules.
+    // Possible memory problem here, we will return this references to *this.
+    // User is responsible for ensuring that MemoryLimitListener last at least
+    // as long as any reference to it's rules.
     using Arg = seccomp::filter::SyscallArg;
     for (const auto& syscall: {"mmap2", "mmap"}) {
         syscallRules_.emplace_back(seccomp::SeccompRule(
-                    syscall,
-                    seccomp::action::ActionTrace(
-                        [this](tracer::Tracee& tracee) {
-                            TRACE();
-                            if (!vmPeakValid_)
-                                return tracer::TraceAction::CONTINUE;
+                syscall,
+                seccomp::action::ActionTrace([this](tracer::Tracee& tracee) {
+                    TRACE();
+                    if (!vmPeakValid_)
+                        return tracer::TraceAction::CONTINUE;
 
-                            uint64_t memoryUsage = getMemoryUsageKb() + tracee.getSyscallArgument(1) / 1024;
-                            memoryPeakKb_ = std::max(memoryPeakKb_, memoryUsage);
-                            outputBuilder_->setMemoryPeak(memoryPeakKb_);
-                            logger::debug("Memory usage after mmap ", VAR(memoryUsage), ", ", VAR(memoryPeakKb_));
+                    uint64_t memoryUsage = getMemoryUsageKb() +
+                                           tracee.getSyscallArgument(1) / 1024;
+                    memoryPeakKb_ = std::max(memoryPeakKb_, memoryUsage);
+                    outputBuilder_->setMemoryPeak(memoryPeakKb_);
+                    logger::debug(
+                            "Memory usage after mmap ",
+                            VAR(memoryUsage),
+                            ", ",
+                            VAR(memoryPeakKb_));
 
-                            if (memoryUsage > memoryLimitKb_) {
-                                outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::MLE, "memory limit exceeded");
-                                logger::debug("Limit ", VAR(memoryLimitKb_), " exceeded, killing tracee");
-                                return tracer::TraceAction::KILL;
-                            }
-                            return tracer::TraceAction::CONTINUE;
-                        }),
-                    Arg(0) == 0 && Arg(1) > MEMORY_LIMIT_MARGIN / 2));
+                    if (memoryUsage > memoryLimitKb_) {
+                        outputBuilder_->setKillReason(
+                                printer::OutputBuilder::KillReason::MLE,
+                                "memory limit exceeded");
+                        logger::debug(
+                                "Limit ",
+                                VAR(memoryLimitKb_),
+                                " exceeded, killing tracee");
+                        return tracer::TraceAction::KILL;
+                    }
+                    return tracer::TraceAction::CONTINUE;
+                }),
+                Arg(0) == 0 && Arg(1) > MEMORY_LIMIT_MARGIN / 2));
     }
 }
 
@@ -61,12 +70,15 @@ void MemoryLimitListener::onPostForkChild() {
 
     // If there is any memory limit, set it.
     if (memoryLimitKb_ > 0) {
-        struct rlimit memoryLimit{memoryLimitKb_ * 1024 + MEMORY_LIMIT_MARGIN,
-                                  memoryLimitKb_ * 1024 + MEMORY_LIMIT_MARGIN};
+        struct rlimit memoryLimit {
+            memoryLimitKb_ * 1024 + MEMORY_LIMIT_MARGIN,
+                    memoryLimitKb_ * 1024 + MEMORY_LIMIT_MARGIN
+        };
 
         logger::debug("Seting limit ", VAR(memoryLimit.rlim_max));
         withErrnoCheck("setrlimit memory", setrlimit, RLIMIT_AS, &memoryLimit);
-        withErrnoCheck("setrlimit stack", setrlimit, RLIMIT_STACK, &memoryLimit);
+        withErrnoCheck(
+                "setrlimit stack", setrlimit, RLIMIT_STACK, &memoryLimit);
     }
 }
 
@@ -76,11 +88,13 @@ void MemoryLimitListener::onPostForkParent(pid_t childPid) {
     childPid_ = childPid;
 }
 
-void MemoryLimitListener::onPostExec(const tracer::TraceEvent& /* traceEvent */) {
+void MemoryLimitListener::onPostExec(
+        const tracer::TraceEvent& /* traceEvent */) {
     vmPeakValid_ = true;
 }
 
-executor::ExecuteAction MemoryLimitListener::onExecuteEvent(const executor::ExecuteEvent& executeEvent) {
+executor::ExecuteAction MemoryLimitListener::onExecuteEvent(
+        const executor::ExecuteEvent& executeEvent) {
     TRACE();
 
     if (!vmPeakValid_)
@@ -91,8 +105,11 @@ executor::ExecuteAction MemoryLimitListener::onExecuteEvent(const executor::Exec
 
     outputBuilder_->setMemoryPeak(memoryPeakKb_);
     if (memoryLimitKb_ > 0 && memoryPeakKb_ > memoryLimitKb_) {
-        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::MLE, "memory limit exceeded");
-        logger::debug("Limit ", VAR(memoryLimitKb_), " exceeded, killing tracee");
+        outputBuilder_->setKillReason(
+                printer::OutputBuilder::KillReason::MLE,
+                "memory limit exceeded");
+        logger::debug(
+                "Limit ", VAR(memoryLimitKb_), " exceeded, killing tracee");
         return executor::ExecuteAction::KILL;
     }
 
@@ -111,5 +128,5 @@ const std::vector<seccomp::SeccompRule>& MemoryLimitListener::getRules() const {
     return syscallRules_;
 }
 
-}
-}
+} // namespace limits
+} // namespace s2j

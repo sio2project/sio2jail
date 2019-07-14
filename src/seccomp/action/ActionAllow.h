@@ -16,6 +16,6 @@ protected:
     virtual uint32_t createLibSeccompAction() const override;
 };
 
-}
-}
-}
+} // namespace action
+} // namespace seccomp
+} // namespace s2j

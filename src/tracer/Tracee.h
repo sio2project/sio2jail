@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include <unistd.h>
 #include <sys/user.h>
+#include <unistd.h>
 
 #if defined(__x86_64__)
 using reg_t = uint64_t;
@@ -16,11 +16,7 @@ using reg_t = uint32_t;
 namespace s2j {
 namespace tracer {
 
-enum Arch : uint8_t {
-    UNKNOWN     = 0,
-    X86         = 1,
-    X86_64      = 2
-};
+enum Arch : uint8_t { UNKNOWN = 0, X86 = 1, X86_64 = 2 };
 
 class Tracee {
 public:
@@ -48,10 +44,8 @@ public:
 
     std::string getMemoryString(uint64_t address, size_t sizeLimit = 512);
 
-    // TODO: simple wrapper around ptrace syscall that simulates RW access to traced process.
-    // getRegister
-    // getMemory
-    // getMemoryString
+    // TODO: simple wrapper around ptrace syscall that simulates RW access to
+    // traced process. getRegister getMemory getMemoryString
     // ...
 
 private:
@@ -61,8 +55,8 @@ private:
     Arch syscallArch_;
 };
 
-}
+} // namespace tracer
 
 std::string to_string(const tracer::Arch);
 
-}
+} // namespace s2j

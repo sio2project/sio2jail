@@ -3,6 +3,8 @@
 #include <array>
 #include <string>
 
+#include <tclap/CmdLine.h>
+
 #include "common/Utils.h"
 
 namespace s2j {
@@ -18,13 +20,11 @@ class MemoryArgument {
     size_t value_; // Size in bytes
 
 public:
-    MemoryArgument() : value_(0) {
-    }
+    MemoryArgument() : value_(0) {}
 
-    MemoryArgument(size_t value) : value_(value) {
-    }
-    
-    MemoryArgument& operator=(const std::string &str);
+    MemoryArgument(size_t value) : value_(value) {}
+
+    MemoryArgument& operator=(const std::string& str);
 
     size_t getValue() const {
         return value_;
@@ -46,13 +46,11 @@ class TimeArgument {
     size_t value_; // Size in microseconds
 
 public:
-    TimeArgument() : value_(0) {
-    }
+    TimeArgument() : value_(0) {}
 
-    TimeArgument(size_t value) : value_(value) {
-    }
+    TimeArgument(size_t value) : value_(value) {}
 
-    TimeArgument& operator=(const std::string &str);
+    TimeArgument& operator=(const std::string& str);
 
     size_t getValue() const {
         return value_;
@@ -61,7 +59,6 @@ public:
     operator size_t() const {
         return getValue();
     }
-
 };
 
 
@@ -74,13 +71,11 @@ class AmountArgument {
     size_t value_; // Size in microseconds
 
 public:
-    AmountArgument() : value_(0) {
-    }
+    AmountArgument() : value_(0) {}
 
-    AmountArgument(size_t value) : value_(value) {
-    }
+    AmountArgument(size_t value) : value_(value) {}
 
-    AmountArgument& operator=(const std::string &str);
+    AmountArgument& operator=(const std::string& str);
 
     size_t getValue() const {
         return value_;
@@ -89,7 +84,6 @@ public:
     operator size_t() const {
         return getValue();
     }
-
 };
 
 
@@ -97,32 +91,44 @@ public:
  * A simple wrapper that chooses implementation by a name
  */
 template<typename InterfaceType>
-class ImplementationNameArgument : public TCLAP::Constraint<ImplementationNameArgument<InterfaceType>> {
+class ImplementationNameArgument
+        : public TCLAP::Constraint<ImplementationNameArgument<InterfaceType>> {
     // should be const, but sadly TCLAP doens't allow this
     FactoryMap<InterfaceType> factories_;
     std::string description_, implementationName_;
 
 public:
-    template<typename DescriptionType, typename DefaultNameType, typename FactoryMapType>
-    ImplementationNameArgument(DescriptionType&& description, DefaultNameType& defaultName, FactoryMapType&& factories)
-        : factories_(std::forward<FactoryMapType>(factories))
-        , description_(std::forward<DescriptionType>(description))
-        , implementationName_(std::forward<DefaultNameType>(defaultName)) {}
+    template<
+            typename DescriptionType,
+            typename DefaultNameType,
+            typename FactoryMapType>
+    ImplementationNameArgument(
+            DescriptionType&& description,
+            DefaultNameType& defaultName,
+            FactoryMapType&& factories)
+            : factories_(std::forward<FactoryMapType>(factories))
+            , description_(std::forward<DescriptionType>(description))
+            , implementationName_(std::forward<DefaultNameType>(defaultName)) {}
 
     ImplementationNameArgument(const ImplementationNameArgument&) = default;
     ImplementationNameArgument(ImplementationNameArgument&&) = default;
-    ImplementationNameArgument& operator=(const ImplementationNameArgument&) = default;
-    ImplementationNameArgument& operator=(ImplementationNameArgument&&) = default;
+    ImplementationNameArgument& operator=(const ImplementationNameArgument&) =
+            default;
+    ImplementationNameArgument& operator=(ImplementationNameArgument&&) =
+            default;
 
     ImplementationNameArgument& operator=(const std::string& name) {
         if (factories_.find(name) == factories_.end()) {
-            throw TCLAP::ArgParseException(name + " is not a valid name for " + description_ + ", " + description());
+            throw TCLAP::ArgParseException(
+                    name + " is not a valid name for " + description_ + ", " +
+                    description());
         }
         implementationName_ = name;
         return *this;
     }
 
-    bool check(const ImplementationNameArgument<InterfaceType>& value) const override {
+    bool check(const ImplementationNameArgument<InterfaceType>& value)
+            const override {
         return factories_.find(value.implementationName_) != factories_.end();
     }
 
@@ -153,9 +159,9 @@ public:
 };
 
 
-}
-}
-}
+} // namespace args
+} // namespace app
+} // namespace s2j
 namespace TCLAP {
 template<>
 struct ArgTraits<::s2j::app::args::MemoryArgument> {
@@ -173,4 +179,4 @@ template<typename InterfaceType>
 struct ArgTraits<::s2j::app::args::ImplementationNameArgument<InterfaceType>> {
     typedef StringLike ValueCategory;
 };
-}
+} // namespace TCLAP

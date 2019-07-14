@@ -1,26 +1,22 @@
 #pragma once
 
 #include "common/Feature.h"
+#include "ns/MountNamespaceListener.h"
 #include "printer/OutputBuilder.h"
 #include "seccomp/policy/SyscallPolicy.h"
-#include "ns/MountNamespaceListener.h"
 
 #include "common/Utils.h"
 
+#include <map>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
-#include <map>
 
 namespace s2j {
 namespace app {
 
 struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
-    enum class Action {
-        PRINT_HELP,
-        PRINT_VERSION,
-        RUN
-    };
+    enum class Action { PRINT_HELP, PRINT_VERSION, RUN };
 
     ApplicationSettings();
     ApplicationSettings(int argc, const char* argv[]);
@@ -29,9 +25,11 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     static const std::string DESCRIPTION;
     static const FactoryMap<s2j::printer::OutputBuilder> OUTPUT_FORMATS;
     static const std::string DEFAULT_OUTPUT_FORMAT;
-    static const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy> SYSCALL_POLICIES;
+    static const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy>
+            SYSCALL_POLICIES;
     static const std::string DEFAULT_SYSCALL_POLICY;
-    static const std::map<std::string, std::pair<Feature, bool>> FEATURE_BY_NAME;
+    static const std::map<std::string, std::pair<Feature, bool>>
+            FEATURE_BY_NAME;
 
     Action action;
     std::string loggerPath;
@@ -66,5 +64,5 @@ private:
     void addBindMount(const std::string& bindMountLine);
 };
 
-}
-}
+} // namespace app
+} // namespace s2j

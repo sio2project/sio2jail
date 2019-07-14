@@ -3,8 +3,8 @@
 #include "WithErrnoCheck.h"
 
 #include <algorithm>
-#include <fstream>
 #include <cstdlib>
+#include <fstream>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -18,7 +18,9 @@ char* stringToCStr(const std::string& str) {
     return cStr;
 }
 
-std::vector<std::string> split(const std::string& str, const std::string& delimeter) {
+std::vector<std::string> split(
+        const std::string& str,
+        const std::string& delimeter) {
     std::vector<std::string> tokens;
     std::string::size_type pos = 0, end;
     while ((end = str.find(delimeter, pos)) != std::string::npos) {
@@ -53,17 +55,18 @@ bool checkKernelVersion(int major, int minor) {
 
     auto versplit = split(verstr, ".");
     std::vector<int> verints;
-    for (auto s : versplit) {
+    for (auto s: versplit) {
         verints.push_back(std::stoi(s));
     }
 
     if (verints[0] < major) {
         return false;
-    } else if (verints[0] > major) {
+    }
+    else if (verints[0] > major) {
         return true;
     }
 
     return verints[1] >= minor;
 }
 
-}
+} // namespace s2j

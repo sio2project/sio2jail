@@ -1,16 +1,16 @@
 #pragma once
 
-#include "SeccompRule.h"
 #include "SeccompContext.h"
 #include "SeccompException.h"
-#include "filter/SyscallFilter.h"
+#include "SeccompRule.h"
 #include "action/SeccompAction.h"
+#include "filter/SyscallFilter.h"
 #include "policy/DefaultPolicy.h"
 
-#include "common/Feature.h"
 #include "common/Assert.h"
-#include "printer/OutputSource.h"
+#include "common/Feature.h"
 #include "executor/ExecuteEventListener.h"
+#include "printer/OutputSource.h"
 #include "tracer/TraceEventListener.h"
 #include "tracer/Tracee.h"
 
@@ -21,9 +21,10 @@
 namespace s2j {
 namespace seccomp {
 
-class SeccompListener : public virtual executor::ExecuteEventListener
-                      , public virtual tracer::TraceEventListener
-                      , public printer::OutputSource {
+class SeccompListener
+        : public virtual executor::ExecuteEventListener
+        , public virtual tracer::TraceEventListener
+        , public printer::OutputSource {
 public:
     using syscall_t = int;
 
@@ -37,7 +38,9 @@ public:
     void onPostForkChild() override;
 
     /* Inform any rules about event that have occured. */
-    tracer::TraceAction onTraceEvent(const tracer::TraceEvent& traceEvent, tracer::Tracee& tracee) override;
+    tracer::TraceAction onTraceEvent(
+            const tracer::TraceEvent& traceEvent,
+            tracer::Tracee& tracee) override;
 
     /* Adds new rule to seccomp syscall filter. */
     template<typename SeccompRule>
@@ -53,7 +56,9 @@ public:
     const static Feature feature;
 
 private:
-    static std::string resolveSyscallNumber(uint32_t syscallNumber, const tracer::Arch& arch);
+    static std::string resolveSyscallNumber(
+            uint32_t syscallNumber,
+            const tracer::Arch& arch);
 
     const static uint32_t TRACE_EVENT_ID_BASE;
 
@@ -67,5 +72,5 @@ private:
     tracer::Arch lastSyscallArch_;
 };
 
-}
-}
+} // namespace seccomp
+} // namespace s2j

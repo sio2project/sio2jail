@@ -20,7 +20,8 @@ public:
         ~Builder();
 
         /**
-         * Adds new rule to filter, it won't be active until @loadFilter is called.
+         * Adds new rule to filter, it won't be active until @loadFilter is
+         * called.
          */
         void addRule(const SeccompRule& rule, uint32_t actionGroupId);
 
@@ -33,8 +34,9 @@ public:
         friend class SeccompContext;
 
         /**
-         * Mantain two separate contexts, one for x86 and one for i386 architecture.
-         * In laodFilter merge them. This allows to distuinguish syscalls architectures
+         * Mantain two separate contexts, one for x86 and one for i386
+         * architecture. In laodFilter merge them. This allows to distuinguish
+         * syscalls architectures
          */
         std::map<tracer::Arch, scmp_filter_ctx> ctx_;
     };
@@ -56,7 +58,7 @@ public:
      * List of all supported architectures
      */
     static const std::map<tracer::Arch, uint32_t> SECCOMP_FILTER_ARCHITECTURES;
-    
+
     /**
      * Shift for trace values, smallest power of two not lesser than
      * size of SECCOMP_FILTER_ARCHITECTURES.
@@ -71,5 +73,5 @@ private:
     scmp_filter_ctx ctx_;
 };
 
-}
-}
+} // namespace seccomp
+} // namespace s2j

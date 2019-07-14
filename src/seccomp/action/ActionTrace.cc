@@ -18,7 +18,6 @@ uint32_t ActionTrace::createLibSeccompAction() const {
     return SCMP_ACT_TRACE(getRuleId());
 }
 
-}
-}
-}
-
+} // namespace action
+} // namespace seccomp
+} // namespace s2j

@@ -13,7 +13,8 @@ public:
     OutputBuilder& setMemoryPeak(uint64_t memoryPeakKb) override;
     OutputBuilder& setExitStatus(uint32_t exitStatus) override;
     OutputBuilder& setKillSignal(uint32_t killSignal) override;
-    OutputBuilder& setKillReason(KillReason reason, const std::string& comment) override;
+    OutputBuilder& setKillReason(KillReason reason, const std::string& comment)
+            override;
 
 protected:
     static const uint64_t CYCLES_PER_SECOND = 2'000'000'000;
@@ -28,5 +29,5 @@ protected:
     std::string killReasonComment_;
 };
 
-}
-}
+} // namespace printer
+} // namespace s2j

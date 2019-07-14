@@ -5,9 +5,9 @@
 #include "logger/Logger.h"
 
 #include <asm/unistd.h>
-#include <linux/perf_event.h>
-#include <linux/hw_breakpoint.h>
 #include <fcntl.h>
+#include <linux/hw_breakpoint.h>
+#include <linux/perf_event.h>
 #include <signal.h>
 #include <sys/mman.h>
 
@@ -16,11 +16,16 @@
 
 namespace {
 
-long perf_event_open(struct perf_event_attr *hw_event, pid_t pid, int cpu, int group_fd, unsigned long flags) {
+long perf_event_open(
+        struct perf_event_attr* hw_event,
+        pid_t pid,
+        int cpu,
+        int group_fd,
+        unsigned long flags) {
     return syscall(__NR_perf_event_open, hw_event, pid, cpu, group_fd, flags);
 }
 
-}
+} // namespace
 
 namespace s2j {
 namespace perf {
@@ -28,7 +33,7 @@ namespace perf {
 const Feature PerfListener::feature = Feature::PERF;
 
 PerfListener::PerfListener(uint64_t instructionCountLimit)
-    : perfFd_(-1), instructionCountLimit_(instructionCountLimit) {}
+        : perfFd_(-1), instructionCountLimit_(instructionCountLimit) {}
 
 PerfListener::~PerfListener() {
     // TODO: handle closing perfFd in move assignement / constructor as well
@@ -43,10 +48,16 @@ void PerfListener::onPreFork() {
 
     barrier_ =
             withGuardedErrnoCheck(
-                "mmap shared memory",
-                [](auto&& result) -> bool { return result != MAP_FAILED; },
-                mmap,
-                nullptr, sizeof(pthread_barrier_t), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, 0, 0).as<pthread_barrier_t*>();
+                    "mmap shared memory",
+                    [](auto&& result) -> bool { return result != MAP_FAILED; },
+                    mmap,
+                    nullptr,
+                    sizeof(pthread_barrier_t),
+                    PROT_READ | PROT_WRITE,
+                    MAP_ANONYMOUS | MAP_SHARED,
+                    0,
+                    0)
+                    .as<pthread_barrier_t*>();
 
     pthread_barrierattr_t attr;
     pthread_barrierattr_init(&attr);
@@ -76,43 +87,62 @@ void PerfListener::onPostForkParent(pid_t childPid) {
         attrs.sample_period = instructionCountLimit_;
         attrs.wakeup_events = 1;
     }
-    // Apparently older (3.13) kernel versions doesn't support PERF_FLAG_FD_CLOEXEC. This
-    // fd will be closed anyway (by FilesListener) so it isn't very bad to not use it on
-    // newer kernels (and add it with fcnlt) until we implement some linux version discovery.
-    perfFd_ = withErrnoCheck("perf event open", perf_event_open, &attrs, childPid, -1, -1,
+    // Apparently older (3.13) kernel versions doesn't support
+    // PERF_FLAG_FD_CLOEXEC. This fd will be closed anyway (by FilesListener) so
+    // it isn't very bad to not use it on newer kernels (and add it with fcnlt)
+    // until we implement some linux version discovery.
+    perfFd_ = withErrnoCheck(
+            "perf event open",
+            perf_event_open,
+            &attrs,
+            childPid,
+            -1,
+            -1,
             PERF_FLAG_FD_NO_GROUP /* | PERF_FLAG_FD_CLOEXEC */);
     withErrnoCheck("set cloexec flag on perfFd", fcntl, F_SETFD, FD_CLOEXEC);
     if (instructionCountLimit_ != 0) {
         int myPid = getpid();
         withErrnoCheck("fcntl", fcntl, perfFd_, F_SETOWN, myPid);
-        int oldFlags = withErrnoCheck("fcntl", fcntl, perfFd_, F_GETFL, 0);;
+        int oldFlags = withErrnoCheck("fcntl", fcntl, perfFd_, F_GETFL, 0);
+        ;
         withErrnoCheck("fcntl", fcntl, perfFd_, F_SETFL, oldFlags | O_ASYNC);
     }
 
     pthread_barrier_wait(barrier_);
     pthread_barrier_destroy(barrier_);
-    withErrnoCheck("munmap shared memory", munmap,
-            barrier_, sizeof(pthread_barrier_t));
+    withErrnoCheck(
+            "munmap shared memory",
+            munmap,
+            barrier_,
+            sizeof(pthread_barrier_t));
 }
 
 void PerfListener::onPostForkChild() {
     TRACE();
 
     pthread_barrier_wait(barrier_);
-    withErrnoCheck("munmap shared memory", munmap,
-            barrier_, sizeof(pthread_barrier_t));
+    withErrnoCheck(
+            "munmap shared memory",
+            munmap,
+            barrier_,
+            sizeof(pthread_barrier_t));
 }
 
 uint64_t PerfListener::getInstructionsUsed() {
     TRACE();
 
     long long int instructionsUsed;
-    int size = withErrnoCheck("read perf value", read, perfFd_, &instructionsUsed, sizeof(long long));
+    int size = withErrnoCheck(
+            "read perf value",
+            read,
+            perfFd_,
+            &instructionsUsed,
+            sizeof(long long));
     if (size != sizeof(instructionsUsed))
         throw Exception("read failed");
     if (instructionsUsed < 0)
         throw Exception("read negative instructions count");
-    return (uint64_t)instructionsUsed;
+    return (uint64_t) instructionsUsed;
 }
 
 void PerfListener::onPostExecute() {
@@ -125,13 +155,18 @@ executor::ExecuteAction PerfListener::onSigioSignal() {
     TRACE();
 
     uint64_t instructionsUsed = getInstructionsUsed();
-    if (instructionCountLimit_ != 0 && instructionsUsed >= instructionCountLimit_) {
-        logger::debug("Killing tracee after instructions count ", instructionsUsed, " exceeded limit");
-        outputBuilder_->setKillReason(printer::OutputBuilder::KillReason::TLE, "time limit exceeded");
+    if (instructionCountLimit_ != 0 &&
+        instructionsUsed >= instructionCountLimit_) {
+        logger::debug(
+                "Killing tracee after instructions count ",
+                instructionsUsed,
+                " exceeded limit");
+        outputBuilder_->setKillReason(
+                printer::OutputBuilder::KillReason::TLE, "time limit exceeded");
         return executor::ExecuteAction::KILL;
     }
     return executor::ExecuteAction::CONTINUE;
 }
 
-}
-}
+} // namespace perf
+} // namespace s2j

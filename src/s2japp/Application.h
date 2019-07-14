@@ -2,8 +2,8 @@
 
 #include "ApplicationSettings.h"
 
-#include "printer/OutputBuilder.h"
 #include "logger/Logger.h"
+#include "printer/OutputBuilder.h"
 
 namespace s2j {
 namespace app {
@@ -31,12 +31,12 @@ private:
 
     void initializeLogger();
 
-    template<typename Listener, typename ...Args>
-    std::shared_ptr<Listener> createListener(Args ...args);
+    template<typename Listener, typename... Args>
+    std::shared_ptr<Listener> createListener(Args... args);
 
-    template<typename ListenerType, typename Operation, typename ...Listeners>
-    void forEachListener(Operation operation, Listeners ...listeners);
+    template<typename ListenerType, typename Operation, typename... Listeners>
+    void forEachListener(Operation operation, Listeners... listeners);
 };
 
-}
-}
+} // namespace app
+} // namespace s2j

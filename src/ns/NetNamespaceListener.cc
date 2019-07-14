@@ -16,5 +16,5 @@ void NetNamespaceListener::onPostForkChild() {
     withErrnoCheck("unshare newnet", unshare, CLONE_NEWNET);
 }
 
-}
-}
+} // namespace ns
+} // namespace s2j

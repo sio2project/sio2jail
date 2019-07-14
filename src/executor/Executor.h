@@ -3,8 +3,8 @@
 #include "ExecuteEventListener.h"
 
 #include "common/EventProvider.h"
-#include "printer/OutputSource.h"
 #include "ns/MountEventListener.h"
+#include "printer/OutputSource.h"
 
 #include <memory>
 #include <vector>
@@ -12,11 +12,14 @@
 namespace s2j {
 namespace executor {
 
-class Executor : public s2j::printer::OutputSource
-               , public s2j::ns::MountEventListener
-               , public EventProvider<ExecuteEventListener> {
+class Executor
+        : public s2j::printer::OutputSource
+        , public s2j::ns::MountEventListener
+        , public EventProvider<ExecuteEventListener> {
 public:
-    Executor(const std::string& childProgramName, const std::vector<std::string>& childProgramArgv);
+    Executor(
+            const std::string& childProgramName,
+            const std::vector<std::string>& childProgramArgv);
 
     template<typename ProgramNameType>
     void setChildProgramName(ProgramNameType&& programName) {
@@ -45,5 +48,5 @@ private:
     pid_t childPid_;
 };
 
-}
-}
+} // namespace executor
+} // namespace s2j

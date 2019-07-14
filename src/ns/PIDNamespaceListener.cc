@@ -16,5 +16,5 @@ void PIDNamespaceListener::onPreFork() {
     withErrnoCheck("unshare newpid", unshare, CLONE_NEWPID);
 }
 
-}
-}
+} // namespace ns
+} // namespace s2j

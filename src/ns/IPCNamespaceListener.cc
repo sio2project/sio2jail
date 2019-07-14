@@ -16,5 +16,5 @@ void IPCNamespaceListener::onPostForkChild() {
     withErrnoCheck("unshare newipc", unshare, CLONE_NEWIPC);
 }
 
-}
-}
+} // namespace ns
+} // namespace s2j

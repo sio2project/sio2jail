@@ -1,30 +1,38 @@
 #include "UserNamespaceListener.h"
 
 #include "common/Exception.h"
-#include "common/WithErrnoCheck.h"
 #include "common/FD.h"
+#include "common/WithErrnoCheck.h"
 #include "logger/Logger.h"
 
-#include <sstream>
-#include <iostream>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <iostream>
+#include <sstream>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 namespace s2j {
 namespace ns {
 
 const Feature UserNamespaceListener::feature = Feature::USER_NAMESPACE;
 
-UserNamespaceListener::UserNamespaceListener() : UserNamespaceListener(-1, -1) {}
+UserNamespaceListener::UserNamespaceListener()
+        : UserNamespaceListener(-1, -1) {}
 
-UserNamespaceListener::UserNamespaceListener(uid_t rootOutsideUid, gid_t rootOutsideGid) :
-        UserNamespaceListener(rootOutsideUid, rootOutsideGid, -1, -1) {}
+UserNamespaceListener::UserNamespaceListener(
+        uid_t rootOutsideUid,
+        gid_t rootOutsideGid)
+        : UserNamespaceListener(rootOutsideUid, rootOutsideGid, -1, -1) {}
 
-UserNamespaceListener::UserNamespaceListener(uid_t rootOutsideUid, gid_t rootOutsideGid,
-        uid_t childOutsideUid, gid_t childOutsideGid) :
-        rootOutsideUid_(rootOutsideUid), rootOutsideGid_(rootOutsideGid),
-        childOutsideUid_(childOutsideUid), childOutsideGid_(childOutsideGid) {}
+UserNamespaceListener::UserNamespaceListener(
+        uid_t rootOutsideUid,
+        gid_t rootOutsideGid,
+        uid_t childOutsideUid,
+        gid_t childOutsideGid)
+        : rootOutsideUid_(rootOutsideUid)
+        , rootOutsideGid_(rootOutsideGid)
+        , childOutsideUid_(childOutsideUid)
+        , childOutsideGid_(childOutsideGid) {}
 
 void UserNamespaceListener::onPreFork() {
     TRACE();
@@ -53,7 +61,10 @@ void UserNamespaceListener::writeSetGroups() {
     FD::open("/proc/self/setgroups", O_WRONLY | O_CLOEXEC) << "deny";
 }
 
-void UserNamespaceListener::writeUidGidMap(std::string file, uid_t rootUid, uid_t childUid) {
+void UserNamespaceListener::writeUidGidMap(
+        std::string file,
+        uid_t rootUid,
+        uid_t childUid) {
     TRACE(file, rootUid, childUid);
 
     std::stringstream map;
@@ -65,5 +76,5 @@ void UserNamespaceListener::writeUidGidMap(std::string file, uid_t rootUid, uid_
     FD::open("/proc/self/" + file, O_WRONLY | O_CLOEXEC) << map.str();
 }
 
-}
-}
+} // namespace ns
+} // namespace s2j

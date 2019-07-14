@@ -28,5 +28,5 @@ private:
     int devnull_;
 };
 
-}
-}
+} // namespace files
+} // namespace s2j

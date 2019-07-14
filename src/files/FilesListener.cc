@@ -10,26 +10,26 @@ const std::string FilesListener::DEV_NULL = "/dev/null";
 const std::string FilesListener::FDS_PATH = "/proc/self/fd/";
 
 FilesListener::FilesListener(bool suppressStderr)
-    : suppressStderr_(suppressStderr) {}
+        : suppressStderr_(suppressStderr) {}
 
 void FilesListener::onPreFork() {
     TRACE();
 
     // Gather all open fds we will want to close
-    std::unique_ptr<DIR, int(*)(DIR*)>fdsDirectory(
+    std::unique_ptr<DIR, int (*)(DIR*)> fdsDirectory(
             withErrnoCheck("open fds directory", opendir, FDS_PATH.c_str()),
             closedir);
 
     if (fdsDirectory == nullptr)
         throw Exception("Can't open fds directory " + FDS_PATH);
 
-    for (struct dirent* entry = readdir(fdsDirectory.get());
-            entry != nullptr;
-            entry = readdir(fdsDirectory.get())) {
+    for (struct dirent* entry = readdir(fdsDirectory.get()); entry != nullptr;
+         entry = readdir(fdsDirectory.get())) {
         int fd;
         try {
             fd = std::stoi(entry->d_name);
-        } catch (const std::exception&) {
+        }
+        catch (const std::exception&) {
             continue;
         }
 
@@ -40,7 +40,8 @@ void FilesListener::onPreFork() {
     }
 
     // Open /dev/null for child
-    devnull_ = withErrnoCheck("open /dev/null", open, DEV_NULL.c_str(), O_WRONLY);
+    devnull_ =
+            withErrnoCheck("open /dev/null", open, DEV_NULL.c_str(), O_WRONLY);
 }
 
 void FilesListener::onPostForkChild() {
@@ -65,5 +66,5 @@ void FilesListener::onPostForkChild() {
     }
 }
 
-}
-}
+} // namespace files
+} // namespace s2j

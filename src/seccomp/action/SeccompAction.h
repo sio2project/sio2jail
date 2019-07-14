@@ -14,12 +14,7 @@ namespace action {
 
 class SeccompAction {
 public:
-    enum class Type {
-        ALLOW   = 0,
-        TRACE   = 1,
-        ERRNO   = 2,
-        KILL    = 3
-    };
+    enum class Type { ALLOW = 0, TRACE = 1, ERRNO = 2, KILL = 3 };
 
     SeccompAction();
     virtual ~SeccompAction() = default;
@@ -39,9 +34,9 @@ protected:
     uint32_t ruleId_;
 };
 
-}
-}
+} // namespace action
+} // namespace seccomp
 
 std::string to_string(const seccomp::action::SeccompAction::Type type);
 
-}
+} // namespace s2j

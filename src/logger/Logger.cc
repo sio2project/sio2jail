@@ -18,5 +18,5 @@ std::shared_ptr<Logger> Logger::getLogger() noexcept {
     return logger_;
 }
 
-}
-}
+} // namespace logger
+} // namespace s2j

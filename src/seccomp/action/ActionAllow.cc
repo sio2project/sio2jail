@@ -16,6 +16,6 @@ uint32_t ActionAllow::createLibSeccompAction() const {
     return SCMP_ACT_ALLOW;
 }
 
-}
-}
-}
+} // namespace action
+} // namespace seccomp
+} // namespace s2j

@@ -1,7 +1,7 @@
 #include "TraceExecutor.h"
 
-#include "common/WithErrnoCheck.h"
 #include "common/ProcFS.h"
+#include "common/WithErrnoCheck.h"
 #include "logger/Logger.h"
 
 #include <signal.h>
@@ -18,7 +18,8 @@ void TraceExecutor::onPostForkChild() {
     TRACE();
 
     // Let's be a tracee.
-    withErrnoCheck("ptrace traceme", ptrace, PTRACE_TRACEME, 0, nullptr, nullptr);
+    withErrnoCheck(
+            "ptrace traceme", ptrace, PTRACE_TRACEME, 0, nullptr, nullptr);
     kill(getpid(), SIGTRAP);
 }
 
@@ -31,23 +32,31 @@ void TraceExecutor::onPostForkParent(pid_t childPid) {
     withErrnoCheck("initial wait", waitpid, traceePid_, nullptr, 0);
 
     // Let's be a tracer.
-    withErrnoCheck("ptrace setopts",
-            ptrace, PTRACE_SETOPTIONS, traceePid_, nullptr,
+    withErrnoCheck(
+            "ptrace setopts",
+            ptrace,
+            PTRACE_SETOPTIONS,
+            traceePid_,
+            nullptr,
             PTRACE_O_EXITKILL | PTRACE_O_TRACESECCOMP | PTRACE_O_TRACEEXEC);
 
     // Resume tracee.
-    withErrnoCheck("ptrace cont", ptrace, PTRACE_CONT, traceePid_, nullptr, nullptr);
+    withErrnoCheck(
+            "ptrace cont", ptrace, PTRACE_CONT, traceePid_, nullptr, nullptr);
 }
 
-executor::ExecuteAction TraceExecutor::onExecuteEvent(const executor::ExecuteEvent& executeEvent) {
+executor::ExecuteAction TraceExecutor::onExecuteEvent(
+        const executor::ExecuteEvent& executeEvent) {
     TRACE();
 
-    static const uint64_t IGNORED_SIGNALS = (1 << SIGCHLD) | (1 << SIGCLD) | (1 << SIGURG) | (1 << SIGWINCH);
+    static const uint64_t IGNORED_SIGNALS =
+            (1 << SIGCHLD) | (1 << SIGCLD) | (1 << SIGURG) | (1 << SIGWINCH);
 
-    TraceEvent event { executeEvent };
+    TraceEvent event{executeEvent};
     Tracee tracee(traceePid_);
 
-    if (!hasExecved_ && executeEvent.trapped && executeEvent.signal == (SIGTRAP | (PTRACE_EVENT_EXEC << 8))) {
+    if (!hasExecved_ && executeEvent.trapped &&
+        executeEvent.signal == (SIGTRAP | (PTRACE_EVENT_EXEC << 8))) {
         hasExecved_ = true;
         for (auto& listener: eventListeners_)
             listener->onPostExec(event);
@@ -65,11 +74,15 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(const executor::ExecuteEve
         if (signal > 0) {
             // Since our child is pid 1 we have to kill on delivery on uncaught
             // signal in favour of kernel.
-            uint64_t caughtSignals = procfs::readProcFS(traceePid_, procfs::Field::SIG_CGT);
+            uint64_t caughtSignals =
+                    procfs::readProcFS(traceePid_, procfs::Field::SIG_CGT);
             caughtSignals |= IGNORED_SIGNALS;
             if (!(caughtSignals & (1 << signal))) {
                 outputBuilder_->setKillSignal(signal);
-                logger::debug("Delivery of uncaught signal ", signal, " killing instead");
+                logger::debug(
+                        "Delivery of uncaught signal ",
+                        signal,
+                        " killing instead");
                 signal = SIGKILL;
                 action = TraceAction::KILL;
             }
@@ -89,12 +102,18 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(const executor::ExecuteEve
                 logger::debug("Killing tracee after trace action kill");
                 withErrnoCheck("kill child", kill, traceePid_, SIGKILL);
             }
-            withErrnoCheck("ptrace cont", ptrace, PTRACE_CONT, traceePid_, nullptr, signal);
+            withErrnoCheck(
+                    "ptrace cont",
+                    ptrace,
+                    PTRACE_CONT,
+                    traceePid_,
+                    nullptr,
+                    signal);
         }
         catch (const SystemException& ex) {
             if (ex.getErrno() != ESRCH)
                 throw;
-       }
+        }
     }
 
     if (action == TraceAction::KILL)
@@ -103,5 +122,5 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(const executor::ExecuteEve
         return executor::ExecuteAction::CONTINUE;
 }
 
-}
-}
+} // namespace tracer
+} // namespace s2j

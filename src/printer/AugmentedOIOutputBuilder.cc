@@ -16,13 +16,9 @@ std::string AugmentedOIOutputBuilder::dump() const {
     }
 
     std::stringstream ss;
-    ss << killReasonName(reason)
-        << " " << exitStatus_
-        << " " << milliSecondsElapsed_
-        << " " << 0ULL
-        << " " << memoryPeakKb_
-        << " " << syscallsCounter_
-        << std::endl;
+    ss << killReasonName(reason) << " " << exitStatus_ << " "
+       << milliSecondsElapsed_ << " " << 0ULL << " " << memoryPeakKb_ << " "
+       << syscallsCounter_ << std::endl;
     dumpStatus(ss);
     ss << std::endl;
     return ss.str();
@@ -43,5 +39,5 @@ void AugmentedOIOutputBuilder::dumpStatus(std::ostream& ss) const {
     }
 }
 
-}
-}
+} // namespace printer
+} // namespace s2j

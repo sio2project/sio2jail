@@ -11,12 +11,9 @@ const std::string OITimeToolOutputBuilder::FORMAT_NAME = "oitt";
 std::string OITimeToolOutputBuilder::dump() const {
     // mimic orginal oititmetools' output
     std::stringstream ss;
-    ss << "__RESULT__ " << encodeStatusCode()
-        << " " << milliSecondsElapsed_
-        << " " << 0ULL
-        << " " << memoryPeakKb_
-        << " " << syscallsCounter_
-        << std::endl;
+    ss << "__RESULT__ " << encodeStatusCode() << " " << milliSecondsElapsed_
+       << " " << 0ULL << " " << memoryPeakKb_ << " " << syscallsCounter_
+       << std::endl;
     dumpStatus(ss);
     ss << std::endl;
     return ss.str();
@@ -24,7 +21,7 @@ std::string OITimeToolOutputBuilder::dump() const {
 
 void OITimeToolOutputBuilder::dumpStatus(std::ostream& ss) const {
     if (killReason_ != KillReason::NONE) {
-            ss << killReasonComment_;
+        ss << killReasonComment_;
     }
     else if (killSignal_ > 0) {
         ss << "process exited due to signal " << killSignal_;
@@ -42,24 +39,32 @@ int OITimeToolOutputBuilder::encodeStatusCode() const {
     static const int CODE_RE_BASE = 200;
 
     if (killReason_ == KillReason::NONE) {
-        // NOTE: order of ifs is important, as nonzero killSignal also sets exitStatus_
+        // NOTE: order of ifs is important, as nonzero killSignal also sets
+        // exitStatus_
         if (killSignal_ > 0) {
             return CODE_SIG_BASE + killSignal_;
-        } else if (exitStatus_ > 0) {
+        }
+        else if (exitStatus_ > 0) {
             return CODE_RE_BASE + exitStatus_;
         }
     }
 
-    switch (killReason_){
-        case KillReason::NONE: return 0;
-        case KillReason::RE:  return 100;
-        case KillReason::RV:  return 121;
-        case KillReason::TLE: return 125;
-        case KillReason::MLE: return 124;
-        case KillReason::OLE: return 120;
+    switch (killReason_) {
+    case KillReason::NONE:
+        return 0;
+    case KillReason::RE:
+        return 100;
+    case KillReason::RV:
+        return 121;
+    case KillReason::TLE:
+        return 125;
+    case KillReason::MLE:
+        return 124;
+    case KillReason::OLE:
+        return 120;
     };
     __builtin_unreachable();
 }
 
-}
-}
+} // namespace printer
+} // namespace s2j

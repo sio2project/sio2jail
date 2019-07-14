@@ -4,7 +4,11 @@ namespace s2j {
 namespace printer {
 
 OIModelOutputBuilder::OIModelOutputBuilder()
-    : milliSecondsElapsed_(0), memoryPeakKb_(0), syscallsCounter_(0), exitStatus_(0), killSignal_(0) {}
+        : milliSecondsElapsed_(0)
+        , memoryPeakKb_(0)
+        , syscallsCounter_(0)
+        , exitStatus_(0)
+        , killSignal_(0) {}
 
 OutputBuilder& OIModelOutputBuilder::setCyclesUsed(uint64_t cyclesUsed) {
     milliSecondsElapsed_ = cyclesUsed * 1'000 / CYCLES_PER_SECOND;
@@ -31,7 +35,9 @@ OutputBuilder& OIModelOutputBuilder::setKillSignal(uint32_t killSignal) {
     return *this;
 }
 
-OutputBuilder& OIModelOutputBuilder::setKillReason(KillReason reason, const std::string& comment) {
+OutputBuilder& OIModelOutputBuilder::setKillReason(
+        KillReason reason,
+        const std::string& comment) {
     // Remember only first kill reason
     if (killReason_ == KillReason::NONE) {
         killReason_ = reason;
@@ -41,5 +47,5 @@ OutputBuilder& OIModelOutputBuilder::setKillReason(KillReason reason, const std:
     return *this;
 }
 
-}
-}
+} // namespace printer
+} // namespace s2j

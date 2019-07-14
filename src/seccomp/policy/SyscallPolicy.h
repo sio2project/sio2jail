@@ -15,7 +15,7 @@ public:
 class BaseSyscallPolicy : public SyscallPolicy {
 public:
     BaseSyscallPolicy(std::shared_ptr<action::SeccompAction> defaultAction)
-        : defaultAction_(defaultAction) {}
+            : defaultAction_(defaultAction) {}
 
     std::shared_ptr<action::SeccompAction> getDefaultAction() const {
         return defaultAction_;
@@ -25,6 +25,6 @@ private:
     std::shared_ptr<action::SeccompAction> defaultAction_;
 };
 
-}
-}
-}
+} // namespace policy
+} // namespace seccomp
+} // namespace s2j

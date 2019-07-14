@@ -3,10 +3,7 @@
 namespace s2j {
 namespace tracer {
 
-enum class TraceAction {
-    CONTINUE    = 0,
-    KILL        = 1
-};
+enum class TraceAction { CONTINUE = 0, KILL = 1 };
 
 }
-}
+} // namespace s2j

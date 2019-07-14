@@ -6,8 +6,7 @@
 
 namespace s2j {
 
-Exception::Exception(const std::string& msg)
-    : msg_(msg) {
+Exception::Exception(const std::string& msg) : msg_(msg) {
     logger::error("Exception: ", msg);
 }
 
@@ -16,15 +15,16 @@ const char* Exception::what() const noexcept {
 }
 
 SystemException::SystemException(const std::string& msg)
-    : SystemException(msg, errno) {}
+        : SystemException(msg, errno) {}
 
 SystemException::SystemException(const std::string& msg, int errnoNumber)
-    : Exception("System error occured: " + msg +
-                ": error " + std::to_string(errnoNumber) + ": " + strerror(errnoNumber))
-    , errno_(errnoNumber) {}
+        : Exception(
+                  "System error occured: " + msg + ": error " +
+                  std::to_string(errnoNumber) + ": " + strerror(errnoNumber))
+        , errno_(errnoNumber) {}
 
 uint32_t SystemException::getErrno() const {
     return errno_;
 }
 
-}
+} // namespace s2j

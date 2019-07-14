@@ -20,6 +20,6 @@ protected:
     uint64_t errnoNumber_;
 };
 
-}
-}
-}
+} // namespace action
+} // namespace seccomp
+} // namespace s2j

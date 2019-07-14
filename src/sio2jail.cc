@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-int main(int argc, const char* argv []) {
+int main(int argc, const char* argv[]) {
     try {
         return s2j::app::Application(argc, argv).main();
     }

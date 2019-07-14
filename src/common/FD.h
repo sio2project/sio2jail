@@ -25,9 +25,13 @@ public:
 
     static FD open(const std::string& path, int flags);
     static FD open(const std::string& path, int flags, mode_t mode);
+
 private:
-    template<typename Operation, typename ...Args>
-    static FD withErrnoCheck(const std::string& description, Operation operation, Args ...args) {
+    template<typename Operation, typename... Args>
+    static FD withErrnoCheck(
+            const std::string& description,
+            Operation operation,
+            Args... args) {
         int fd = s2j::withErrnoCheck(description, operation, args...);
         return FD(fd, true);
     }
@@ -36,4 +40,4 @@ private:
     bool close_;
 };
 
-}
+} // namespace s2j

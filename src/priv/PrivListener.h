@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common/Feature.h"
-#include "printer/OutputSource.h"
 #include "executor/ExecuteEventListener.h"
+#include "printer/OutputSource.h"
 
 namespace s2j {
 namespace priv {
@@ -25,5 +25,5 @@ private:
     unsigned long secureBits_;
 };
 
-}
-}
+} // namespace priv
+} // namespace s2j

@@ -54,12 +54,13 @@ private:
      * If signal is valid for tracee to send.
      */
     static inline bool isSignalValid(int signal) {
-        return signal != SIGSTOP && signal != SIGKILL && signal != SIGVTALRM && signal != SIGKILL;
+        return signal != SIGSTOP && signal != SIGKILL && signal != SIGVTALRM &&
+               signal != SIGKILL;
     }
 
     std::vector<SeccompRule> rules_;
 };
 
-}
-}
-}
+} // namespace policy
+} // namespace seccomp
+} // namespace s2j

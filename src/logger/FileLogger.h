@@ -12,5 +12,5 @@ public:
     FileLogger(const std::string& fileName = "/dev/null");
 };
 
-}
-}
+} // namespace logger
+} // namespace s2j

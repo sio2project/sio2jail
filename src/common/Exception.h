@@ -27,12 +27,11 @@ private:
 
 class NotImplementedException : public Exception {
 public:
-    NotImplementedException(const std::string& msg)
-        : Exception(msg) {};
+    NotImplementedException(const std::string& msg) : Exception(msg){};
 };
 
-}
+} // namespace s2j
 
-#define NOT_IMPLEMENTED() \
-    throw s2j::NotImplementedException( \
+#define NOT_IMPLEMENTED()                                                      \
+    throw s2j::NotImplementedException(                                        \
             "Not implemented: " __FILE__ ":" + std::to_string(__LINE__))

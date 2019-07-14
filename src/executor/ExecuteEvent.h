@@ -15,5 +15,5 @@ public:
     bool trapped;
 };
 
-}
-}
+} // namespace executor
+} // namespace s2j

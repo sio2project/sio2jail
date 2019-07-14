@@ -17,8 +17,12 @@ public:
      */
     virtual void onPostExec(const tracer::TraceEvent& traceEvent) {}
 
-    virtual TraceAction onTraceEvent(const tracer::TraceEvent& traceEvent, tracer::Tracee& tracee) { return TraceAction::CONTINUE; }
+    virtual TraceAction onTraceEvent(
+            const tracer::TraceEvent& traceEvent,
+            tracer::Tracee& tracee) {
+        return TraceAction::CONTINUE;
+    }
 };
 
-}
-}
+} // namespace tracer
+} // namespace s2j

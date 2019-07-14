@@ -12,5 +12,5 @@ struct TraceEvent {
     executor::ExecuteEvent executeEvent;
 };
 
-}
-}
+} // namespace tracer
+} // namespace s2j

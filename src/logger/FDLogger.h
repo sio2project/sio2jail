@@ -22,5 +22,5 @@ private:
     bool close_;
 };
 
-}
-}
+} // namespace logger
+} // namespace s2j
