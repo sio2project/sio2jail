@@ -82,3 +82,27 @@ running tests
 To run test suit use 'check' target, e.g in build directory run:
 
     make check
+
+notes for developers
+--------------------
+
+To manually run clang-format on each file run:
+
+    make clang-format
+
+inside build directory.
+
+To manually run clang-tidy on each source file run:
+
+    make clang-tidy
+
+or to use automatically fix errors:
+
+    make clang-tidy-fix
+
+inside build directory.
+
+There is possibility to enable running clang-tidy automatically during
+compilation on each file (can significantly slow down compilation):
+
+    -DWITH_CLANG_TIDY=YES
