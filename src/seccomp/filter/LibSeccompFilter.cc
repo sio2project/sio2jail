@@ -106,7 +106,7 @@ MaskedSyscallArg::MaskedSyscallArg(uint8_t argumentIndex, uint64_t mask)
         : argumentIndex_(argumentIndex), mask_(mask) {}
 
 MaskedSyscallArg SyscallArg::operator&(const uint64_t mask) const {
-    return MaskedSyscallArg(argumentIndex_, mask);
+    return MaskedSyscallArg{argumentIndex_, mask};
 }
 
 LibSeccompFilter MaskedSyscallArg::operator==(const uint64_t data) const {

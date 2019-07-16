@@ -17,7 +17,7 @@ private:
 class SystemException : public Exception {
 public:
     SystemException(const std::string& msg);
-    SystemException(const std::string& msg, int errorNumber);
+    SystemException(const std::string& msg, int errnoNumber);
 
     uint32_t getErrno() const;
 

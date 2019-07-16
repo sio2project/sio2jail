@@ -23,7 +23,7 @@ namespace {
  */
 class StringOutputGenerator : public TCLAP::StdOutput {
 public:
-    StringOutputGenerator(s2j::app::ApplicationSettings& settings)
+    explicit StringOutputGenerator(s2j::app::ApplicationSettings& settings)
             : settings_(settings), hasFailure_(false) {}
 
     void usage(TCLAP::CmdLineInterface& cmd) override {
@@ -42,7 +42,7 @@ public:
         settings_.parsingError = ex.error();
     }
 
-    void failure(TCLAP::CmdLineInterface& cmd, TCLAP::ArgException& ex)
+    void failure(TCLAP::CmdLineInterface& /*cmd*/, TCLAP::ArgException& ex)
             override {
         failure(ex);
     }
@@ -144,7 +144,7 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
                 Feature,
                 std::unique_ptr<TCLAP::ValueArg<std::string>>>>
                 argsFeatures;
-        for (const auto featureIter: FEATURE_BY_NAME) {
+        for (const auto& featureIter: FEATURE_BY_NAME) {
             argsFeatures.emplace_back(
                     featureIter.second.first,
                     std::make_unique<TCLAP::ValueArg<std::string>>(
@@ -316,8 +316,9 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         outputGenerator.version(cmd);
 
         // If there is -v or -h flag ignore any other arguments
-        if (argPrintHelp.isSet() || argPrintVersion.isSet())
+        if (argPrintHelp.isSet() || argPrintVersion.isSet()) {
             parsingError = "";
+        }
 
         if (argPrintHelp.isSet()) {
             action = Action::PRINT_HELP;
@@ -371,7 +372,7 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         bindExecutable = !argNoDefaultBinds.getValue();
 
         if (argInstructionCountLimit.isSet() &&
-            !features.count(Feature::PERF)) {
+            (features.count(Feature::PERF) == 0U)) {
             throw InvalidConfigurationException(
                     "Instruction count limit can only be used if PERF is "
                     "enabled");
@@ -408,7 +409,7 @@ void ApplicationSettings::addBindMount(const std::string& bindMountLine) {
             ns::MountNamespaceListener::BindMount::Mode::RO};
     if (tokens.size() == 3) {
         auto flags = split(tokens[2], ",");
-        if (flags.size() < 1) {
+        if (flags.empty()) {
             throw InvalidConfigurationException(
                     "Empty bind mount mode: " + tokens[2]);
         }

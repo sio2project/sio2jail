@@ -30,8 +30,8 @@ MemoryArgument& MemoryArgument::operator=(const std::string& str) {
     }
 
     // std::array::size is constexpr
-    for (size_t i = 0; i < sizes.size(); ++i) {
-        if (sizes[i] == unit) {
+    for (const auto& size: sizes) {
+        if (size == unit) {
             return *this;
         }
         value_ *= 1024;
@@ -84,8 +84,8 @@ AmountArgument& AmountArgument::operator=(const std::string& str) {
     }
 
     // std::array::size is constexpr
-    for (size_t i = 0; i < sizes.size(); ++i) {
-        if (sizes[i] == unit) {
+    for (const auto& size: sizes) {
+        if (size == unit) {
             return *this;
         }
         value_ *= 1000;

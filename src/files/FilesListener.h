@@ -25,7 +25,7 @@ public:
 private:
     const bool suppressStderr_;
     std::vector<int> fds_;
-    int devnull_;
+    int devnull_{-1};
 };
 
 } // namespace files

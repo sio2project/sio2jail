@@ -8,10 +8,10 @@
 #include "seccomp/action/ActionTrace.h"
 #include "seccomp/filter/LibSeccompFilter.h"
 
-#include <signal.h>
 #include <sys/resource.h>
 #include <sys/time.h>
 
+#include <csignal>
 #include <fstream>
 #include <iostream>
 
@@ -36,8 +36,9 @@ MemoryLimitListener::MemoryLimitListener(uint64_t memoryLimitKb)
                 syscall,
                 seccomp::action::ActionTrace([this](tracer::Tracee& tracee) {
                     TRACE();
-                    if (!vmPeakValid_)
+                    if (!vmPeakValid_) {
                         return tracer::TraceAction::CONTINUE;
+                    }
 
                     uint64_t memoryUsage = getMemoryUsageKb() +
                                            tracee.getSyscallArgument(1) / 1024;
@@ -94,11 +95,12 @@ void MemoryLimitListener::onPostExec(
 }
 
 executor::ExecuteAction MemoryLimitListener::onExecuteEvent(
-        const executor::ExecuteEvent& executeEvent) {
+        const executor::ExecuteEvent& /*executeEvent*/) {
     TRACE();
 
-    if (!vmPeakValid_)
+    if (!vmPeakValid_) {
         return executor::ExecuteAction::CONTINUE;
+    }
 
     memoryPeakKb_ = std::max(memoryPeakKb_, getMemoryPeakKb());
     logger::debug("Read new memory peak ", VAR(memoryPeakKb_));

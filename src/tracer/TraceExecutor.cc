@@ -4,10 +4,11 @@
 #include "common/WithErrnoCheck.h"
 #include "logger/Logger.h"
 
-#include <signal.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include <csignal>
 
 namespace s2j {
 namespace tracer {
@@ -58,18 +59,21 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(
     if (!hasExecved_ && executeEvent.trapped &&
         executeEvent.signal == (SIGTRAP | (PTRACE_EVENT_EXEC << 8))) {
         hasExecved_ = true;
-        for (auto& listener: eventListeners_)
+        for (auto& listener: eventListeners_) {
             listener->onPostExec(event);
+        }
     }
 
     TraceAction action = TraceAction::CONTINUE;
-    for (auto& listener: eventListeners_)
+    for (auto& listener: eventListeners_) {
         action = std::max(action, listener->onTraceEvent(event, tracee));
+    }
 
     if (!executeEvent.exited && !executeEvent.killed && tracee.isAlive()) {
         int64_t signal = executeEvent.signal & 0xff;
-        if (executeEvent.trapped && signal == SIGTRAP)
+        if (executeEvent.trapped && signal == SIGTRAP) {
             signal = 0;
+        }
 
         if (signal > 0) {
             // Since our child is pid 1 we have to kill on delivery on uncaught
@@ -77,7 +81,7 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(
             uint64_t caughtSignals =
                     procfs::readProcFS(traceePid_, procfs::Field::SIG_CGT);
             caughtSignals |= IGNORED_SIGNALS;
-            if (!(caughtSignals & (1 << signal))) {
+            if ((caughtSignals & (1 << signal)) == 0U) {
                 outputBuilder_->setKillSignal(signal);
                 logger::debug(
                         "Delivery of uncaught signal ",
@@ -111,15 +115,16 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(
                     signal);
         }
         catch (const SystemException& ex) {
-            if (ex.getErrno() != ESRCH)
+            if (ex.getErrno() != ESRCH) {
                 throw;
+            }
         }
     }
 
-    if (action == TraceAction::KILL)
+    if (action == TraceAction::KILL) {
         return executor::ExecuteAction::KILL;
-    else
-        return executor::ExecuteAction::CONTINUE;
+    }
+    return executor::ExecuteAction::CONTINUE;
 }
 
 } // namespace tracer

@@ -23,7 +23,7 @@ PrivListener::PrivListener()
                   prctl,
                   PR_GET_SECUREBITS)) {}
 
-void PrivListener::onPostForkParent(pid_t childPid) {
+void PrivListener::onPostForkParent(pid_t /*childPid*/) {
     TRACE();
 
     dropBSet();
@@ -54,8 +54,9 @@ void PrivListener::dropBSet() {
                     0);
         }
         catch (s2j::SystemException& ex) {
-            if (ex.getErrno() != EINVAL)
+            if (ex.getErrno() != EINVAL) {
                 throw ex;
+            }
         }
     }
 }
@@ -147,8 +148,9 @@ void PrivListener::addSecureBits(unsigned long bits) {
         }
     }
     catch (const SystemException& ex) {
-        if (ex.getErrno() != EPERM)
+        if (ex.getErrno() != EPERM) {
             throw;
+        }
         logger::debug("Set securebits failed with EPERM");
     }
 }

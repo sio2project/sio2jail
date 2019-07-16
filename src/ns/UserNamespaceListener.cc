@@ -41,10 +41,10 @@ void UserNamespaceListener::onPreFork() {
     gid_t gid = rootOutsideGid_;
 
     // watch out, they're unsigned ;)
-    if (uid == (uid_t) -1) {
+    if (uid == static_cast<uid_t>(-1)) {
         uid = getuid();
     }
-    if (gid == (gid_t) -1) {
+    if (gid == static_cast<gid_t>(-1)) {
         gid = getgid();
     }
 
@@ -62,7 +62,7 @@ void UserNamespaceListener::writeSetGroups() {
 }
 
 void UserNamespaceListener::writeUidGidMap(
-        std::string file,
+        const std::string& file,
         uid_t rootUid,
         uid_t childUid) {
     TRACE(file, rootUid, childUid);
@@ -70,7 +70,7 @@ void UserNamespaceListener::writeUidGidMap(
     std::stringstream map;
     map << "0 " << rootUid << " 1\n";
     // watch out, this is an unsigned -1
-    if (childUid != (uid_t) -1) {
+    if (childUid != static_cast<uid_t>(-1)) {
         map << "1 " << childUid << " 1\n";
     }
     FD::open("/proc/self/" + file, O_WRONLY | O_CLOEXEC) << map.str();

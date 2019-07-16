@@ -50,7 +50,7 @@ void LoggerListener::onPostExecute() {
 }
 
 tracer::TraceAction LoggerListener::onTraceEvent(
-        const tracer::TraceEvent& traceEvent,
+        const tracer::TraceEvent& /*traceEvent*/,
         tracer::Tracee& tracee) {
     logger::debug("Execution stage onTraceEvent, isAlive=", tracee.isAlive());
     return tracer::TraceAction::CONTINUE;

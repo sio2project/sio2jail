@@ -8,9 +8,9 @@
 #include <fcntl.h>
 #include <linux/hw_breakpoint.h>
 #include <linux/perf_event.h>
-#include <signal.h>
 #include <sys/mman.h>
 
+#include <csignal>
 #include <cstdlib>
 #include <cstring>
 
@@ -73,7 +73,7 @@ void PerfListener::onPostForkParent(pid_t childPid) {
 
     childPid_ = childPid;
     // TODO: fix this // What fix?
-    struct perf_event_attr attrs;
+    struct perf_event_attr attrs {};
     memset(&attrs, 0, sizeof(attrs));
     attrs.type = PERF_TYPE_HARDWARE;
     attrs.size = sizeof(attrs);
@@ -138,11 +138,13 @@ uint64_t PerfListener::getInstructionsUsed() {
             perfFd_,
             &instructionsUsed,
             sizeof(long long));
-    if (size != sizeof(instructionsUsed))
+    if (size != sizeof(instructionsUsed)) {
         throw Exception("read failed");
-    if (instructionsUsed < 0)
+    }
+    if (instructionsUsed < 0) {
         throw Exception("read negative instructions count");
-    return (uint64_t) instructionsUsed;
+    }
+    return static_cast<uint64_t>(instructionsUsed);
 }
 
 void PerfListener::onPostExecute() {

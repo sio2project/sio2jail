@@ -18,8 +18,8 @@ class Executor
         , public EventProvider<ExecuteEventListener> {
 public:
     Executor(
-            const std::string& childProgramName,
-            const std::vector<std::string>& childProgramArgv);
+            std::string childProgramName,
+            std::vector<std::string> childProgramArgv);
 
     template<typename ProgramNameType>
     void setChildProgramName(ProgramNameType&& programName) {

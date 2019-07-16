@@ -20,14 +20,14 @@ public:
             std::shared_ptr<action::SeccompAction> action,
             std::shared_ptr<filter::SyscallFilter> filter);
     SeccompRule(
-            const std::string syscallName,
+            const std::string& syscallName,
             std::shared_ptr<action::SeccompAction> action,
             std::shared_ptr<filter::SyscallFilter> filter);
     SeccompRule(
             uint32_t syscallNumber,
             std::shared_ptr<action::SeccompAction> action);
     SeccompRule(
-            const std::string syscallName,
+            const std::string& syscallName,
             std::shared_ptr<action::SeccompAction> action);
 
     template<typename SeccompAction, typename SyscallFilter>

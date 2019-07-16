@@ -17,7 +17,7 @@ public:
     };
 
     Application(int argc, const char* argv[]);
-    Application(const ApplicationSettings& settings);
+    Application(ApplicationSettings settings);
 
     ExitCode main();
 

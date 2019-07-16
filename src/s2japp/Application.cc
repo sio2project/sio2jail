@@ -22,12 +22,13 @@
 
 #include <iostream>
 #include <list>
+#include <utility>
 
 namespace s2j {
 namespace app {
 
-Application::Application(const ApplicationSettings& settings)
-        : settings_(settings) {
+Application::Application(ApplicationSettings settings)
+        : settings_(std::move(settings)) {
     initializeLogger();
 }
 
@@ -38,19 +39,19 @@ Application::ExitCode Application::main() {
     if (settings_.action == ApplicationSettings::Action::RUN) {
         return handleRun();
     }
-    else if (settings_.action == ApplicationSettings::Action::PRINT_HELP) {
+    if (settings_.action == ApplicationSettings::Action::PRINT_HELP) {
         return handleHelp();
     }
-    else {
+
         return handleVersion();
-    }
 }
 
 Application::ExitCode Application::handleHelp() {
-    if (!settings_.parsingError.empty())
+    if (!settings_.parsingError.empty()) {
         std::cout << "Error:" << std::endl
                   << "    " << settings_.parsingError << std::endl
                   << std::endl;
+    }
     std::cout << settings_.helpMessage;
     return settings_.parsingError.empty() ? ExitCode::OK
                                           : ExitCode::PARSE_ERROR;
@@ -96,8 +97,9 @@ Application::ExitCode Application::handleRun() {
     auto loggerListener = std::make_shared<logger::LoggerListener>();
 
     auto resultsFD = FD(settings_.resultsFD, false);
-    if (!resultsFD.good())
+    if (!resultsFD.good()) {
         throw InvalidConfigurationException("invalid results file descriptor");
+    }
 
     // Some listeners can return output
     auto outputBuilder = settings_.outputBuilderFactory();
@@ -166,11 +168,13 @@ Application::ExitCode Application::handleRun() {
 }
 
 void Application::initializeLogger() {
-    if (settings_.loggerPath == "-")
+    if (settings_.loggerPath == "-") {
         logger_ = std::make_shared<s2j::logger::FDLogger>(2 /* stderr */);
-    else if (!settings_.loggerPath.empty())
+    }
+    else if (!settings_.loggerPath.empty()) {
         logger_ =
                 std::make_shared<s2j::logger::FileLogger>(settings_.loggerPath);
+    }
 
     logger::Logger::setLogger(logger_);
     logger::debug("Logger initialized");
@@ -179,14 +183,15 @@ void Application::initializeLogger() {
 template<typename Listener, typename... Args>
 std::shared_ptr<Listener> Application::createListener(Args... args) {
     std::shared_ptr<Listener> listener;
-    if (settings_.features.count(Listener::feature) > 0)
+    if (settings_.features.count(Listener::feature) > 0) {
         listener = std::make_shared<Listener>(args...);
+    }
     return listener;
 }
 
 template<typename ListenerType, typename Operation, typename... Listeners>
 void Application::forEachListener(Operation operation, Listeners... listeners) {
-    for (auto listener:
+    for (const auto& listener:
          std::initializer_list<std::shared_ptr<ListenerType>>({listeners...})) {
         if (listener != nullptr) {
             operation(listener);

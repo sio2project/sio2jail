@@ -8,7 +8,7 @@ SeccompAction::Type ActionAllow::getType() const {
     return SeccompAction::Type::ALLOW;
 }
 
-tracer::TraceAction ActionAllow::execute(tracer::Tracee& tracee) {
+tracer::TraceAction ActionAllow::execute(tracer::Tracee& /*tracee*/) {
     return tracer::TraceAction::CONTINUE;
 }
 
