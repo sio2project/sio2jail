@@ -27,10 +27,10 @@ private:
 
     int perfFd_;
     uint64_t instructionCountLimit_;
-    pid_t childPid_;
+    pid_t childPid_{};
 
     // Barrier used for synchronization
-    pthread_barrier_t* barrier_;
+    pthread_barrier_t* barrier_{};
 };
 
 } // namespace perf

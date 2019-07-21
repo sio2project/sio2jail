@@ -44,7 +44,7 @@ int OITimeToolOutputBuilder::encodeStatusCode() const {
         if (killSignal_ > 0) {
             return CODE_SIG_BASE + killSignal_;
         }
-        else if (exitStatus_ > 0) {
+        if (exitStatus_ > 0) {
             return CODE_RE_BASE + exitStatus_;
         }
     }

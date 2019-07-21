@@ -50,7 +50,7 @@ public:
 
 private:
     pid_t traceePid_;
-    user_regs_struct regs_;
+    user_regs_struct regs_{};
 
     Arch syscallArch_;
 };

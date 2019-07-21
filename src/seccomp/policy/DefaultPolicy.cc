@@ -49,29 +49,30 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
 
     rules_.emplace_back(SeccompRule(
             "execve",
-            action::ActionTrace([executed = false](auto& tracee) mutable {
-                if (executed)
+            action::ActionTrace([executed = false](auto& /* tracee */) mutable {
+                if (executed) {
                     return tracer::TraceAction::KILL;
+                }
                 executed = true;
                 return tracer::TraceAction::CONTINUE;
             })));
 
     for (const auto& syscall: {"kill", "tkill"}) {
-        rules_.emplace_back(
-                SeccompRule(syscall, action::ActionTrace([](auto& tracee) {
-                                if (isSignalValid(tracee.getSyscallArgument(1)))
-                                    return tracer::TraceAction::CONTINUE;
-                                else
-                                    return tracer::TraceAction::KILL;
-                            })));
+        rules_.emplace_back(SeccompRule(
+                syscall, action::ActionTrace([](auto& tracee) {
+                    if (isSignalValid(tracee.getSyscallArgument(1))) {
+                        return tracer::TraceAction::CONTINUE;
+                    }
+                    return tracer::TraceAction::KILL;
+                })));
     }
 
     rules_.emplace_back(
             SeccompRule("tgkill", action::ActionTrace([](auto& tracee) {
-                            if (isSignalValid(tracee.getSyscallArgument(2)))
+                            if (isSignalValid(tracee.getSyscallArgument(2))) {
                                 return tracer::TraceAction::CONTINUE;
-                            else
-                                return tracer::TraceAction::KILL;
+                            }
+                            return tracer::TraceAction::KILL;
                         })));
     for (const auto& syscall: {
                  "exit",
@@ -210,7 +211,7 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
 }
 
 void DefaultPolicy::allowSyscalls(std::initializer_list<std::string> syscalls) {
-    for (auto syscall: syscalls) {
+    for (const auto& syscall: syscalls) {
         rules_.emplace_back(SeccompRule(syscall, action::ActionAllow()));
     }
 }

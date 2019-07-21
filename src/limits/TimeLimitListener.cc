@@ -3,13 +3,14 @@
 #include "common/WithErrnoCheck.h"
 #include "logger/Logger.h"
 
+#include <unistd.h>
+
 #include <algorithm>
 #include <chrono>
+#include <csignal>
+#include <ctime>
 #include <fstream>
 #include <limits>
-#include <signal.h>
-#include <time.h>
-#include <unistd.h>
 
 namespace s2j {
 namespace limits {
@@ -67,7 +68,7 @@ void TimeLimitListener::onPostForkParent(pid_t childPid) {
                 &timerId_);
         isTimerCreated_ = true;
 
-        struct itimerspec timerSpec;
+        struct itimerspec timerSpec {};
         timerSpec.it_value.tv_sec = firstTimerTick / 1000000;
         timerSpec.it_value.tv_nsec = firstTimerTick % 1000000 * 1000;
         timerSpec.it_interval.tv_sec = TIMER_TICKING_INTERVAL_US / 1000000;
@@ -157,7 +158,7 @@ TimeLimitListener::ProcessTimeUsage TimeLimitListener::getProcessTimeUsage() {
         throw SystemException("Error reading /proc/childPid_/stat");
     }
 
-    ProcessTimeUsage result;
+    ProcessTimeUsage result{};
     result.uTimeUs = uTimeTicks * 1000000 / CLOCK_TICKS_PER_SECOND;
     result.sTimeUs = sTimeTicks * 1000000 / CLOCK_TICKS_PER_SECOND;
     return result;

@@ -52,7 +52,7 @@ public:
 
     MountNamespaceListener(
             const Settings& settings,
-            const std::string& executablePath,
+            std::string executablePath,
             bool mountProc);
 
     void onPostForkChild() override;

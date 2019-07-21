@@ -6,26 +6,27 @@
 #include "logger/Logger.h"
 
 #include <fcntl.h>
-#include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <csignal>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <utility>
 
 namespace {
 
 volatile sig_atomic_t sigioOccurred = 0;
 volatile sig_atomic_t sigalrmOccurred = 0;
 
-void signalSigioHandler(int signum) {
+void signalSigioHandler(int /*signum*/) {
     sigioOccurred = 1;
 }
 
-void signalSigalrmHandler(int signum) {
+void signalSigalrmHandler(int /*signum*/) {
     sigalrmOccurred = 1;
 }
 
@@ -35,17 +36,18 @@ namespace s2j {
 namespace executor {
 
 Executor::Executor(
-        const std::string& childProgramName,
-        const std::vector<std::string>& childProgramArgv)
-        : childProgramName_(childProgramName)
-        , childProgramArgv_(childProgramArgv)
+        std::string childProgramName,
+        std::vector<std::string> childProgramArgv)
+        : childProgramName_(std::move(childProgramName))
+        , childProgramArgv_(std::move(childProgramArgv))
         , childPid_(0) {}
 
 void Executor::execute() {
     TRACE();
 
-    for (auto& listener: eventListeners_)
+    for (auto& listener: eventListeners_) {
         listener->onPreFork();
+    }
 
     childPid_ = withErrnoCheck("fork", fork);
     if (childPid_ == 0) {
@@ -59,8 +61,9 @@ void Executor::execute() {
 void Executor::executeChild() {
     TRACE();
 
-    for (auto& listener: eventListeners_)
+    for (auto& listener: eventListeners_) {
         listener->onPostForkChild();
+    }
 
     // Create plain C arrays with program arguments
     char* programName = stringToCStr(childProgramName_);
@@ -95,24 +98,27 @@ void Executor::executeParent() {
 
     setupSignalHandling();
 
-    for (auto& listener: eventListeners_)
+    for (auto& listener: eventListeners_) {
         listener->onPostForkParent(childPid_);
+    }
 
     while (true) {
         ExecuteEvent event;
         siginfo_t waitInfo;
 
         executor::ExecuteAction action = checkSignals();
-        if (action == ExecuteAction::KILL)
+        if (action == ExecuteAction::KILL) {
             killChild();
+        }
 
         // Potential race condition here.
         int returnValue = waitid(
                 P_PID, childPid_, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
         if (returnValue == -1) {
-            if (errno != EINTR)
+            if (errno != EINTR) {
                 throw SystemException(
                         std::string("waitid failed: ") + strerror(errno));
+            }
             continue;
         }
 
@@ -135,8 +141,9 @@ void Executor::executeParent() {
             event.signal = waitInfo.si_status;
         }
 
-        for (auto& listener: eventListeners_)
+        for (auto& listener: eventListeners_) {
             action = std::max(action, listener->onExecuteEvent(event));
+        }
 
         if (event.exited || event.killed) {
             if (event.exited) {
@@ -148,11 +155,13 @@ void Executor::executeParent() {
             break;
         }
 
-        if (action == ExecuteAction::KILL)
+        if (action == ExecuteAction::KILL) {
             killChild();
+        }
     }
-    for (auto& listener: eventListeners_)
+    for (auto& listener: eventListeners_) {
         listener->onPostExecute();
+    }
 }
 
 void Executor::setupSignalHandling() {
@@ -161,7 +170,7 @@ void Executor::setupSignalHandling() {
     sigioOccurred = 0;
     sigalrmOccurred = 0;
 
-    struct sigaction signalAction;
+    struct sigaction signalAction {};
     signalAction.sa_flags = 0;
     withErrnoCheck("sigfillset", sigfillset, &signalAction.sa_mask);
 
@@ -176,15 +185,17 @@ executor::ExecuteAction Executor::checkSignals() {
     TRACE();
 
     executor::ExecuteAction action = executor::ExecuteAction::CONTINUE;
-    if (sigioOccurred) {
+    if (sigioOccurred != 0) {
         sigioOccurred = 0;
-        for (auto& listener: eventListeners_)
+        for (auto& listener: eventListeners_) {
             action = std::max(action, listener->onSigioSignal());
+        }
     }
-    if (sigalrmOccurred) {
+    if (sigalrmOccurred != 0) {
         sigalrmOccurred = 0;
-        for (auto& listener: eventListeners_)
+        for (auto& listener: eventListeners_) {
             action = std::max(action, listener->onSigalrmSignal());
+        }
     }
 
     return action;
@@ -203,8 +214,9 @@ void Executor::killChild() {
         withErrnoCheck("kill child", kill, childPid_, SIGKILL);
     }
     catch (const s2j::SystemException& ex) {
-        if (ex.getErrno() != ESRCH)
+        if (ex.getErrno() != ESRCH) {
             throw;
+        }
     }
 }
 

@@ -34,16 +34,16 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     Action action;
     std::string loggerPath;
 
-    uint64_t memoryLimitKb;
-    uint64_t outputLimitB;
-    uint64_t instructionCountLimit;
+    uint64_t memoryLimitKb{};
+    uint64_t outputLimitB{};
+    uint64_t instructionCountLimit{};
     // [us] - microseconds, 10^(-6) s
-    uint64_t rTimelimitUs;
-    uint64_t uTimelimitUs;
-    uint64_t sTimelimitUs;
-    uint64_t usTimelimitUs;
+    uint64_t rTimelimitUs{};
+    uint64_t uTimelimitUs{};
+    uint64_t sTimelimitUs{};
+    uint64_t usTimelimitUs{};
 
-    int resultsFD;
+    int resultsFD{};
 
     std::string parsingError;
     std::string helpMessage;
@@ -56,7 +56,7 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     Factory<s2j::seccomp::policy::BaseSyscallPolicy> syscallPolicyFactory;
     std::set<Feature> features;
 
-    bool suppressStderr;
+    bool suppressStderr{};
 
 private:
     static const std::vector<std::string> FLAGS_ON, FLAGS_OFF;

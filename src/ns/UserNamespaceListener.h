@@ -25,7 +25,7 @@ public:
 
 private:
     void writeSetGroups();
-    void writeUidGidMap(std::string file, uid_t rootUid, uid_t childUid);
+    void writeUidGidMap(const std::string& file, uid_t rootUid, uid_t childUid);
 
     const uid_t rootOutsideUid_;
     const gid_t rootOutsideGid_;

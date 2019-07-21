@@ -38,27 +38,27 @@ where DEPENDENCY is one of
   * LIBTCLAP
   * SCDOC
 
-You can also control wheather to generate man pages with option (YES by default):
+You can also control whether to generate man pages with option (YES by default):
 
     -DWITH_DOCS=YES|NO
 
-and wheather to install boxes scripts (NO by default):
+and whether to install boxes scripts (NO by default):
 
     -DWITH_BOXES=YES|NO
 
-To control wheather sio2jail binary is statically or dinamically linked use
+To control whether sio2jail binary is statically or dynamically linked use
 option (STATIC by default):
 
     -DLINK=STATIC|DYNAMIC
 
-There is also a possibility to control wheather output binary should run on other
-architecture than the defualt one (or force given architecture):
+There is also a possibility to control whether output binary should run on other
+architecture than the default one (or force given architecture):
 
     -DARCH=i386|x86_64
 
 Note, that when using ARCH other than build host architecture it may be necessary
 (depending on libraries installation) to build sio2jail with custom libseccomp (more
-precisly with flag -DLIBSECCOMP\_BUILD\_OWN=YES).
+precisely with flag -DLIBSECCOMP\_BUILD\_OWN=YES).
 
 For example, to skip man pages, use libtclap from /opt/tclap directory and
 ignore system libseccomp run:
@@ -82,3 +82,27 @@ running tests
 To run test suit use 'check' target, e.g in build directory run:
 
     make check
+
+notes for developers
+--------------------
+
+To manually run clang-format on each file run:
+
+    make clang-format
+
+inside build directory.
+
+To manually run clang-tidy on each source file run:
+
+    make clang-tidy
+
+or to use automatically fix errors:
+
+    make clang-tidy-fix
+
+inside build directory.
+
+There is possibility to enable running clang-tidy automatically during
+compilation on each file (can significantly slow down compilation):
+
+    -DWITH_CLANG_TIDY=YES

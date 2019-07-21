@@ -18,12 +18,15 @@ const uint32_t SeccompContext::SECCOMP_TRACE_MSG_NUM_SHIFT = 3;
 SeccompContext::Builder::Builder() {
     for (const auto arch: SECCOMP_FILTER_ARCHITECTURES) {
         scmp_filter_ctx ctx = seccomp_init(SCMP_ACT_TRACE(0));
-        if (ctx == nullptr)
+        if (ctx == nullptr) {
             throw Exception("Can't create a seccomp context");
-        if (seccomp_arch_remove(ctx, SCMP_ARCH_NATIVE) < 0)
+        }
+        if (seccomp_arch_remove(ctx, SCMP_ARCH_NATIVE) < 0) {
             throw Exception("Can't remove native architecture");
-        if (seccomp_arch_add(ctx, arch.second) < 0)
+        }
+        if (seccomp_arch_add(ctx, arch.second) < 0) {
             throw Exception("Can't add architecture to seccomp context");
+        }
         ctx_.emplace(arch.first, ctx);
     }
 }
@@ -71,7 +74,7 @@ void SeccompContext::Builder::addRule(
          * we rely on order and masking of rules always include at least one
          * filter condition.
          */
-        if (filter.size() > 0) {
+        if (!filter.empty()) {
             res = seccomp_rule_add_array(
                     ctx_[arch.first],
                     action,
@@ -86,33 +89,38 @@ void SeccompContext::Builder::addRule(
                     rule.syscall,
                     1,
                     SCMP_CMP(0, SCMP_CMP_GE, 0));
-            if (res > 0)
+            if (res > 0) {
                 res = seccomp_rule_add(
                         ctx_[arch.first],
                         action,
                         rule.syscall,
                         1,
                         SCMP_CMP(0, SCMP_CMP_LT, 0));
+            }
         }
-        if (res < 0)
+        if (res < 0) {
             throw SystemException("Can't add rule to seccomp filter", -res);
+        }
     }
 }
 
 SeccompContext::SeccompContext(Builder&& builder) {
     if (builder.ctx_.empty()) {
         ctx_ = seccomp_init(SCMP_ACT_KILL);
-        if (ctx_ == nullptr)
+        if (ctx_ == nullptr) {
             throw Exception("Can't create a seccomp context");
+        }
     }
     else {
         ctx_ = builder.ctx_.begin()->second;
         builder.ctx_.erase(builder.ctx_.begin());
 
         for (auto it = builder.ctx_.begin(); it != builder.ctx_.end();
-             it = builder.ctx_.erase(it))
-            if (seccomp_merge(ctx_, it->second) < 0)
+             it = builder.ctx_.erase(it)) {
+            if (seccomp_merge(ctx_, it->second) < 0) {
                 throw Exception("Can't merge libseccomp filters");
+            }
+        }
     }
 }
 
@@ -126,8 +134,9 @@ SeccompContext::~SeccompContext() {
 void SeccompContext::loadFilter() {
     TRACE();
 
-    if (seccomp_load(ctx_) < 0)
+    if (seccomp_load(ctx_) < 0) {
         throw SeccompException("Filter load failed");
+    }
 }
 
 std::string SeccompContext::exportFilter() const {
@@ -135,8 +144,9 @@ std::string SeccompContext::exportFilter() const {
     withErrnoCheck("truncate memfd_created file", ftruncate, fd, 1024 * 1024);
 
     // Export filter...
-    if (seccomp_export_pfc(ctx_, fd) < 0)
+    if (seccomp_export_pfc(ctx_, fd) < 0) {
         throw Exception("Can't export libseccomp filter");
+    }
 
     // ... and read it.
     withErrnoCheck("lseek on memfd file", lseek, fd, 0, SEEK_SET);
@@ -145,13 +155,15 @@ std::string SeccompContext::exportFilter() const {
         char buff[32 * 4096];
         ssize_t bytesRead =
                 withErrnoCheck("read", read, fd, buff, sizeof(buff) - 1);
-        if (bytesRead <= 0)
+        if (bytesRead <= 0) {
             break;
+        }
 
         // Filter out NULL bytes
         for (ssize_t index = 0; index < bytesRead; ++index) {
-            if (buff[index] != '\0')
+            if (buff[index] != '\0') {
                 pseudoCode += buff[index];
+            }
         }
     }
 

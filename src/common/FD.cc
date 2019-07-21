@@ -46,12 +46,14 @@ void FD::write(const std::string& str, bool allowPartialWrites) {
                 fd_,
                 str.c_str() + written,
                 str.size() - written);
-        if (result > 0)
+        if (result > 0) {
             written += result;
-        if (!allowPartialWrites && written != str.size())
+        }
+        if (!allowPartialWrites && written != str.size()) {
             throw SystemException(
                     "Partial write: " + std::to_string(written) + "/" +
                     std::to_string(str.size()));
+        }
     }
 }
 
@@ -78,8 +80,9 @@ bool FD::good() const {
                             fd_,
                             F_GETFD)
                             .getErrnoCode();
-        if (errnoCode == EBADF)
+        if (errnoCode == EBADF) {
             return false;
+        }
     } while (errnoCode < 0);
     return true;
 }

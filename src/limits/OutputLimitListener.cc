@@ -7,7 +7,7 @@
 #include "seccomp/action/ActionTrace.h"
 #include "seccomp/filter/LibSeccompFilter.h"
 
-#include <signal.h>
+#include <csignal>
 #include <sys/resource.h>
 #include <sys/time.h>
 

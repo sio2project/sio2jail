@@ -4,8 +4,9 @@
 #include "common/Exception.h"
 #include "common/WithErrnoCheck.h"
 
-#include <signal.h>
 #include <sys/ptrace.h>
+
+#include <csignal>
 
 namespace s2j {
 namespace tracer {
@@ -23,8 +24,9 @@ Tracee::Tracee(pid_t traceePid)
                     &regs_);
         }
         catch (const SystemException& e) {
-            if (e.getErrno() != ESRCH)
+            if (e.getErrno() != ESRCH) {
                 throw;
+            }
         }
     }
 }
@@ -54,8 +56,9 @@ Arch Tracee::getSyscallArch() const {
 }
 
 reg_t Tracee::getSyscallNumber() {
-    if (syscallArch_ == Arch::UNKNOWN)
+    if (syscallArch_ == Arch::UNKNOWN) {
         throw Exception("Can't get syscall number, unknown syscall arch");
+    }
 #if defined(__x86_64__)
     return regs_.orig_rax;
 #elif defined(__i386__)
@@ -68,47 +71,68 @@ reg_t Tracee::getSyscallNumber() {
 reg_t Tracee::getSyscallArgument(uint8_t argumentNumber) {
 #if defined(__x86_64__)
     if (syscallArch_ == Arch::X86) {
-        if (argumentNumber == 0)
+        switch (argumentNumber) {
+        case 0:
             return static_cast<uint32_t>(regs_.rbx);
-        else if (argumentNumber == 1)
+
+        case 1:
             return static_cast<uint32_t>(regs_.rcx);
-        else if (argumentNumber == 2)
+
+        case 2:
             return static_cast<uint32_t>(regs_.rdx);
-        else if (argumentNumber == 3)
+
+        case 3:
             return static_cast<uint32_t>(regs_.rsi);
-        else if (argumentNumber == 4)
+
+        case 4:
             return static_cast<uint32_t>(regs_.rdi);
-        else if (argumentNumber == 5)
+
+        case 5:
             return static_cast<uint32_t>(regs_.rbp);
+        }
     }
     else if (syscallArch_ == Arch::X86_64) {
-        if (argumentNumber == 0)
+        switch (argumentNumber) {
+        case 0:
             return regs_.rdi;
-        else if (argumentNumber == 1)
+
+        case 1:
             return regs_.rsi;
-        else if (argumentNumber == 2)
+
+        case 2:
             return regs_.rdx;
-        else if (argumentNumber == 3)
+
+        case 3:
             return regs_.r10;
-        else if (argumentNumber == 4)
+
+        case 4:
             return regs_.r8;
-        else if (argumentNumber == 5)
+
+        case 5:
             return regs_.r9;
+        }
     }
 #elif defined(__i386__)
     if (syscallArch_ == Arch::X86) {
-        if (argumentNumber == 0)
+        switch (argumentNumber) {
+        case 0:
             return static_cast<uint32_t>(regs_.ebx);
-        else if (argumentNumber == 1)
+
+        case 1:
             return static_cast<uint32_t>(regs_.ecx);
-        else if (argumentNumber == 2)
+
+        case 2:
             return static_cast<uint32_t>(regs_.edx);
-        else if (argumentNumber == 3)
+
+        case 3:
             return static_cast<uint32_t>(regs_.esi);
-        else if (argumentNumber == 4)
+
+        case 4:
             return static_cast<uint32_t>(regs_.edi);
-        else if (argumentNumber == 5)
+
+        case 5:
             return static_cast<uint32_t>(regs_.ebp);
+        }
     }
     else if (syscallArch_ == Arch::X86_64) {
         throw s2j::AssertionException(
@@ -125,15 +149,26 @@ reg_t Tracee::getSyscallArgument(uint8_t argumentNumber) {
             std::to_string(argumentNumber));
 }
 
-std::string Tracee::getMemoryString(uint64_t address, size_t sizeLimit) {
+std::string Tracee::getMemoryString(
+        uint64_t /*address*/,
+        size_t /*sizeLimit*/) {
     NOT_IMPLEMENTED();
     // This code is broken in may ways. Implement using process_vm_readv
     // syscall.
     /*
     for (size_t ptr = address; str.size() < sizeLimit; ptr += sizeof(int)) {
-        int word = withErrnoCheck("ptrace peektext", ptrace, PTRACE_PEEKTEXT,
-    traceePid_, ptr, nullptr); for (size_t i = 0; i < sizeof(word); ++i) { char
-    byte = (word >> (8 * i)); if (byte == '\0') return str; str += byte;
+        int word = withErrnoCheck(
+                "ptrace peektext",
+                ptrace,
+                PTRACE_PEEKTEXT,
+                traceePid_,
+                ptr,
+                nullptr);
+        for (size_t i = 0; i < sizeof(word); ++i) {
+            char byte = (word >> (8 * i));
+            if (byte == '\0')
+                return str;
+            str += byte;
         }
     }
     */

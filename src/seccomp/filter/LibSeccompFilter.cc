@@ -49,7 +49,7 @@ SyscallArg::SyscallArg(uint8_t argumentIndex) : argumentIndex_(argumentIndex) {}
 LibSeccompFilter SyscallArg::operator==(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, data](
-                    const tracer::TraceEvent& event,
+                    const tracer::TraceEvent& /* event */,
                     tracer::Tracee& tracee) -> bool {
                 return tracee.getSyscallArgument(index) == data;
             },
@@ -59,7 +59,7 @@ LibSeccompFilter SyscallArg::operator==(const uint64_t data) const {
 LibSeccompFilter SyscallArg::operator!=(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, data](
-                    const tracer::TraceEvent& event,
+                    const tracer::TraceEvent& /* event */,
                     tracer::Tracee& tracee) -> bool {
                 return tracee.getSyscallArgument(index) != data;
             },
@@ -69,7 +69,7 @@ LibSeccompFilter SyscallArg::operator!=(const uint64_t data) const {
 LibSeccompFilter SyscallArg::operator<=(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, data](
-                    const tracer::TraceEvent& event,
+                    const tracer::TraceEvent& /* event */,
                     tracer::Tracee& tracee) -> bool {
                 return tracee.getSyscallArgument(index) <= data;
             },
@@ -79,7 +79,7 @@ LibSeccompFilter SyscallArg::operator<=(const uint64_t data) const {
 LibSeccompFilter SyscallArg::operator>=(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, data](
-                    const tracer::TraceEvent& event,
+                    const tracer::TraceEvent& /* event */,
                     tracer::Tracee& tracee) -> bool {
                 return tracee.getSyscallArgument(index) >= data;
             },
@@ -89,7 +89,7 @@ LibSeccompFilter SyscallArg::operator>=(const uint64_t data) const {
 LibSeccompFilter SyscallArg::operator<(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, data](
-                    const tracer::TraceEvent& event, tracer::Tracee& tracee)
+                    const tracer::TraceEvent& /* event */, tracer::Tracee& tracee)
                     -> bool { return tracee.getSyscallArgument(index) < data; },
             SCMP_CMP(argumentIndex_, SCMP_CMP_LT, data));
 }
@@ -97,7 +97,7 @@ LibSeccompFilter SyscallArg::operator<(const uint64_t data) const {
 LibSeccompFilter SyscallArg::operator>(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, data](
-                    const tracer::TraceEvent& event, tracer::Tracee& tracee)
+                    const tracer::TraceEvent& /* event */, tracer::Tracee& tracee)
                     -> bool { return tracee.getSyscallArgument(index) > data; },
             SCMP_CMP(argumentIndex_, SCMP_CMP_GT, data));
 }
@@ -106,13 +106,13 @@ MaskedSyscallArg::MaskedSyscallArg(uint8_t argumentIndex, uint64_t mask)
         : argumentIndex_(argumentIndex), mask_(mask) {}
 
 MaskedSyscallArg SyscallArg::operator&(const uint64_t mask) const {
-    return MaskedSyscallArg(argumentIndex_, mask);
+    return MaskedSyscallArg{argumentIndex_, mask};
 }
 
 LibSeccompFilter MaskedSyscallArg::operator==(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, mask = this->mask_, data](
-                    const tracer::TraceEvent& event,
+                    const tracer::TraceEvent& /* event */,
                     tracer::Tracee& tracee) -> bool {
                 return (tracee.getSyscallArgument(index) & mask) == data;
             },

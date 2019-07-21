@@ -40,11 +40,11 @@ private:
     uint64_t uTimelimitUs_; // user time limit in [us]
     uint64_t sTimelimitUs_; // system time limit in [us]
     uint64_t usTimelimitUs_; // user+system time limit in [us]
-    pid_t childPid_;
+    pid_t childPid_{};
 
     std::chrono::steady_clock::time_point startRealTime_;
     bool isTimerCreated_;
-    timer_t timerId_;
+    timer_t timerId_{};
 };
 
 } // namespace limits

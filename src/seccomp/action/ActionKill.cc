@@ -8,7 +8,7 @@ SeccompAction::Type ActionKill::getType() const {
     return SeccompAction::Type::KILL;
 }
 
-tracer::TraceAction ActionKill::execute(tracer::Tracee& tracee) {
+tracer::TraceAction ActionKill::execute(tracer::Tracee& /*tracee*/) {
     /**
      * Do not kill explicitly, just return TraceAction::KILL. Child will be
      * sacrificed by Executor.

@@ -32,9 +32,9 @@ const Feature MountNamespaceListener::feature = Feature::MOUNT_NAMESPACE;
 
 MountNamespaceListener::MountNamespaceListener(
         const Settings& settings,
-        const std::string& executablePath,
+        std::string executablePath,
         const bool mountProc)
-        : executablePath_(executablePath)
+        : executablePath_(std::move(executablePath))
         , bindMounts_(settings.bindMounts)
         , mountProc_(mountProc)
         , bindExecutable_(settings.bindExecutable) {
@@ -90,8 +90,10 @@ void MountNamespaceListener::onPostForkChild() {
     withErrnoCheck("chroot", chroot, ".");
 
     if (bindExecutable_) {
-        for (auto listener: EventProvider<MountEventListener>::eventListeners_)
+        for (const auto& listener:
+             EventProvider<MountEventListener>::eventListeners_) {
             listener->onProgramNameChange(newExecutablePath);
+        }
     }
 
     if (mountProc_) {

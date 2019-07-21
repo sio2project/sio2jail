@@ -20,8 +20,9 @@ void FilesListener::onPreFork() {
             withErrnoCheck("open fds directory", opendir, FDS_PATH.c_str()),
             closedir);
 
-    if (fdsDirectory == nullptr)
+    if (fdsDirectory == nullptr) {
         throw Exception("Can't open fds directory " + FDS_PATH);
+    }
 
     for (struct dirent* entry = readdir(fdsDirectory.get()); entry != nullptr;
          entry = readdir(fdsDirectory.get())) {
@@ -34,8 +35,9 @@ void FilesListener::onPreFork() {
         }
 
         // Don't close stdin, stdout and logs output fd
-        if ((fd >= 0 && fd <= 2) || s2j::logger::isLoggerFD(fd))
+        if ((fd >= 0 && fd <= 2) || s2j::logger::isLoggerFD(fd)) {
             continue;
+        }
         fds_.push_back(fd);
     }
 
@@ -48,8 +50,9 @@ void FilesListener::onPostForkChild() {
     TRACE();
 
     // Redirect stderr to /dev/null
-    if (suppressStderr_)
+    if (suppressStderr_) {
         withErrnoCheck("redirect stderr to /dev/null", dup2, devnull_, 2);
+    }
     withErrnoCheck("close /dev/null", close, devnull_);
 
     for (size_t fdsIndex = 0; fdsIndex < fds_.size();) {
@@ -57,10 +60,12 @@ void FilesListener::onPostForkChild() {
             withErrnoCheck("close fd", close, fds_[fdsIndex]);
         }
         catch (const SystemException& ex) {
-            if (ex.getErrno() == EINTR)
+            if (ex.getErrno() == EINTR) {
                 continue;
-            else if (ex.getErrno() != EBADF)
+            }
+            if (ex.getErrno() != EBADF) {
                 throw;
+            }
         }
         ++fdsIndex;
     }

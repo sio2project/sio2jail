@@ -6,13 +6,14 @@
 #include "common/WithErrnoCheck.h"
 #include "logger/Logger.h"
 
-#include <errno.h>
 #include <fcntl.h>
 #include <seccomp.h>
-#include <signal.h>
 #include <sys/ptrace.h>
 
 #include <algorithm>
+#include <cerrno>
+#include <csignal>
+#include <utility>
 
 namespace s2j {
 namespace seccomp {
@@ -25,7 +26,8 @@ SeccompListener::SeccompListener()
 
 SeccompListener::SeccompListener(
         std::shared_ptr<policy::BaseSyscallPolicy> basePolicy)
-        : basePolicy_(basePolicy), lastSyscallArch_(tracer::Arch::X86) {}
+        : basePolicy_(std::move(basePolicy))
+        , lastSyscallArch_(tracer::Arch::X86) {}
 
 void SeccompListener::onPreFork() {
     TRACE();
@@ -73,8 +75,9 @@ void SeccompListener::onPreFork() {
         logger::debug("Libseccomp filter:\n", context_->exportFilter());
     }
     catch (const s2j::SystemException& ex) {
-        if (ex.getErrno() != ENOSYS)
+        if (ex.getErrno() != ENOSYS) {
             throw ex;
+        }
         logger::debug("Libseccomp filter: ", ex.what());
     }
 }
@@ -123,8 +126,9 @@ tracer::TraceAction SeccompListener::onTraceEvent(
                     tracee.getSyscallNumber(), tracee.getSyscallArch()) +
             "(" + std::to_string(tracee.getSyscallNumber()) + ") (";
     for (size_t i = 0; i < 6; ++i) {
-        if (i > 0)
+        if (i > 0) {
             syscallName += ", ";
+        }
         syscallName += std::to_string(tracee.getSyscallArgument(i));
     }
     syscallName += ")";
@@ -150,8 +154,9 @@ tracer::TraceAction SeccompListener::onTraceEvent(
         for (auto& rule: ruleSetIter->second->second) {
             if (rule.filter->match(traceEvent, tracee)) {
                 if (seccompAction == nullptr ||
-                    rule.action->getType() > seccompAction->getType())
+                    rule.action->getType() > seccompAction->getType()) {
                     seccompAction = rule.action;
+                }
             }
         }
     }
@@ -173,15 +178,17 @@ tracer::TraceAction SeccompListener::onTraceEvent(
 void SeccompListener::addPolicy(const policy::SyscallPolicy& policy) {
     TRACE();
 
-    for (auto rule: policy.getRules())
+    for (auto rule: policy.getRules()) {
         addRule(rule);
+    }
 }
 
 std::string SeccompListener::resolveSyscallNumber(
         uint32_t syscallNumber,
         const tracer::Arch& arch) {
-    if (arch == tracer::Arch::UNKNOWN)
+    if (arch == tracer::Arch::UNKNOWN) {
         return std::string();
+    }
 
     char* name = seccomp_syscall_resolve_num_arch(
             SeccompContext::SECCOMP_FILTER_ARCHITECTURES.at(arch),

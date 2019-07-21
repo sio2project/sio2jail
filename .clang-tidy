@@ -1,0 +1,24 @@
+Checks: '
+  *,
+  -cert-err58-cpp,
+  -cppcoreguidelines-pro-type-union-access,
+  -fuchsia-default-arguments,
+  -fuchsia-overloaded-operator,
+  -fuchsia-statically-constructed-objects,
+  -google-readability-todo,
+  -hicpp-signed-bitwise
+  '
+
+WarningsAsErrors: '
+  clang-analyzer-*,
+  modernize-*,
+  performance-*
+  '
+
+FormatStyle: 'file'
+
+CheckOptions:
+  - key: readability-magic-numbers.IgnoredIntegerValues
+    value: '0;1;2;3;4;16;255;1024'
+  - key: cppcoreguidelines-readability-magic-numbers.IgnoredIntegerValues
+    value: '0;1;2;3;4;16;255;1024'
