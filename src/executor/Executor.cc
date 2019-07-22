@@ -147,13 +147,27 @@ void Executor::executeParent() {
         }
 
         if (event.exited || event.killed) {
-            if (event.exited) {
-                outputBuilder_->setExitStatus(event.exitStatus);
+            if (event.pid == childPid_) {
+                if (event.exited) {
+                    outputBuilder_->setExitStatus(event.exitStatus);
+                }
+                if (event.killed) {
+                    outputBuilder_->setKillSignal(event.signal);
+                }
+                break;
             }
-            if (event.killed) {
-                outputBuilder_->setKillSignal(event.signal);
+            else {
+                // Wait to clear child's status so that future
+                // wait calls will not return it.
+                withErrnoCheck(
+                        "waitid for exited child",
+                        {ECHILD},
+                        waitid,
+                        P_PID,
+                        event.pid,
+                        nullptr,
+                        WEXITED | WSTOPPED | WNOHANG);
             }
-            break;
         }
 
         if (action == ExecuteAction::KILL) {

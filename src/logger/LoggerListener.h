@@ -22,6 +22,10 @@ public:
     tracer::TraceAction onPostExec(
             const tracer::TraceEvent& traceEvent,
             tracer::Tracee& tracee) override;
+    std::tuple<tracer::TraceAction, tracer::TraceAction> onPostClone(
+            const tracer::TraceEvent& traceEvent,
+            tracer::Tracee& tracee,
+            tracer::Tracee& traceeChild) override;
     tracer::TraceAction onTraceEvent(
             const tracer::TraceEvent& traceEvent,
             tracer::Tracee& tracee) override;

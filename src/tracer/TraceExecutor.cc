@@ -16,7 +16,8 @@ namespace tracer {
 const Feature TraceExecutor::feature = Feature::PTRACE;
 
 const uint64_t TraceExecutor::PTRACE_OPTIONS =
-        PTRACE_O_EXITKILL | PTRACE_O_TRACESECCOMP | PTRACE_O_TRACEEXEC;
+        PTRACE_O_EXITKILL | PTRACE_O_TRACESECCOMP | PTRACE_O_TRACEEXEC |
+        PTRACE_O_TRACECLONE;
 
 void TraceExecutor::onPostForkChild() {
     TRACE();
@@ -30,17 +31,18 @@ void TraceExecutor::onPostForkChild() {
 void TraceExecutor::onPostForkParent(pid_t childPid) {
     TRACE();
 
-    rootTraceePid_ = childPid;
+    rootTraceeInfo_ = ProcessInfo::makeProcessInfo(childPid, nullptr);
 
     // Wait for tracee to call PTRACE_TRACEME
-    withErrnoCheck("initial wait", waitpid, rootTraceePid_, nullptr, 0);
+    withErrnoCheck(
+            "initial wait", waitpid, rootTraceeInfo_->getPid(), nullptr, 0);
 
     // Let's be a tracer.
     withErrnoCheck(
             "ptrace setopts",
             ptrace,
             PTRACE_SETOPTIONS,
-            rootTraceePid_,
+            rootTraceeInfo_->getPid(),
             nullptr,
             PTRACE_OPTIONS);
 
@@ -49,7 +51,7 @@ void TraceExecutor::onPostForkParent(pid_t childPid) {
             "ptrace cont",
             ptrace,
             PTRACE_CONT,
-            rootTraceePid_,
+            rootTraceeInfo_->getPid(),
             nullptr,
             nullptr);
 }
@@ -59,12 +61,45 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(
     TRACE();
 
     TraceEvent event{executeEvent};
-    Tracee tracee(executeEvent.pid);
+    auto traceeInfo = rootTraceeInfo_->getProcess(event.executeEvent.pid);
+    if (traceeInfo == nullptr) {
+        logger::debug(
+                "Got event for process ",
+                VAR(executeEvent.pid),
+                " which is not yet present in info tree, delaying");
+
+        // Wait to clear child's status so that future
+        // wait calls will not return it.
+        withErrnoCheck(
+                "waitid for stopped child",
+                {ECHILD},
+                waitid,
+                P_PID,
+                event.executeEvent.pid,
+                nullptr,
+                WEXITED | WSTOPPED | WNOHANG);
+
+        return executor::ExecuteAction::CONTINUE;
+    }
+
+    Tracee tracee{traceeInfo};
 
     TraceAction action = TraceAction::CONTINUE;
     if (!hasExecved_ && executeEvent.trapped &&
         executeEvent.signal == (SIGTRAP | (PTRACE_EVENT_EXEC << 8))) {
         action = std::max(action, onEventExec(event, tracee));
+    }
+
+    if (executeEvent.signal == (SIGTRAP | (PTRACE_EVENT_CLONE << 8))) {
+        action = std::max(action, onEventClone(event, tracee));
+    }
+
+    if (executeEvent.exited || executeEvent.killed) {
+        auto parent = traceeInfo->getParent();
+        if (parent != nullptr) {
+            parent->delChild(traceeInfo->getPid());
+        }
+        return executor::ExecuteAction::CONTINUE;
     }
 
     for (auto& listener: eventListeners_) {
@@ -98,11 +133,64 @@ TraceAction TraceExecutor::onEventExec(
     return action;
 }
 
+TraceAction TraceExecutor::onEventClone(
+        const TraceEvent& event,
+        Tracee& tracee) {
+    pid_t traceeChildPid{-1};
+    withErrnoCheck(
+            "ptrace get child pid",
+            ptrace,
+            PTRACE_GETEVENTMSG,
+            event.executeEvent.pid,
+            nullptr,
+            &traceeChildPid);
+    logger::debug(VAR(event.executeEvent.pid), VAR(traceeChildPid));
+
+    withErrnoCheck(
+            "ptrace setopts child",
+            ptrace,
+            PTRACE_SETOPTIONS,
+            traceeChildPid,
+            nullptr,
+            PTRACE_OPTIONS);
+
+    auto traceeChildInfo = tracee.getInfo()->addChild(traceeChildPid);
+    Tracee traceeChild{traceeChildInfo};
+
+    TraceAction action = TraceAction::CONTINUE;
+    TraceAction childAction = TraceAction::CONTINUE;
+    for (auto& listener: eventListeners_) {
+        auto onCloneResult = listener->onPostClone(event, tracee, traceeChild);
+        action = std::max(action, std::get<0>(onCloneResult));
+        childAction = std::max(childAction, std::get<1>(onCloneResult));
+    }
+
+    int injectedSignal = 0;
+    if (childAction == TraceAction::KILL) {
+        injectedSignal = SIGKILL;
+
+        logger::debug("Killing tracee child before restarting it");
+        withErrnoCheck("kill child", kill, traceeChildPid, SIGKILL);
+    }
+
+    withErrnoCheck(
+            "ptrace cont child",
+            {ESRCH},
+            ptrace,
+            PTRACE_CONT,
+            traceeChildPid,
+            nullptr,
+            injectedSignal);
+
+    return action;
+}
+
 std::tuple<TraceAction, int> TraceExecutor::handleTraceeSignal(
         const TraceEvent& event,
         Tracee& tracee) {
-    static const uint64_t IGNORED_SIGNALS =
-            (1 << SIGCHLD) | (1 << SIGCLD) | (1 << SIGURG) | (1 << SIGWINCH);
+    static const uint64_t IGNORED_SIGNALS = (1 << SIGCHLD) | (1 << SIGCLD) |
+                                            (1 << SIGURG) | (1 << SIGWINCH) |
+                                            (1 << SIGSTOP) | (1 << SIGCONT);
 
     TraceAction action = TraceAction::CONTINUE;
 
@@ -145,10 +233,14 @@ void TraceExecutor::continueTracee(
             // Kill _root_ tracee
             outputBuilder_->setKillSignal(SIGKILL);
             logger::debug("Killing root tracee after trace action kill");
-            withErrnoCheck("kill root child", kill, rootTraceePid_, SIGKILL);
+            withErrnoCheck(
+                    "kill root child",
+                    kill,
+                    rootTraceeInfo_->getPid(),
+                    SIGKILL);
 
             // Kill tracee _before_ restarting it
-            if (rootTraceePid_ != tracee.getPid()) {
+            if (rootTraceeInfo_->getPid() != tracee.getPid()) {
                 logger::debug("Killing tracee before restarting it");
                 withErrnoCheck("kill child", kill, tracee.getPid(), SIGKILL);
             }

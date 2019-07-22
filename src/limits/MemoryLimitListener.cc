@@ -71,13 +71,16 @@ void MemoryLimitListener::onPostForkChild() {
 
     // If there is any memory limit, set it.
     if (memoryLimitKb_ > 0) {
-        struct rlimit memoryLimit {
-            memoryLimitKb_ * 1024 + MEMORY_LIMIT_MARGIN,
-                    memoryLimitKb_ * 1024 + MEMORY_LIMIT_MARGIN
-        };
+        struct rlimit memoryLimit {};
 
-        logger::debug("Seting limit ", VAR(memoryLimit.rlim_max));
-        withErrnoCheck("setrlimit memory", setrlimit, RLIMIT_AS, &memoryLimit);
+        memoryLimit.rlim_cur = memoryLimit.rlim_max =
+                memoryLimitKb_ * 1024 + MEMORY_LIMIT_MARGIN;
+        logger::debug("Seting address space limit ", VAR(memoryLimit.rlim_max));
+        withErrnoCheck(
+                "setrlimit address space", setrlimit, RLIMIT_AS, &memoryLimit);
+
+        memoryLimit.rlim_cur = memoryLimit.rlim_max = RLIM_INFINITY;
+        logger::debug("Seting stack limit to infinity");
         withErrnoCheck(
                 "setrlimit stack", setrlimit, RLIMIT_STACK, &memoryLimit);
     }

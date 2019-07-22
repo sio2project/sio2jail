@@ -21,6 +21,9 @@ executor::ExecuteAction LoggerListener::onExecuteEvent(
         const executor::ExecuteEvent& executeEvent) {
     logger::debug(
             "Execution stage onExecuteEvent, ",
+            "pid=",
+            executeEvent.pid,
+            ", "
             "exitStatus=",
             executeEvent.exitStatus,
             ", "
@@ -50,6 +53,19 @@ tracer::TraceAction LoggerListener::onPostExec(
         tracer::Tracee& /* tracee */) {
     logger::debug("Execution stage onPostExec");
     return tracer::TraceAction::CONTINUE;
+}
+
+std::tuple<tracer::TraceAction, tracer::TraceAction>
+LoggerListener::onPostClone(
+        const tracer::TraceEvent& /* traceEvent */,
+        tracer::Tracee& tracee,
+        tracer::Tracee& traceeChild) {
+    logger::debug(
+            "Execution stage onPostClone, traceePid=",
+            tracee.getPid(),
+            ", traceeChildPid=",
+            traceeChild.getPid());
+    return {tracer::TraceAction::CONTINUE, tracer::TraceAction::CONTINUE};
 }
 
 tracer::TraceAction LoggerListener::onTraceEvent(

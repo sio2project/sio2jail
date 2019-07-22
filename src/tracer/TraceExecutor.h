@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ProcessInfo.h"
 #include "TraceAction.h"
 #include "TraceEventListener.h"
 
@@ -33,6 +34,8 @@ public:
 private:
     TraceAction onEventExec(const TraceEvent& executeEvent, Tracee& tracee);
 
+    TraceAction onEventClone(const TraceEvent& executeEvent, Tracee& tracee);
+
     /* Returns action and injectedSignal */
     std::tuple<TraceAction, int> handleTraceeSignal(
             const TraceEvent& event,
@@ -46,7 +49,7 @@ private:
 
     static const uint64_t PTRACE_OPTIONS;
 
-    pid_t rootTraceePid_{-1};
+    std::shared_ptr<ProcessInfo> rootTraceeInfo_;
     bool hasExecved_{false};
 };
 
