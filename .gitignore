@@ -1,6 +1,10 @@
 build/
 bin/
 
+tags
+src/tags
+.vimrc
+
 boxes/*.tar.gz
 boxes/*.deb
 
