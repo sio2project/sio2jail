@@ -22,6 +22,10 @@ class Tracee {
 public:
     Tracee(pid_t traceePid);
 
+    pid_t getPid() const {
+        return traceePid_;
+    }
+
     /**
      * Checks wheather underlying process is still alive.
      */

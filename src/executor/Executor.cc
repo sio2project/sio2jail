@@ -112,8 +112,8 @@ void Executor::executeParent() {
         }
 
         // Potential race condition here.
-        int returnValue = waitid(
-                P_ALL, -1, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
+        int returnValue =
+                waitid(P_ALL, -1, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
         if (returnValue == -1) {
             if (errno != EINTR) {
                 throw SystemException(

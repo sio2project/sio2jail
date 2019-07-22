@@ -89,9 +89,11 @@ void MemoryLimitListener::onPostForkParent(pid_t childPid) {
     childPid_ = childPid;
 }
 
-void MemoryLimitListener::onPostExec(
-        const tracer::TraceEvent& /* traceEvent */) {
+tracer::TraceAction MemoryLimitListener::onPostExec(
+        const tracer::TraceEvent& /* traceEvent */,
+        tracer::Tracee& /* tracee */) {
     vmPeakValid_ = true;
+    return tracer::TraceAction::CONTINUE;
 }
 
 executor::ExecuteAction MemoryLimitListener::onExecuteEvent(

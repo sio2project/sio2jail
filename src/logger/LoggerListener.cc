@@ -41,12 +41,15 @@ executor::ExecuteAction LoggerListener::onExecuteEvent(
     return executor::ExecuteAction::CONTINUE;
 }
 
-void LoggerListener::onPostExec(const tracer::TraceEvent& /* traceEvent */) {
-    logger::debug("Execution stage onPostExec");
-}
-
 void LoggerListener::onPostExecute() {
     logger::debug("Execution stage onPostExecute");
+}
+
+tracer::TraceAction LoggerListener::onPostExec(
+        const tracer::TraceEvent& /* traceEvent */,
+        tracer::Tracee& /* tracee */) {
+    logger::debug("Execution stage onPostExec");
+    return tracer::TraceAction::CONTINUE;
 }
 
 tracer::TraceAction LoggerListener::onTraceEvent(

@@ -15,13 +15,16 @@ public:
     void onPreFork() override;
     void onPostForkChild() override;
     void onPostForkParent(pid_t childPid) override;
-    void onPostExec(const tracer::TraceEvent& traceEvent) override;
     executor::ExecuteAction onExecuteEvent(
             const executor::ExecuteEvent& executeEvent) override;
+    void onPostExecute() override;
+
+    tracer::TraceAction onPostExec(
+            const tracer::TraceEvent& traceEvent,
+            tracer::Tracee& tracee) override;
     tracer::TraceAction onTraceEvent(
             const tracer::TraceEvent& traceEvent,
             tracer::Tracee& tracee) override;
-    void onPostExecute() override;
 };
 
 } // namespace logger

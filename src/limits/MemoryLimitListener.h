@@ -18,7 +18,9 @@ public:
 
     void onPostForkChild() override;
     void onPostForkParent(pid_t childPid) override;
-    void onPostExec(const tracer::TraceEvent& traceEvent) override;
+    tracer::TraceAction onPostExec(
+            const tracer::TraceEvent& traceEvent,
+            tracer::Tracee& tracee) override;
     executor::ExecuteAction onExecuteEvent(
             const executor::ExecuteEvent& executeEvent) override;
 

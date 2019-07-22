@@ -10,6 +10,7 @@
 #include "printer/OutputSource.h"
 
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include <unistd.h>
@@ -30,6 +31,21 @@ public:
     const static Feature feature;
 
 private:
+    TraceAction onEventExec(const TraceEvent& executeEvent, Tracee& tracee);
+
+    /* Returns action and injectedSignal */
+    std::tuple<TraceAction, int> handleTraceeSignal(
+            const TraceEvent& event,
+            Tracee& tracee);
+
+    void continueTracee(
+            TraceAction action,
+            int injectedSignal,
+            const TraceEvent& event,
+            Tracee& tracee);
+
+    static const uint64_t PTRACE_OPTIONS;
+
     pid_t rootTraceePid_{-1};
     bool hasExecved_{false};
 };
