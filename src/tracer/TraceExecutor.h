@@ -30,8 +30,8 @@ public:
     const static Feature feature;
 
 private:
-    bool hasExecved_ = false;
-    pid_t traceePid_;
+    pid_t rootTraceePid_{-1};
+    bool hasExecved_{false};
 };
 
 } // namespace tracer

@@ -27,23 +27,23 @@ void TraceExecutor::onPostForkChild() {
 void TraceExecutor::onPostForkParent(pid_t childPid) {
     TRACE();
 
-    traceePid_ = childPid;
+    rootTraceePid_ = childPid;
 
     // Wait for tracee to call PTRACE_TRACEME
-    withErrnoCheck("initial wait", waitpid, traceePid_, nullptr, 0);
+    withErrnoCheck("initial wait", waitpid, rootTraceePid_, nullptr, 0);
 
     // Let's be a tracer.
     withErrnoCheck(
             "ptrace setopts",
             ptrace,
             PTRACE_SETOPTIONS,
-            traceePid_,
+            rootTraceePid_,
             nullptr,
             PTRACE_O_EXITKILL | PTRACE_O_TRACESECCOMP | PTRACE_O_TRACEEXEC);
 
     // Resume tracee.
     withErrnoCheck(
-            "ptrace cont", ptrace, PTRACE_CONT, traceePid_, nullptr, nullptr);
+            "ptrace cont", ptrace, PTRACE_CONT, rootTraceePid_, nullptr, nullptr);
 }
 
 executor::ExecuteAction TraceExecutor::onExecuteEvent(
@@ -54,7 +54,7 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(
             (1 << SIGCHLD) | (1 << SIGCLD) | (1 << SIGURG) | (1 << SIGWINCH);
 
     TraceEvent event{executeEvent};
-    Tracee tracee(traceePid_);
+    Tracee tracee(executeEvent.pid);
 
     if (!hasExecved_ && executeEvent.trapped &&
         executeEvent.signal == (SIGTRAP | (PTRACE_EVENT_EXEC << 8))) {
@@ -78,8 +78,8 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(
         if (signal > 0) {
             // Since our child is pid 1 we have to kill on delivery on uncaught
             // signal in favour of kernel.
-            uint64_t caughtSignals =
-                    procfs::readProcFS(traceePid_, procfs::Field::SIG_CGT);
+            uint64_t caughtSignals = procfs::readProcFS(
+                    executeEvent.pid, procfs::Field::SIG_CGT);
             caughtSignals |= IGNORED_SIGNALS;
             if ((caughtSignals & (1 << signal)) == 0U) {
                 outputBuilder_->setKillSignal(signal);
@@ -101,16 +101,16 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(
 
         try {
             if (action == TraceAction::KILL) {
-                // Kill tracee _before_ restarting it
+                // Kill _root_ tracee _before_ restarting it
                 outputBuilder_->setKillSignal(SIGKILL);
                 logger::debug("Killing tracee after trace action kill");
-                withErrnoCheck("kill child", kill, traceePid_, SIGKILL);
+                withErrnoCheck("kill child", kill, rootTraceePid_, SIGKILL);
             }
             withErrnoCheck(
                     "ptrace cont",
                     ptrace,
                     PTRACE_CONT,
-                    traceePid_,
+                    executeEvent.pid,
                     nullptr,
                     signal);
         }

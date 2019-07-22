@@ -103,7 +103,7 @@ void Executor::executeParent() {
     }
 
     while (true) {
-        ExecuteEvent event;
+        ExecuteEvent event{};
         siginfo_t waitInfo;
 
         executor::ExecuteAction action = checkSignals();
@@ -113,7 +113,7 @@ void Executor::executeParent() {
 
         // Potential race condition here.
         int returnValue = waitid(
-                P_PID, childPid_, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
+                P_ALL, -1, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
         if (returnValue == -1) {
             if (errno != EINTR) {
                 throw SystemException(
@@ -122,6 +122,7 @@ void Executor::executeParent() {
             continue;
         }
 
+        event.pid = waitInfo.si_pid;
         if (waitInfo.si_code == CLD_EXITED) {
             event.exited = true;
             event.exitStatus = waitInfo.si_status;
