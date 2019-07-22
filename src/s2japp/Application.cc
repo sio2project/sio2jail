@@ -43,7 +43,7 @@ Application::ExitCode Application::main() {
         return handleHelp();
     }
 
-        return handleVersion();
+    return handleVersion();
 }
 
 Application::ExitCode Application::handleHelp() {

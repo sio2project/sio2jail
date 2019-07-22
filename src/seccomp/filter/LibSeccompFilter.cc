@@ -89,16 +89,20 @@ LibSeccompFilter SyscallArg::operator>=(const uint64_t data) const {
 LibSeccompFilter SyscallArg::operator<(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, data](
-                    const tracer::TraceEvent& /* event */, tracer::Tracee& tracee)
-                    -> bool { return tracee.getSyscallArgument(index) < data; },
+                    const tracer::TraceEvent& /* event */,
+                    tracer::Tracee& tracee) -> bool {
+                return tracee.getSyscallArgument(index) < data;
+            },
             SCMP_CMP(argumentIndex_, SCMP_CMP_LT, data));
 }
 
 LibSeccompFilter SyscallArg::operator>(const uint64_t data) const {
     return LibSeccompFilter(
             [index = this->argumentIndex_, data](
-                    const tracer::TraceEvent& /* event */, tracer::Tracee& tracee)
-                    -> bool { return tracee.getSyscallArgument(index) > data; },
+                    const tracer::TraceEvent& /* event */,
+                    tracer::Tracee& tracee) -> bool {
+                return tracee.getSyscallArgument(index) > data;
+            },
             SCMP_CMP(argumentIndex_, SCMP_CMP_GT, data));
 }
 
