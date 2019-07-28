@@ -72,8 +72,15 @@ Application::ExitCode Application::handleRun() {
             settings_.threadsLimit >= 0);
 
     auto traceExecutor = createListener<tracer::TraceExecutor>();
-    auto perfListener =
-            createListener<perf::PerfListener>(settings_.instructionCountLimit);
+
+
+    uint64_t perfSamplingFactor = settings_.perfOversamplingFactor;
+    if (settings_.threadsLimit > 0) {
+        perfSamplingFactor *= static_cast<uint64_t>(settings_.threadsLimit);
+    }
+
+    auto perfListener = createListener<perf::PerfListener>(
+            settings_.instructionCountLimit, perfSamplingFactor);
     auto userNsListener = createListener<ns::UserNamespaceListener>();
     auto utsNsListener = createListener<ns::UTSNamespaceListener>();
     auto ipcNsListener = createListener<ns::IPCNamespaceListener>();

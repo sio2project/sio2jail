@@ -11,7 +11,7 @@ class PerfListener
         : public executor::ExecuteEventListener
         , public printer::OutputSource {
 public:
-    PerfListener(uint64_t instructionCountLimit);
+    PerfListener(uint64_t instructionCountLimit, uint64_t samplingFactor);
     ~PerfListener();
 
     void onPreFork() override;
@@ -25,8 +25,9 @@ public:
 private:
     uint64_t getInstructionsUsed();
 
+    const uint64_t instructionCountLimit_;
+    const uint64_t samplingFactor_;
     int perfFd_;
-    uint64_t instructionCountLimit_;
     pid_t childPid_{};
 
     // Barrier used for synchronization

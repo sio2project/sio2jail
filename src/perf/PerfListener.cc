@@ -32,8 +32,12 @@ namespace perf {
 
 const Feature PerfListener::feature = Feature::PERF;
 
-PerfListener::PerfListener(uint64_t instructionCountLimit)
-        : perfFd_(-1), instructionCountLimit_(instructionCountLimit) {}
+PerfListener::PerfListener(
+        uint64_t instructionCountLimit,
+        uint64_t samplingFactor)
+        : instructionCountLimit_(instructionCountLimit)
+        , samplingFactor_{std::max<uint64_t>(1ULL, samplingFactor)}
+        , perfFd_{-1} {}
 
 PerfListener::~PerfListener() {
     // TODO: handle closing perfFd in move assignement / constructor as well
@@ -72,7 +76,6 @@ void PerfListener::onPostForkParent(pid_t childPid) {
     TRACE();
 
     childPid_ = childPid;
-    // TODO: fix this // What fix?
     struct perf_event_attr attrs {};
     memset(&attrs, 0, sizeof(attrs));
     attrs.type = PERF_TYPE_HARDWARE;
@@ -83,8 +86,9 @@ void PerfListener::onPostForkParent(pid_t childPid) {
     attrs.exclude_hv = 1;
     attrs.disabled = 1;
     attrs.enable_on_exec = 1;
+    attrs.inherit = 1;
     if (instructionCountLimit_ != 0) {
-        attrs.sample_period = instructionCountLimit_;
+        attrs.sample_period = instructionCountLimit_ / samplingFactor_;
         attrs.wakeup_events = 1;
     }
     // Apparently older (3.13) kernel versions doesn't support

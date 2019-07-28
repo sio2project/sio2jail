@@ -45,6 +45,7 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
 
     int resultsFD{};
     int threadsLimit{};
+    uint32_t perfOversamplingFactor{};
 
     std::string parsingError;
     std::string helpMessage;
