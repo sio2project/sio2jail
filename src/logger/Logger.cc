@@ -9,7 +9,7 @@ std::shared_ptr<logger::Logger> Logger::logger_;
 
 void Logger::setLogger(std::shared_ptr<Logger> logger) noexcept {
     if (logger != nullptr) {
-        logger_ = logger;
+        logger_ = std::move(logger);
     }
 }
 
