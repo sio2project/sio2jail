@@ -29,8 +29,8 @@ ADD_EXECUTABLE(leak-huge_64 leak-huge.c)
 ADD_EXECUTABLE(leak-dive_64 leak-dive.c)
 SET_TARGET_PROPERTIES(leak-tiny_64
                       leak-huge_64
-                      leak-dive_64 PROPERTIES COMPILE_FLAGS "-m32"
-                                              LINK_FLAGS "-m32")
+                      leak-dive_64 PROPERTIES COMPILE_FLAGS "-m64"
+                                              LINK_FLAGS "-m64")
 # Summing programs
 ADD_EXECUTABLE(sum_c    sum_c.c)
 ADD_EXECUTABLE(sum_cxx  sum_cxx.cc)
