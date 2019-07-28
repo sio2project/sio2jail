@@ -19,24 +19,33 @@ class Supervisor(object):
         if extra_options is None:
             extra_options = []
 
-        options = extra_options + [program]
+        if isinstance(program, (list, tuple)):
+            options = extra_options + list(program)
+        else:
+            options = extra_options + [program]
+        options = list(map(str, options))
 
-        print "running:\n{}\n".format(" ".join([self.SUPERVISOR_BIN] + options))
+        if stdin is not None:
+            stdin = stdin.encode('utf-8')
+
+        print("running:\n{}\n".format(" ".join([self.SUPERVISOR_BIN] + options)))
         process = subprocess.Popen([self.SUPERVISOR_BIN] + options,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         (stdout, stderr) = process.communicate(stdin)
+        stdout = stdout.decode('utf-8')
+        stderr = stderr.decode('utf-8')
 
         if process.poll() is None:
             process.kill()
             process.poll()
-        print "result: {}\n\nstdout:\n{}\nstderr:\n{}\n".format(process.poll(), stdout.strip(), stderr.strip())
+        print("result: {}\n\nstdout:\n{}\nstderr:\n{}\n".format(process.poll(), stdout.strip(), stderr.strip()))
 
         result = self.Result()
         self.parse_results(result, stdout, stderr)
-        result.stdout = map(lambda s: s.strip(), stdout.split('\n'))
-        result.stderr = map(lambda s: s.strip(), stderr.split('\n')[:-3])
+        result.stdout = list(map(lambda s: s.strip(), stdout.split('\n')))
+        result.stderr = list(map(lambda s: s.strip(), stderr.split('\n')[:-3]))
         result.supervisor_return_code = process.returncode
         return result
 
