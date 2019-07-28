@@ -99,6 +99,8 @@ void DefaultPolicy::addMemoryManagementRules() {
                    "mremap",
                    "mprotect",
                    "arch_prctl"});
+
+    rules_.emplace_back(SeccompRule{"madvise", action::ActionErrno{EINVAL}});
 }
 
 void DefaultPolicy::addSystemInformationRules() {
