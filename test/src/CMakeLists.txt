@@ -15,6 +15,11 @@ SET_TARGET_PROPERTIES(1-sec-prog
                       PROPERTIES COMPILE_FLAGS "-m32"
                                  LINK_FLAGS "-m32")
 
+ADD_EXECUTABLE(1-sec-prog-th 1-sec-prog-th.cc)
+SET_TARGET_PROPERTIES(1-sec-prog-th
+                      PROPERTIES COMPILE_FLAGS "-pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive"
+                                 LINK_FLAGS "-pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+
 # Memory limit tests
 ADD_EXECUTABLE(leak-tiny_32 leak-tiny.c)
 ADD_EXECUTABLE(leak-huge_32 leak-huge.c)
@@ -43,7 +48,7 @@ ADD_EXECUTABLE(stderr-write stderr-write.c)
 
 ADD_CUSTOM_TARGET(test-binaries
     DEPENDS
-        1-sec-prog 1-sec-evil infinite-loop
+        1-sec-prog 1-sec-evil infinite-loop 1-sec-prog-th
         leak-tiny_32 leak-huge_32 leak-dive_32
         leak-tiny_64 leak-huge_64 leak-dive_64
         sum_c sum_cxx stderr-write)
