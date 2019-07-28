@@ -303,6 +303,16 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
                 "path",
                 cmd);
 
+        TCLAP::ValueArg<int> argThreadsLimit(
+                "t",
+                "threads",
+                "Threads limit, -1 to disable threading support",
+                false,
+                -1,
+                "count",
+                cmd);
+
+
         TCLAP::UnlabeledValueArg<std::string> argProgramName(
                 "path", "Name of program to run", true, "", "path", cmd);
         TCLAP::UnlabeledMultiArg<std::string> argProgramArgv(
@@ -386,6 +396,7 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 
         suppressStderr = !argShowStderr.getValue();
         resultsFD = argResultsFD.getValue();
+        threadsLimit = argThreadsLimit.getValue();
     }
     catch (const TCLAP::ArgException& ex) {
         outputGenerator.failure(ex);

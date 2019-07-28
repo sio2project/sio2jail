@@ -5,6 +5,7 @@
 #include "files/FilesListener.h"
 #include "limits/MemoryLimitListener.h"
 #include "limits/OutputLimitListener.h"
+#include "limits/ThreadsLimitListener.h"
 #include "limits/TimeLimitListener.h"
 #include "logger/FDLogger.h"
 #include "logger/FileLogger.h"
@@ -66,7 +67,9 @@ Application::ExitCode Application::handleRun() {
     TRACE();
 
     auto executor = std::make_shared<s2j::executor::Executor>(
-            settings_.programName, settings_.programArgv);
+            settings_.programName,
+            settings_.programArgv,
+            settings_.threadsLimit >= 0);
 
     auto traceExecutor = createListener<tracer::TraceExecutor>();
     auto perfListener =
@@ -92,6 +95,8 @@ Application::ExitCode Application::handleRun() {
             settings_.uTimelimitUs,
             settings_.sTimelimitUs,
             settings_.usTimelimitUs);
+    auto threadsLimitListener = std::make_shared<limits::ThreadsLimitListener>(
+            settings_.threadsLimit);
     auto filesListener =
             std::make_shared<files::FilesListener>(settings_.suppressStderr);
     auto loggerListener = std::make_shared<logger::LoggerListener>();
@@ -113,7 +118,8 @@ Application::ExitCode Application::handleRun() {
             seccompListener,
             memoryLimitListener,
             outputLimitListener,
-            timeLimitListener);
+            timeLimitListener,
+            threadsLimitListener);
 
     // Add listeners to executor, *in order*
     forEachListener<executor::ExecuteEventListener>(
@@ -122,6 +128,7 @@ Application::ExitCode Application::handleRun() {
             memoryLimitListener,
             outputLimitListener,
             timeLimitListener,
+            threadsLimitListener,
             traceExecutor,
             perfListener,
             userNsListener,
@@ -142,6 +149,7 @@ Application::ExitCode Application::handleRun() {
                 },
                 loggerListener,
                 memoryLimitListener,
+                threadsLimitListener,
                 seccompListener);
     }
 
@@ -151,7 +159,8 @@ Application::ExitCode Application::handleRun() {
                 [seccompListener](auto policy) {
                     seccompListener->addPolicy(*policy);
                 },
-                memoryLimitListener);
+                memoryLimitListener,
+                threadsLimitListener);
     }
 
     // Special configuration

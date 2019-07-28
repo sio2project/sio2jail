@@ -1,5 +1,6 @@
 #include "Executor.h"
 
+#include "common/Assert.h"
 #include "common/Exception.h"
 #include "common/Utils.h"
 #include "common/WithErrnoCheck.h"
@@ -37,10 +38,12 @@ namespace executor {
 
 Executor::Executor(
         std::string childProgramName,
-        std::vector<std::string> childProgramArgv)
+        std::vector<std::string> childProgramArgv,
+        bool supportThreads)
         : childProgramName_(std::move(childProgramName))
         , childProgramArgv_(std::move(childProgramArgv))
-        , childPid_(0) {}
+        , childPid_(0)
+        , supportThreads_{supportThreads} {}
 
 void Executor::execute() {
     TRACE();
@@ -112,8 +115,16 @@ void Executor::executeParent() {
         }
 
         // Potential race condition here.
-        int returnValue =
-                waitid(P_ALL, -1, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
+        int returnValue{-1};
+        if (supportThreads_) {
+            returnValue =
+                    waitid(P_ALL, -1, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
+        }
+        else {
+            returnValue = waitid(
+                    P_PID, childPid_, &waitInfo, WEXITED | WSTOPPED | WNOWAIT);
+        }
+
         if (returnValue == -1) {
             if (errno != EINTR) {
                 throw SystemException(
@@ -157,6 +168,8 @@ void Executor::executeParent() {
                 break;
             }
             else {
+                assert(supportThreads_);
+
                 // Wait to clear child's status so that future
                 // wait calls will not return it.
                 withErrnoCheck(
