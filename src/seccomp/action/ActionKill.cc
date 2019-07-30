@@ -17,7 +17,9 @@ tracer::TraceAction ActionKill::execute(tracer::Tracee& /*tracee*/) {
 }
 
 uint32_t ActionKill::createLibSeccompAction() const {
-    return SCMP_ACT_KILL;
+    // Trace here so that executor will display nice output. Perfomance doesn't
+    // matter here since we are gpoing to finish anyway.
+    return SCMP_ACT_TRACE(getRuleId());
 }
 
 } // namespace action

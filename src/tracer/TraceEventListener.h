@@ -5,6 +5,8 @@
 
 #include "executor/ExecuteEventListener.h"
 
+#include <tuple>
+
 namespace s2j {
 namespace tracer {
 
@@ -15,8 +17,26 @@ public:
     /**
      * Triggers in parent after child's initial execve.
      */
-    virtual void onPostExec(const tracer::TraceEvent& traceEvent) {}
+    virtual TraceAction onPostExec(
+            const tracer::TraceEvent& traceEvent,
+            tracer::Tracee& tracee) {
+        return TraceAction::CONTINUE;
+    }
 
+    /**
+     * Triggers in parent after each clone. Returns pair tracee action,
+     * tracee child action.
+     */
+    virtual std::tuple<TraceAction, TraceAction> onPostClone(
+            const tracer::TraceEvent& traceEvent,
+            tracer::Tracee& tracee,
+            tracer::Tracee& traceeChild) {
+        return {TraceAction::CONTINUE, TraceAction::CONTINUE};
+    }
+
+    /**
+     * Triggers in parent after each event
+     */
     virtual TraceAction onTraceEvent(
             const tracer::TraceEvent& traceEvent,
             tracer::Tracee& tracee) {

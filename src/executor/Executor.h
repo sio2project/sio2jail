@@ -19,7 +19,8 @@ class Executor
 public:
     Executor(
             std::string childProgramName,
-            std::vector<std::string> childProgramArgv);
+            std::vector<std::string> childProgramArgv,
+            bool supportThreads = false);
 
     template<typename ProgramNameType>
     void setChildProgramName(ProgramNameType&& programName) {
@@ -46,6 +47,7 @@ private:
     std::vector<std::string> childProgramArgv_;
 
     pid_t childPid_;
+    const bool supportThreads_;
 };
 
 } // namespace executor

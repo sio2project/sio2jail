@@ -11,15 +11,17 @@
 namespace s2j {
 namespace tracer {
 
-Tracee::Tracee(pid_t traceePid)
-        : traceePid_(traceePid), syscallArch_(Arch::UNKNOWN) {
+Tracee::Tracee(std::shared_ptr<ProcessInfo> traceeInfo)
+        : traceeInfo_{std::move(traceeInfo)}, syscallArch_{Arch::UNKNOWN} {
+    assert(traceeInfo_ != nullptr);
+
     if (isAlive()) {
         try {
             withErrnoCheck(
                     "ptrace getregs",
                     ptrace,
                     PTRACE_GETREGS,
-                    traceePid_,
+                    getPid(),
                     nullptr,
                     &regs_);
         }
@@ -32,7 +34,7 @@ Tracee::Tracee(pid_t traceePid)
 }
 
 bool Tracee::isAlive() {
-    return kill(traceePid_, 0) == 0;
+    return kill(getPid(), 0) == 0;
 }
 
 int64_t Tracee::getEventMsg() {
@@ -41,7 +43,7 @@ int64_t Tracee::getEventMsg() {
             "ptrace geteventmsg",
             ptrace,
             PTRACE_GETEVENTMSG,
-            traceePid_,
+            getPid(),
             nullptr,
             &code);
     return code;
@@ -188,7 +190,7 @@ void Tracee::cancelSyscall(reg_t returnValue) {
             "ptrace setregs",
             ptrace,
             PTRACE_SETREGS,
-            traceePid_,
+            getPid(),
             nullptr,
             &regs_);
 }

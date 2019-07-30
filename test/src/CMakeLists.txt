@@ -15,6 +15,11 @@ SET_TARGET_PROPERTIES(1-sec-prog
                       PROPERTIES COMPILE_FLAGS "-m32"
                                  LINK_FLAGS "-m32")
 
+ADD_EXECUTABLE(1-sec-prog-th 1-sec-prog-th.cc)
+SET_TARGET_PROPERTIES(1-sec-prog-th
+                      PROPERTIES COMPILE_FLAGS "-pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive"
+                                 LINK_FLAGS "-pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+
 # Memory limit tests
 ADD_EXECUTABLE(leak-tiny_32 leak-tiny.c)
 ADD_EXECUTABLE(leak-huge_32 leak-huge.c)
@@ -29,8 +34,8 @@ ADD_EXECUTABLE(leak-huge_64 leak-huge.c)
 ADD_EXECUTABLE(leak-dive_64 leak-dive.c)
 SET_TARGET_PROPERTIES(leak-tiny_64
                       leak-huge_64
-                      leak-dive_64 PROPERTIES COMPILE_FLAGS "-m32"
-                                              LINK_FLAGS "-m32")
+                      leak-dive_64 PROPERTIES COMPILE_FLAGS "-m64"
+                                              LINK_FLAGS "-m64")
 # Summing programs
 ADD_EXECUTABLE(sum_c    sum_c.c)
 ADD_EXECUTABLE(sum_cxx  sum_cxx.cc)
@@ -43,7 +48,7 @@ ADD_EXECUTABLE(stderr-write stderr-write.c)
 
 ADD_CUSTOM_TARGET(test-binaries
     DEPENDS
-        1-sec-prog 1-sec-evil infinite-loop
+        1-sec-prog 1-sec-evil infinite-loop 1-sec-prog-th
         leak-tiny_32 leak-huge_32 leak-dive_32
         leak-tiny_64 leak-huge_64 leak-dive_64
         sum_c sum_cxx stderr-write)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ProcessInfo.h"
 #include "TraceAction.h"
 #include "TraceEventListener.h"
 
@@ -10,6 +11,7 @@
 #include "printer/OutputSource.h"
 
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include <unistd.h>
@@ -30,8 +32,25 @@ public:
     const static Feature feature;
 
 private:
-    bool hasExecved_ = false;
-    pid_t traceePid_;
+    TraceAction onEventExec(const TraceEvent& executeEvent, Tracee& tracee);
+
+    TraceAction onEventClone(const TraceEvent& executeEvent, Tracee& tracee);
+
+    /* Returns action and injectedSignal */
+    std::tuple<TraceAction, int> handleTraceeSignal(
+            const TraceEvent& event,
+            Tracee& tracee);
+
+    void continueTracee(
+            TraceAction action,
+            int injectedSignal,
+            const TraceEvent& event,
+            Tracee& tracee);
+
+    static const uint64_t PTRACE_OPTIONS;
+
+    std::shared_ptr<ProcessInfo> rootTraceeInfo_;
+    bool hasExecved_{false};
 };
 
 } // namespace tracer

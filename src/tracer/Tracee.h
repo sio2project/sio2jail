@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ProcessInfo.h"
+
 #include <string>
 
 #include <sys/user.h>
@@ -20,7 +22,15 @@ enum Arch : uint8_t { UNKNOWN = 0, X86 = 1, X86_64 = 2 };
 
 class Tracee {
 public:
-    Tracee(pid_t traceePid);
+    Tracee(std::shared_ptr<ProcessInfo> traceeInfo);
+
+    pid_t getPid() const {
+        return traceeInfo_->getPid();
+    }
+
+    std::shared_ptr<ProcessInfo> getInfo() {
+        return traceeInfo_;
+    }
 
     /**
      * Checks wheather underlying process is still alive.
@@ -49,7 +59,7 @@ public:
     // ...
 
 private:
-    pid_t traceePid_;
+    std::shared_ptr<ProcessInfo> traceeInfo_;
     user_regs_struct regs_{};
 
     Arch syscallArch_;

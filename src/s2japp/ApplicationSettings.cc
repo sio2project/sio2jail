@@ -1,6 +1,6 @@
-#include "ApplicationSettings.h"
 #include "ApplicationArguments.h"
 #include "ApplicationException.h"
+#include "ApplicationSettings.h"
 
 #include "common/Utils.h"
 #include "printer/AugmentedOIOutputBuilder.h"
@@ -303,6 +303,26 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
                 "path",
                 cmd);
 
+        TCLAP::ValueArg<int> argThreadsLimit(
+                "t",
+                "threads",
+                "Threads limit, -1 to disable threading support",
+                false,
+                -1,
+                "count",
+                cmd);
+
+        TCLAP::ValueArg<uint32_t> argPerfOversamplingFactor(
+                "w",
+                "perf-oversampling-factor",
+                "Additional number of perf wakupus during each base period "
+                "(wakeups number equals threads limit * oversampling factor)",
+                false,
+                2,
+                "factor",
+                cmd);
+
+
         TCLAP::UnlabeledValueArg<std::string> argProgramName(
                 "path", "Name of program to run", true, "", "path", cmd);
         TCLAP::UnlabeledMultiArg<std::string> argProgramArgv(
@@ -386,6 +406,8 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 
         suppressStderr = !argShowStderr.getValue();
         resultsFD = argResultsFD.getValue();
+        threadsLimit = argThreadsLimit.getValue();
+        perfOversamplingFactor = argPerfOversamplingFactor.getValue();
     }
     catch (const TCLAP::ArgException& ex) {
         outputGenerator.failure(ex);
