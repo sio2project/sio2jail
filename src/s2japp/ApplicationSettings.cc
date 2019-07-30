@@ -80,7 +80,7 @@ private:
 namespace s2j {
 namespace app {
 
-const std::string ApplicationSettings::VERSION = "1.2.0";
+const std::string ApplicationSettings::VERSION = "1.3.0";
 
 const std::string ApplicationSettings::DESCRIPTION =
         "SIO2jail, a sandbox for programming contests.";
