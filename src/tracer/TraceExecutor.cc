@@ -228,37 +228,37 @@ void TraceExecutor::continueTracee(
         int injectedSignal,
         const TraceEvent& /* event */,
         Tracee& tracee) {
-    try {
-        if (action == TraceAction::KILL) {
-            // Kill _root_ tracee
-            outputBuilder_->setKillSignal(SIGKILL);
-            logger::debug("Killing root tracee after trace action kill");
-            withErrnoCheck(
-                    "kill root child",
-                    kill,
-                    rootTraceeInfo_->getPid(),
-                    SIGKILL);
-
-            // Kill tracee _before_ restarting it
-            if (rootTraceeInfo_->getPid() != tracee.getPid()) {
-                logger::debug("Killing tracee before restarting it");
-                withErrnoCheck("kill child", kill, tracee.getPid(), SIGKILL);
-            }
-        }
-
+    if (action == TraceAction::KILL) {
+        // Kill _root_ tracee
+        outputBuilder_->setKillSignal(SIGKILL);
+        logger::debug("Killing root tracee after trace action kill");
         withErrnoCheck(
-                "ptrace cont",
-                ptrace,
-                PTRACE_CONT,
-                tracee.getPid(),
-                nullptr,
-                injectedSignal);
-    }
-    catch (const SystemException& ex) {
-        if (ex.getErrno() != ESRCH) {
-            throw;
+                "kill root child",
+                {ESRCH},
+                kill,
+                rootTraceeInfo_->getPid(),
+                SIGKILL);
+
+        // Kill tracee _before_ restarting it
+        if (rootTraceeInfo_->getPid() != tracee.getPid()) {
+            logger::debug("Killing tracee before restarting it");
+            withErrnoCheck(
+                    "kill current tracee (a child)",
+                    {ESRCH},
+                    kill,
+                    tracee.getPid(),
+                    SIGKILL);
         }
     }
+
+    withErrnoCheck(
+            "ptrace cont",
+            {ESRCH},
+            ptrace,
+            PTRACE_CONT,
+            tracee.getPid(),
+            nullptr,
+            injectedSignal);
 }
 
 } // namespace tracer
