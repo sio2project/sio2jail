@@ -13,4 +13,4 @@ ADD_CUSTOM_TARGET(check
     COMMAND
         "${CMAKE_CTEST_COMMAND}" --verbose
     DEPENDS
-        sio2jail test-binaries boxes)
+        sio2jail test-binaries extract_boxes)

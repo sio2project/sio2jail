@@ -10,5 +10,5 @@ BOXES = {
 }
 
 DEFAULT_BOXES = [
-    'minimal', 'busybox', 'python-2.7', 'python-3.7'
+    'minimal', 'busybox', 'python-2', 'python-3'
 ]
