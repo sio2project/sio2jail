@@ -69,7 +69,7 @@ class Builder:
         with self._cmd.sudo():
             self._cmd.run('debootstrap', self._release, str(self._root))
         with self._cmd.chroot(self._root):
-            self._cmd.run('apt-get', 'install', '-y', 'apt-rdepends')
+            self._cmd.run('apt-get', 'install', '-y', '--allow-unauthenticated', 'apt-rdepends')
 
     def _build_box(self, box_name: str, box_version: Optional[str], box_dir_name: str) -> None:
         box = boxes.boxes.BOXES[box_name](self._logger, box_version)
@@ -79,7 +79,7 @@ class Builder:
             self._cmd.run('mkdir', '-pv', str(box_dir))
 
             for package_name in box.get_packages():
-                self._cmd.run('apt-get', 'install', '-y', package_name)
+                self._cmd.run('apt-get', 'install', '-y', '--allow-unauthenticated', package_name)
 
             packages = self._build_dependency_tree(box.get_packages())
             for package in packages:
@@ -92,15 +92,15 @@ class Builder:
 
     def _build_dependency_tree(self, packages: List[str]) -> List[str]:
         deps = {}
-        installed = set()
+        not_installed = set()
         for package in packages:
             current_package = None
             for line in self._cmd.run('apt-rdepends', '-p', package, return_stdout=True):
                 line = line.strip()
                 if 'Depends' in line:
                     deps.setdefault(current_package, set()).add(line.split()[1].strip())
-                    if line.split()[-1].strip() == "[Installed]":
-                        installed.add(line.split()[1].strip())
+                    if line.split()[-1].strip() == "[NotInstalled]":
+                        not_installed.add(line.split()[1].strip())
                 else:
                     current_package = line.strip()
         install_order = []
@@ -112,11 +112,13 @@ class Builder:
             visited.add(node)
             for child_node in deps.get(node, []):
                 visit(child_node)
-            if node in installed:
+            if node not in not_installed:
                 install_order.append(node)
         for node in deps.keys():
             visit(node)
 
+        print(repr(deps))
+        print(repr(install_order))
         return install_order
 
     def _extract_package(self, package: str, box_dir: pathlib.Path) -> None:
@@ -131,6 +133,7 @@ class Builder:
             'install',
             '--reinstall',
             '-y',
+            '--allow-unauthenticated',
             '-d',
             package)
         self._cmd.run(
