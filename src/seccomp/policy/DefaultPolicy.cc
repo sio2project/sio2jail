@@ -6,6 +6,7 @@
 #include "seccomp/filter/LibSeccompFilter.h"
 
 #include <fcntl.h>
+#include <sys/socket.h>
 
 namespace s2j {
 namespace seccomp {
@@ -33,7 +34,9 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
                    "sigaltstack",
                    "rt_sigaction",
                    "rt_sigprocmask",
+                   "rt_sigreturn",
                    "futex",
+                   "sched_yield",
                    "set_tid_address",
                    "set_robust_list",
                    "getpid",
@@ -108,7 +111,8 @@ void DefaultPolicy::addSystemInformationRules() {
                    "geteuid",   "geteuid32",     "getegid",      "getegid32",
                    "getrlimit", "ugetrlimit",    "getcpu",       "gettid",
                    "getcwd",    "uname",         "olduname",     "oldolduname",
-                   "sysinfo",   "clock_gettime", "gettimeofday", "time"});
+                   "sysinfo",   "clock_gettime", "clock_getres", "gettimeofday",
+                   "sched_getaffinity", "time"});
 }
 
 void DefaultPolicy::addInputOutputRules() {
@@ -168,6 +172,8 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
          }) {
         rules_.emplace_back(SeccompRule(syscall, action::ActionErrno(ENOSYS)));
     }
+
+    rules_.emplace_back(SeccompRule("socket", action::ActionErrno(EACCES), filter::SyscallArg(0) == AF_UNIX));
 
     if (readOnly) {
         rules_.emplace_back(SeccompRule(
