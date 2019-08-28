@@ -59,12 +59,12 @@ std::tuple<tracer::TraceAction, tracer::TraceAction>
 LoggerListener::onPostClone(
         const tracer::TraceEvent& /* traceEvent */,
         tracer::Tracee& tracee,
-        tracer::Tracee& traceeChild) {
+        pid_t traceeChildPid) {
     logger::debug(
             "Execution stage onPostClone, traceePid=",
             tracee.getPid(),
             ", traceeChildPid=",
-            traceeChild.getPid());
+            traceeChildPid);
     return {tracer::TraceAction::CONTINUE, tracer::TraceAction::CONTINUE};
 }
 

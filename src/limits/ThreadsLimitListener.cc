@@ -48,8 +48,8 @@ std::tuple<tracer::TraceAction, tracer::TraceAction>
 ThreadsLimitListener::onPostClone(
         const tracer::TraceEvent& traceEvent,
         tracer::Tracee& tracee,
-        tracer::Tracee& traceeChild) {
-    TRACE(tracee.getPid(), traceeChild.getPid());
+        pid_t traceeChildPid) {
+    TRACE(tracee.getPid(), traceeChildPid);
     if (threadsLimit_ < 0) {
         outputBuilder_->setKillReason(
                 printer::OutputBuilder::KillReason::RV,
@@ -57,10 +57,10 @@ ThreadsLimitListener::onPostClone(
         return {tracer::TraceAction::KILL, tracer::TraceAction::KILL};
     }
 
-    threadsPids_.insert(traceeChild.getPid());
+    threadsPids_.insert(traceeChildPid);
     logger::debug(
             "Thread ",
-            traceeChild.getPid(),
+            traceeChildPid,
             " started, new thread count ",
             threadsPids_.size());
     if (threadsPids_.size() > static_cast<uint32_t>(threadsLimit_)) {

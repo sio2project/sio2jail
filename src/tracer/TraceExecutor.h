@@ -12,6 +12,8 @@
 
 #include <memory>
 #include <tuple>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <unistd.h>
@@ -36,6 +38,10 @@ private:
 
     TraceAction onEventClone(const TraceEvent& executeEvent, Tracee& tracee);
 
+    executor::ExecuteAction continueChildAfterClone(
+            pid_t childPid,
+            TraceAction childAction);
+
     /* Returns action and injectedSignal */
     std::tuple<TraceAction, int> handleTraceeSignal(
             const TraceEvent& event,
@@ -50,6 +56,8 @@ private:
     static const uint64_t PTRACE_OPTIONS;
 
     std::shared_ptr<ProcessInfo> rootTraceeInfo_;
+    std::unordered_set<pid_t> stoppedPostCloneChildren_;
+    std::unordered_map<pid_t, TraceAction> delayedPostCloneChildrenAction_;
     bool hasExecved_{false};
 };
 

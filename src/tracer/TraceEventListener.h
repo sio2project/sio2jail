@@ -30,7 +30,7 @@ public:
     virtual std::tuple<TraceAction, TraceAction> onPostClone(
             const tracer::TraceEvent& traceEvent,
             tracer::Tracee& tracee,
-            tracer::Tracee& traceeChild) {
+            pid_t traceeChildPid) {
         return {TraceAction::CONTINUE, TraceAction::CONTINUE};
     }
 
