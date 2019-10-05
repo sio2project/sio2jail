@@ -9,6 +9,11 @@ import boxes.downloader
 import boxes.builder
 
 
+DEFAULT_BOXES = [
+    'minimal', 'busybox', 'python-2', 'python-3', 'java-11'
+]
+
+
 def main() -> None:
     args = parse_args()
     if args.action == 'download':
@@ -23,7 +28,7 @@ def main() -> None:
             args.chroot_path,
             args.release,
             args.extract
-        ).run(args.boxes or boxes.boxes.DEFAULT_BOXES)
+        ).run(args.boxes or DEFAULT_BOXES)
     else:
         raise NotImplementedError()
 

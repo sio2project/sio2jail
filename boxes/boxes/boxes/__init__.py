@@ -10,7 +10,3 @@ BOXES = {
     'python': python.Python,
     'java': java.JavaOpenJDK,
 }
-
-DEFAULT_BOXES = [
-    'minimal', 'busybox', 'python-2', 'python-3', 'java-11'
-]
