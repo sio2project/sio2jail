@@ -18,10 +18,7 @@ class ThreadsLimitListener
 public:
     ThreadsLimitListener(int32_t threadsLimit);
 
-    std::tuple<tracer::TraceAction, tracer::TraceAction> onPostClone(
-            const tracer::TraceEvent& traceEvent,
-            tracer::Tracee& tracee,
-            pid_t traceeChildPid) override;
+    tracer::TraceAction onPostClone(pid_t traceePid, pid_t childPid) override;
 
     executor::ExecuteAction onExecuteEvent(
             const executor::ExecuteEvent& executeEvent) override;

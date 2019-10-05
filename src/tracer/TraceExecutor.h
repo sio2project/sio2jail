@@ -38,9 +38,11 @@ private:
 
     TraceAction onEventClone(const TraceEvent& executeEvent, Tracee& tracee);
 
-    executor::ExecuteAction continueChildAfterClone(
-            pid_t childPid,
-            TraceAction childAction);
+    TraceAction onEventExit(const TraceEvent& executeEvent, Tracee& tracee);
+
+    TraceAction onRegularTrace(const TraceEvent& executeEvent, Tracee& tracee);
+
+    TraceAction onClone(pid_t parentPid, pid_t childPid);
 
     /* Returns action and injectedSignal */
     std::tuple<TraceAction, int> handleTraceeSignal(
@@ -50,14 +52,15 @@ private:
     void continueTracee(
             TraceAction action,
             int injectedSignal,
-            const TraceEvent& event,
-            Tracee& tracee);
+            pid_t traceePid);
 
     static const uint64_t PTRACE_OPTIONS;
 
     std::shared_ptr<ProcessInfo> rootTraceeInfo_;
+
+    std::unordered_map<pid_t, pid_t> stoppedPostCloneParentsByChild_;
     std::unordered_set<pid_t> stoppedPostCloneChildren_;
-    std::unordered_map<pid_t, TraceAction> delayedPostCloneChildrenAction_;
+
     bool hasExecved_{false};
 };
 

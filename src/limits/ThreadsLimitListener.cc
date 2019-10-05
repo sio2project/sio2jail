@@ -44,23 +44,21 @@ ThreadsLimitListener::ThreadsLimitListener(int32_t threadsLimit)
     }
 }
 
-std::tuple<tracer::TraceAction, tracer::TraceAction>
-ThreadsLimitListener::onPostClone(
-        const tracer::TraceEvent& traceEvent,
-        tracer::Tracee& tracee,
-        pid_t traceeChildPid) {
-    TRACE(tracee.getPid(), traceeChildPid);
+tracer::TraceAction ThreadsLimitListener::onPostClone(
+        pid_t traceePid,
+        pid_t childPid) {
+    TRACE(traceePid, childPid);
     if (threadsLimit_ < 0) {
         outputBuilder_->setKillReason(
                 printer::OutputBuilder::KillReason::RV,
                 "Threads are not allowed");
-        return {tracer::TraceAction::KILL, tracer::TraceAction::KILL};
+        return tracer::TraceAction::KILL;
     }
 
-    threadsPids_.insert(traceeChildPid);
+    threadsPids_.insert(childPid);
     logger::debug(
             "Thread ",
-            traceeChildPid,
+            childPid,
             " started, new thread count ",
             threadsPids_.size());
     if (threadsPids_.size() > static_cast<uint32_t>(threadsLimit_)) {
@@ -69,10 +67,10 @@ ThreadsLimitListener::onPostClone(
                 "threads limit exceeded");
         logger::info(
                 "Threads limit ", threadsLimit_, " exceeded, killing tracee");
-        return {tracer::TraceAction::KILL, tracer::TraceAction::KILL};
+        return tracer::TraceAction::KILL;
     }
 
-    return {tracer::TraceAction::CONTINUE, tracer::TraceAction::CONTINUE};
+    return tracer::TraceAction::CONTINUE;
 }
 
 executor::ExecuteAction ThreadsLimitListener::onExecuteEvent(

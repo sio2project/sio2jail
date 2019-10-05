@@ -24,14 +24,11 @@ public:
     }
 
     /**
-     * Triggers in parent after each clone. Returns pair tracee action,
-     * tracee child action.
+     * Triggers in parent after each clone before paren and new child are
+     * resumed.
      */
-    virtual std::tuple<TraceAction, TraceAction> onPostClone(
-            const tracer::TraceEvent& traceEvent,
-            tracer::Tracee& tracee,
-            pid_t traceeChildPid) {
-        return {TraceAction::CONTINUE, TraceAction::CONTINUE};
+    virtual TraceAction onPostClone(pid_t traceePid, pid_t traceeChildPid) {
+        return TraceAction::CONTINUE;
     }
 
     /**

@@ -55,17 +55,15 @@ tracer::TraceAction LoggerListener::onPostExec(
     return tracer::TraceAction::CONTINUE;
 }
 
-std::tuple<tracer::TraceAction, tracer::TraceAction>
-LoggerListener::onPostClone(
-        const tracer::TraceEvent& /* traceEvent */,
-        tracer::Tracee& tracee,
-        pid_t traceeChildPid) {
+tracer::TraceAction LoggerListener::onPostClone(
+        pid_t traceePid,
+        pid_t childPid) {
     logger::debug(
             "Execution stage onPostClone, traceePid=",
-            tracee.getPid(),
-            ", traceeChildPid=",
-            traceeChildPid);
-    return {tracer::TraceAction::CONTINUE, tracer::TraceAction::CONTINUE};
+            traceePid,
+            ", childPid=",
+            childPid);
+    return tracer::TraceAction::CONTINUE;
 }
 
 tracer::TraceAction LoggerListener::onTraceEvent(
