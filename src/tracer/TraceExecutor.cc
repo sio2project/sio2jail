@@ -128,12 +128,8 @@ executor::ExecuteAction TraceExecutor::onExecuteEvent(
         continueTracee(action, std::get<1>(handleSignalResult), event, tracee);
     }
 
-    if (action == TraceAction::KILL) {
-        return executor::ExecuteAction::KILL;
-    }
-
-    return executor::ExecuteAction::CONTINUE;
-} // namespace tracer
+    return asExecuteAction(action);
+}
 
 TraceAction TraceExecutor::onEventExec(
         const TraceEvent& event,
@@ -213,12 +209,7 @@ executor::ExecuteAction TraceExecutor::continueChildAfterClone(
             nullptr,
             injectedSignal);
 
-    if (childAction == TraceAction::CONTINUE) {
-        return executor::ExecuteAction::CONTINUE;
-    }
-    else {
-        return executor::ExecuteAction::KILL;
-    }
+    return asExecuteAction(childAction);
 }
 
 std::tuple<TraceAction, int> TraceExecutor::handleTraceeSignal(
