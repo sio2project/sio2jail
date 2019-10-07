@@ -26,7 +26,7 @@ class Builder:
 
         if chroot_path is None:
             self._workdir = pathlib.Path(
-                tempfile.mkdtemp(prefix='sio2jail-box-build', dir='.'),
+                tempfile.mkdtemp(prefix='sio2jail-box-build-', dir='.'),
             )
             self._root = self._workdir / 'root'
             self._root.mkdir()
@@ -44,10 +44,9 @@ class Builder:
         if not self._workdir:
             return
         try:
-            with self._cmd.sudo():
-                self._cmd.run('chmod', '-R', 'a+rwX', str(self._workdir))
             self._logger.info("Deleting workdir %s", self._workdir)
-            shutil.rmtree(str(self._workdir))
+            with self._cmd.sudo():
+                self._cmd.run('rm', '-rf', str(self._workdir.absolute()))
         except Exception:
             self._logger.exception("Failed to delete workdir %s", self._workdir)
 
