@@ -26,7 +26,7 @@ class Builder:
 
         if chroot_path is None:
             self._workdir = pathlib.Path(
-                tempfile.mkdtemp(prefix='sio2jail-box')
+                tempfile.mkdtemp(prefix='sio2jail-box-build', dir='.'),
             )
             self._root = self._workdir / 'root'
             self._root.mkdir()
