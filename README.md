@@ -71,10 +71,13 @@ running
 You may need to run
 
     sysctl -w kernel.perf_event_paranoid=-1
+
+Additionally, if you want to use sandboxing on older kernels, you'll need to run
+
     sysctl -w kernel.unprivileged_userns_clone=1
 
-or to enable these options in your /etc/sysctl.conf in order
-to run sio2jail.
+For both settings, you may also put these options in your /etc/sysctl.conf.
+This will make the settings persist across reboots.
 
 running tests
 -------------
