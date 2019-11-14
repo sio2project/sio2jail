@@ -72,7 +72,7 @@ You may need to run
 
     sysctl -w kernel.perf_event_paranoid=-1
 
-Additionally, if you want to use sandboxing on older kernels, you'll need to run
+Additionally, if you want to use sandboxing on older Debian kernels, you'll need to run
 
     sysctl -w kernel.unprivileged_userns_clone=1
 
