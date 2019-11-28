@@ -1,28 +1,61 @@
-ADD_CUSTOM_COMMAND(
-    OUTPUT
-        minimal.tar.gz busybox.tar.gz python2.tar.gz python3.tar.gz
-    COMMAND
-        ${CMAKE_SOURCE_DIR}/boxes/make_boxes.sh
-    DEPENDS
-        make_boxes.sh
-    )
+IF(NOT DEFINED BOXES_SOURCE)
+    SET(BOXES_SOURCE "DOWNLOAD")
+ENDIF()
+IF(NOT BOXES_SOURCE MATCHES "DOWNLOAD|BUILD")
+    MESSAGE(FATAL_ERROR "BOXES_SOURCE should be one of DOWNLOAD, BUILD")
+ENDIF()
 
-ADD_CUSTOM_COMMAND(
-    OUTPUT
-        boxes_extraction_stamp.txt
-    COMMAND
-        tar -xvf minimal.tar.gz
-            && tar -xvf busybox.tar.gz
-            && tar -xvf python2.tar.gz
-            && tar -xvf python3.tar.gz
-            && touch boxes_extraction_stamp.txt
-    DEPENDS
-        minimal.tar.gz busybox.tar.gz python2.tar.gz python3.tar.gz
-    )
+SET(BOXES minimal busybox python2 python3)
+
+SET(BOXES_PATHS "")
+FOREACH(BOX IN LISTS BOXES)
+    LIST(APPEND BOXES_PATHS "${CMAKE_CURRENT_BINARY_DIR}/${BOX}")
+ENDFOREACH()
+
+SET(BOXES_FILES_PATHS "")
+FOREACH(BOX IN LISTS BOXES)
+    LIST(APPEND BOXES_FILES_PATHS "${CMAKE_CURRENT_BINARY_DIR}/${BOX}.tar.gz")
+ENDFOREACH()
+
+IF(BOXES_SOURCE STREQUAL "BUILD")
+    ADD_CUSTOM_COMMAND(
+        OUTPUT
+            ${BOXES_FILES_PATHS}
+        COMMAND
+            ${CMAKE_CURRENT_SOURCE_DIR}/boxes.py build
+        DEPENDS
+            ${CMAKE_CURRENT_SOURCE_DIR}/boxes.py
+        )
+ELSEIF(BOXES_SOURCE STREQUAL "DOWNLOAD")
+    ADD_CUSTOM_COMMAND(
+        OUTPUT
+            ${BOXES_FILES_PATHS}
+        COMMAND
+            ${CMAKE_CURRENT_SOURCE_DIR}/boxes.py download
+        DEPENDS
+            ${CMAKE_CURRENT_SOURCE_DIR}/boxes.py
+        )
+ENDIF()
+
+FOREACH(BOX IN LISTS BOXES)
+    ADD_CUSTOM_COMMAND(
+        OUTPUT
+            "${CMAKE_CURRENT_BINARY_DIR}/${BOX}"
+        COMMAND
+            tar -xf "${CMAKE_CURRENT_BINARY_DIR}/${BOX}.tar.gz"
+        DEPENDS
+            ${CMAKE_CURRENT_BINARY_DIR}/${BOX}.tar.gz
+        )
+ENDFOREACH()
 
 ADD_CUSTOM_TARGET(boxes
     DEPENDS
-        boxes_extraction_stamp.txt
+        ${BOXES_FILES_PATHS}
+    )
+
+ADD_CUSTOM_TARGET(extract_boxes
+    DEPENDS
+        ${BOXES_PATHS}
     )
 
 IF(NOT DEFINED WITH_BOXES)
@@ -32,7 +65,7 @@ IF(NOT WITH_BOXES MATCHES "YES|NO")
     MESSAGE(FATAL_ERROR "WITH_BOXES should be one of YES, NO")
 ENDIF()
 IF (WITH_BOXES STREQUAL "YES")
-    INSTALL(FILES download_boxes.sh make_boxes.sh utils.sh
+    INSTALL(FILES boxes.py make_boxes.sh utils.sh
         DESTINATION "${CMAKE_INSTALL_FULL_DATADIR}/sio2jail/boxes"
         PERMISSIONS  OWNER_READ OWNER_EXECUTE)
 ENDIF()

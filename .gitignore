@@ -8,6 +8,9 @@ src/tags
 boxes/*.tar.gz
 boxes/*.deb
 
+venv
+venv3
+
 *.sw[mnopq]
 *~
 pin.log
