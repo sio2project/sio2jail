@@ -1,0 +1,14 @@
+Source: sio2jail
+Section: utils
+Priority: optional
+Maintainer: Michał Sidor <michcioperz@asirpa.iscute.ovh>
+Build-Depends: debhelper (>= 11), cmake
+Standards-Version: 4.1.3
+Homepage: https://github.com/sio2project/sio2jail
+Vcs-Browser: https://github.com/sio2project/sio2jail
+Vcs-Git: https://github.com/sio2project/sio2jail.git
+
+Package: sio2jail
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A tool for supervising execution of programs submitted in algorithmic competitions
