@@ -21,3 +21,10 @@ pin.log
 .idea
 .cache
 __pycache__
+
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.substvars
+debian/sio2jail/
+obj-*/

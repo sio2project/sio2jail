@@ -54,7 +54,7 @@ option (STATIC by default):
 There is also a possibility to control whether output binary should run on other
 architecture than the default one (or force given architecture):
 
-    -DARCH=i386|x86_64
+    -DARCH=i386|amd64
 
 Note, that when using ARCH other than build host architecture it may be necessary
 (depending on libraries installation) to build sio2jail with custom libseccomp (more
