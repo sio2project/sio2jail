@@ -20,10 +20,11 @@ Our sio2jail uses some external libraries and programs:
   * libseccomp (>= 2.3.0)
   * libtclap
   * scdoc (for generating man pages)
+  * g++-multilib
 
 some of which you can install (e.g. on Debian) with:
 
-    apt-get install libcap-dev libtclap-dev libseccomp-dev
+    apt-get install libcap-dev libtclap-dev libseccomp-dev g++-multilib
 
 By default sio2jail searches for this libraries in system paths and in case they
 aren't found their sources are downloaded and libraries are built in working

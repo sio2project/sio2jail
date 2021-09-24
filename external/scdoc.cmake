@@ -14,8 +14,8 @@ ENDIF()
 
 IF((NOT DEFINED SCDOC_BUILD_OWN AND NOT EXISTS "${scdoc_BINARY_PATH}") OR SCDOC_BUILD_OWN STREQUAL "YES")
     ExternalProject_Add(scdoc_project
-        URL https://git.sr.ht/%7Esircmpwn/scdoc/archive/1.5.2.tar.gz
-        URL_HASH SHA256=5032e857da56a533dc8291012254a61bb36a0c97fe5a964347ec8286c70fdd13
+        URL https://git.sr.ht/~sircmpwn/scdoc/archive/1.5.2.tar.gz
+        URL_HASH SHA256=86591de3741bea5443e7fbc11ff9dc22da90621105b06be524422efd5dec3a29
 
         CONFIGURE_COMMAND
             true
