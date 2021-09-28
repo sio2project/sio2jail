@@ -65,8 +65,33 @@ make_python3() {
     manifest_box >> $MANIFEST
 }
 
+make_python3_9() {
+    short_box_name="python3_9"
+    box_name="compiler-python3.9.2-numpy_amd64.tar.gz"
+    box_csum=`cat $MANIFEST | grep $BOX | awk '{ print $1 }'`
+    URL="https://downloads.sio2project.mimuw.edu.pl/sandboxes"
+
+    if [ -e "$box_name" ]; then
+        csum=`sha256sum "$box_name" | awk '{ print $1 }'`
+        if [ "$csum" != "$box_csum" ]; then
+            echo "** Box $box_name has changed, removing it"
+            rm "$box_name"
+            rm -r "$short_box_name"
+            echo "** Downloading box $box_name"
+            [ -e "$box_name" ] || wget "$URL/$box_name"
+        else
+            echo "** Box $box_name hasn't changed, using it"
+        fi
+    else
+            echo "** Downloading box $box_name"
+            [ -e "$box_name" ] || wget "$URL/$box_name"
+    fi
+
+}
+
 echo -n > $MANIFEST
 make_minimal
 make_busybox
 make_python2
 make_python3
+make_python3_9

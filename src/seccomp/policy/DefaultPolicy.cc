@@ -26,20 +26,24 @@ const std::vector<SeccompRule>& DefaultPolicy::getRules() const {
 
 void DefaultPolicy::addExecutionControlRules(bool allowFork) {
     // Some syscalls must be enabled
-    allowSyscalls({"restart_syscall",
-                   "getpriority",
-                   "setpriority",
-                   "sigaction",
-                   "sigaltstack",
-                   "rt_sigaction",
-                   "rt_sigprocmask",
-                   "futex",
-                   "set_tid_address",
-                   "set_robust_list",
-                   "getpid",
-                   "getrandom",
-                   "sigaltstack",
-                   "sigsuspend"});
+    allowSyscalls(
+            {"restart_syscall",
+             "getpriority",
+             "setpriority",
+             "sigaction",
+             "sigaltstack",
+             "rt_sigaction",
+             "rt_sigprocmask",
+             "futex",
+             "set_tid_address",
+             "set_robust_list",
+             "getpid",
+             "getrandom",
+             "sigaltstack",
+             "sigsuspend",
+             "clock_nanosleep",
+             "open",
+             "epoll_create1"});
 
     rules_.emplace_back(SeccompRule(
             "set_thread_area", action::ActionTrace([](auto& /* tracee */) {
@@ -92,13 +96,14 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
 }
 
 void DefaultPolicy::addMemoryManagementRules() {
-    allowSyscalls({"brk",
-                   "mmap",
-                   "mmap2",
-                   "munmap",
-                   "mremap",
-                   "mprotect",
-                   "arch_prctl"});
+    allowSyscalls(
+            {"brk",
+             "mmap",
+             "mmap2",
+             "munmap",
+             "mremap",
+             "mprotect",
+             "arch_prctl"});
 
     rules_.emplace_back(SeccompRule{"madvise", action::ActionErrno{EINVAL}});
 }

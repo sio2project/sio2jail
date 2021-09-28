@@ -28,11 +28,12 @@ class Supervisor(object):
         if stdin is not None:
             stdin = stdin.encode('utf-8')
 
-        print("running:\n{}\n".format(" ".join([self.SUPERVISOR_BIN] + options)))
+        print("running:\n{}\n".format(
+            " ".join([self.SUPERVISOR_BIN] + options)))
         process = subprocess.Popen([self.SUPERVISOR_BIN] + options,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
+                                   stdin=subprocess.PIPE,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
         (stdout, stderr) = process.communicate(stdin)
         stdout = stdout.decode('utf-8')
         stderr = stderr.decode('utf-8')
@@ -40,7 +41,8 @@ class Supervisor(object):
         if process.poll() is None:
             process.kill()
             process.poll()
-        print("result: {}\n\nstdout:\n{}\nstderr:\n{}\n".format(process.poll(), stdout.strip(), stderr.strip()))
+        print("result: {}\n\nstdout:\n{}\nstderr:\n{}\n".format(
+            process.poll(), stdout.strip(), stderr.strip()))
 
         result = self.Result()
         self.parse_results(result, stdout, stderr)
@@ -74,7 +76,15 @@ class SIO2Jail(Supervisor):
 
     def parse_results(self, result, stdout, stderr):
         lines = [s.strip() for s in stderr.split('\n') if len(s.strip()) > 0]
-        result.message = lines[-1]
-        result.return_code = int(lines[-2].split()[1])
-        result.memory = int(lines[-2].split()[4])
-        result.time = int(lines[-2].split()[2]) / 1000.0
+
+        if len(lines) < 2:
+            result.message = lines
+            result.return_code = None
+            result.memory = None
+            result.time = None
+
+        else:
+            result.message = lines[-1]
+            result.return_code = int(lines[-2].split()[1])
+            result.memory = int(lines[-2].split()[4])
+            result.time = int(lines[-2].split()[2]) / 1000.0
