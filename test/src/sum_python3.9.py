@@ -1,5 +1,5 @@
 #!/usr/bin/python3.9
 
-import numpy as np
+import numpy
 
-print(np.sum(list(map(int, input().split()))))
+print(numpy.sum(list(map(int, input().split()))))

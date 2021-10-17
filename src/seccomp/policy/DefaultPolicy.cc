@@ -43,7 +43,8 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
              "sigsuspend",
              "clock_nanosleep",
              "open",
-             "epoll_create1"});
+             "epoll_create1",
+             "openat"});
 
     rules_.emplace_back(SeccompRule(
             "set_thread_area", action::ActionTrace([](auto& /* tracee */) {
