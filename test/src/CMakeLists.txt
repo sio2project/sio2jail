@@ -45,11 +45,10 @@ SET_TARGET_PROPERTIES(sum_c
 
 # Other
 ADD_EXECUTABLE(stderr-write stderr-write.c)
-ADD_EXECUTABLE(cpp17_cxx cpp17_cxx.cc)
 
 ADD_CUSTOM_TARGET(test-binaries
     DEPENDS
         1-sec-prog 1-sec-evil infinite-loop 1-sec-prog-th
         leak-tiny_32 leak-huge_32 leak-dive_32
         leak-tiny_64 leak-huge_64 leak-dive_64
-        sum_c sum_cxx stderr-write cpp17_cxx)
+        sum_c sum_cxx stderr-write)

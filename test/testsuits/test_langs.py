@@ -8,7 +8,6 @@ from base.paths import *
 class TestLanguages(unittest.TestCase):
     C_PROGRAM_PATH = os.path.join(TEST_BIN_PATH, 'sum_c')
     CXX_PROGRAM_PATH = os.path.join(TEST_BIN_PATH, 'sum_cxx')
-    CPP17_PROGRAM_PATH = os.path.join(TEST_BIN_PATH, 'cpp17_cxx')
     PYTHON2_PROGRAM_PATH = os.path.join(
         SOURCE_PATH, './test/src/sum_python2.py')
     PYTHON3_PROGRAM_PATH = os.path.join(
@@ -46,6 +45,3 @@ class TestLanguages(unittest.TestCase):
     def test_python3_9(self):
         self.perform(self.PYTHON3_9_PROGRAM_PATH, box='python3_9',
                      extra_options=['--memory-limit', "100M"])
-
-    def test_cpp17(self):
-        self.perform(self.CPP17_PROGRAM_PATH)
