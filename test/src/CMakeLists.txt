@@ -1,16 +1,14 @@
 SET(CMAKE_C_FLAGS "-std=gnu99 -lm -static -O2")
 SET(CMAKE_C_FLAGS_DEBUG "")
 SET(CMAKE_C_FLAGS_RELEASE "")
-SET(CMAKE_CXX_FLAGS "-std=c++11 -lm -static -O2")
+SET(CMAKE_CXX_FLAGS "-std=c++17 -lm -static -O2")
 SET(CMAKE_CXX_FLAGS_DEBUG "")
 SET(CMAKE_CXX_FLAGS_RELEASE "")
 
 # Time tests
 ADD_EXECUTABLE(1-sec-prog 1-sec-prog.c)
-ADD_EXECUTABLE(1-sec-evil 1-sec-evil.c)
 ADD_EXECUTABLE(infinite-loop infinite-loop.c)
 SET_TARGET_PROPERTIES(1-sec-prog
-                      1-sec-evil
                       infinite-loop
                       PROPERTIES COMPILE_FLAGS "-m32"
                                  LINK_FLAGS "-m32")
@@ -48,7 +46,7 @@ ADD_EXECUTABLE(stderr-write stderr-write.c)
 
 ADD_CUSTOM_TARGET(test-binaries
     DEPENDS
-        1-sec-prog 1-sec-evil infinite-loop 1-sec-prog-th
+        1-sec-prog infinite-loop 1-sec-prog-th
         leak-tiny_32 leak-huge_32 leak-dive_32
         leak-tiny_64 leak-huge_64 leak-dive_64
         sum_c sum_cxx stderr-write)

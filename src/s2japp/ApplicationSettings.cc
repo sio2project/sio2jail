@@ -1,6 +1,6 @@
+#include "ApplicationSettings.h"
 #include "ApplicationArguments.h"
 #include "ApplicationException.h"
-#include "ApplicationSettings.h"
 
 #include "common/Utils.h"
 #include "printer/AugmentedOIOutputBuilder.h"
@@ -80,7 +80,7 @@ private:
 namespace s2j {
 namespace app {
 
-const std::string ApplicationSettings::VERSION = "1.3.0";
+const std::string ApplicationSettings::VERSION = "1.4.1-beta";
 
 const std::string ApplicationSettings::DESCRIPTION =
         "SIO2jail, a sandbox for programming contests.";
@@ -115,12 +115,10 @@ const std::map<std::string, std::pair<Feature, bool>>
                  {"procfs", {Feature::MOUNT_PROCFS, false}},
                  {"capability-drop", {Feature::CAPABILITY_DROP, true}}});
 
-const std::vector<std::string> ApplicationSettings::FLAGS_ON({"on",
-                                                              "yes",
-                                                              "1"});
-const std::vector<std::string> ApplicationSettings::FLAGS_OFF({"off",
-                                                               "no",
-                                                               "0"});
+const std::vector<std::string> ApplicationSettings::FLAGS_ON(
+        {"on", "yes", "1"});
+const std::vector<std::string> ApplicationSettings::FLAGS_OFF(
+        {"off", "no", "0"});
 
 ApplicationSettings::ApplicationSettings()
         : action(Action::PRINT_HELP)

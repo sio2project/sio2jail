@@ -1,6 +1,6 @@
 ADD_CUSTOM_COMMAND(
     OUTPUT
-        minimal.tar.gz busybox.tar.gz python2.tar.gz python3.tar.gz
+        minimal.tar.gz busybox.tar.gz python2.tar.gz python3.tar.gz compiler-python3.9.2-numpy_amd64.tar.gz
     COMMAND
         ${CMAKE_SOURCE_DIR}/boxes/make_boxes.sh
     DEPENDS
@@ -15,9 +15,10 @@ ADD_CUSTOM_COMMAND(
             && tar -xvf busybox.tar.gz
             && tar -xvf python2.tar.gz
             && tar -xvf python3.tar.gz
+            && tar -xvf compiler-python3.9.2-numpy_amd64.tar.gz && mv compiler-python3.9.2-numpy_amd64 python3_9
             && touch boxes_extraction_stamp.txt
     DEPENDS
-        minimal.tar.gz busybox.tar.gz python2.tar.gz python3.tar.gz
+        minimal.tar.gz busybox.tar.gz python2.tar.gz python3.tar.gz compiler-python3.9.2-numpy_amd64.tar.gz
     )
 
 ADD_CUSTOM_TARGET(boxes
