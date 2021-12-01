@@ -5,6 +5,7 @@
 #include "common/Utils.h"
 #include "printer/AugmentedOIOutputBuilder.h"
 #include "printer/OITimeToolOutputBuilder.h"
+#include "printer/RealTimeOIOutputBuilder.h"
 #include "seccomp/policy/DefaultPolicy.h"
 #include "seccomp/policy/PermissivePolicy.h"
 
@@ -80,7 +81,7 @@ private:
 namespace s2j {
 namespace app {
 
-const std::string ApplicationSettings::VERSION = "1.4.1-beta";
+const std::string ApplicationSettings::VERSION = "1.4.2";
 
 const std::string ApplicationSettings::DESCRIPTION =
         "SIO2jail, a sandbox for programming contests.";
@@ -90,7 +91,10 @@ const FactoryMap<s2j::printer::OutputBuilder>
                 {{"oitt",
                   std::make_shared<s2j::printer::OITimeToolOutputBuilder>},
                  {"oiaug",
-                  std::make_shared<s2j::printer::AugmentedOIOutputBuilder>}});
+                  std::make_shared<s2j::printer::AugmentedOIOutputBuilder>},
+                  {"oireal",
+                  std::make_shared<s2j::printer::RealTimeOIOutputBuilder>}
+                  });
 const std::string ApplicationSettings::DEFAULT_OUTPUT_FORMAT = "oitt";
 
 const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy>

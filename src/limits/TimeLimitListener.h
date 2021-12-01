@@ -29,12 +29,18 @@ private:
         uint64_t sTimeUs; // system time in [us]
     };
 
+    struct TimeUsage {
+        uint64_t realTimeUs;
+        ProcessTimeUsage processTimeUs;
+    };
+
     static const uint64_t TIMER_TICKING_INTERVAL_US;
     static const long CLOCK_TICKS_PER_SECOND;
 
-    executor::ExecuteAction verifyTimeUsage();
-    uint64_t getRealTimeUsage();
-    ProcessTimeUsage getProcessTimeUsage();
+    executor::ExecuteAction verifyTimeUsage(std::unique_ptr<TimeUsage>);
+    uint64_t getRealTimeUsage() const;
+    ProcessTimeUsage getProcessTimeUsage() const;
+    std::unique_ptr<TimeUsage> getTimeUsage() const;
 
     uint64_t rTimelimitUs_; // real time limit in [us]
     uint64_t uTimelimitUs_; // user time limit in [us]

@@ -44,7 +44,8 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
              "clock_nanosleep",
              "open",
              "epoll_create1",
-             "openat"});
+             "openat"
+             });
 
     rules_.emplace_back(SeccompRule(
             "set_thread_area", action::ActionTrace([](auto& /* tracee */) {
@@ -128,7 +129,7 @@ void DefaultPolicy::addInputOutputRules() {
             "dup2", action::ActionAllow(), filter::SyscallArg(1) >= 3));
 
     // Allow reading from any file descriptor
-    allowSyscalls({"read", "readv", "dup", "fcntl", "fcntl64"});
+    allowSyscalls({"read", "readv", "dup", "fcntl", "fcntl64", "pread64"});
 
     rules_.emplace_back(SeccompRule("ioctl", action::ActionErrno(ENOTTY)));
 
@@ -150,6 +151,7 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
             "stat64",
             "fstat",
             "fstat64",
+            "newfstatat",
             "lstat",
             "lstat64",
             "listxattr",
