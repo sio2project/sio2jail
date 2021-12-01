@@ -88,24 +88,27 @@ executor::ExecuteAction TimeLimitListener::onSigalrmSignal() {
     if (!isTimerCreated_) {
         return executor::ExecuteAction::CONTINUE;
     }
-    return verifyTimeUsage();
+    auto time = getTimeUsage();
+    return verifyTimeUsage(move(time));
 }
 
 void TimeLimitListener::onPostExecute() {
     // TODO: run this just after child exit
-    verifyTimeUsage();
-    // TODO Save time usage to OutputBuilder.
+    auto time = getTimeUsage();
+    outputBuilder_->setRealTimeMicroseconds(time->realTimeUs);
+    verifyTimeUsage(move(time));
 }
 
-executor::ExecuteAction TimeLimitListener::verifyTimeUsage() {
-    if (rTimelimitUs_ != 0 && getRealTimeUsage() > rTimelimitUs_) {
+executor::ExecuteAction TimeLimitListener::verifyTimeUsage(std::unique_ptr<TimeLimitListener::TimeUsage> timeUsage) {
+    if (rTimelimitUs_ != 0 && timeUsage->realTimeUs > rTimelimitUs_) {
         outputBuilder_->setKillReason(
                 printer::OutputBuilder::KillReason::TLE,
                 "real time limit exceeded");
         return executor::ExecuteAction::KILL;
     }
     if (uTimelimitUs_ != 0 || sTimelimitUs_ != 0 || usTimelimitUs_ != 0) {
-        ProcessTimeUsage ptu = getProcessTimeUsage();
+        ProcessTimeUsage& ptu = timeUsage->processTimeUs;
+
         if (uTimelimitUs_ != 0 && ptu.uTimeUs > uTimelimitUs_) {
             outputBuilder_->setKillReason(
                     printer::OutputBuilder::KillReason::TLE,
@@ -128,7 +131,7 @@ executor::ExecuteAction TimeLimitListener::verifyTimeUsage() {
     return executor::ExecuteAction::CONTINUE;
 }
 
-uint64_t TimeLimitListener::getRealTimeUsage() {
+uint64_t TimeLimitListener::getRealTimeUsage() const {
     std::chrono::steady_clock::time_point now =
             std::chrono::steady_clock::now();
     std::chrono::steady_clock::duration realTimeUsage = now - startRealTime_;
@@ -138,7 +141,7 @@ uint64_t TimeLimitListener::getRealTimeUsage() {
     return realTimeUsageUs;
 }
 
-TimeLimitListener::ProcessTimeUsage TimeLimitListener::getProcessTimeUsage() {
+TimeLimitListener::ProcessTimeUsage TimeLimitListener::getProcessTimeUsage() const {
     std::ifstream stat("/proc/" + std::to_string(childPid_) + "/stat");
     if (!stat.good()) {
         throw SystemException("Error reading /proc/childPid_/stat");
@@ -164,6 +167,14 @@ TimeLimitListener::ProcessTimeUsage TimeLimitListener::getProcessTimeUsage() {
     return result;
 }
 
+std::unique_ptr<TimeLimitListener::TimeUsage> TimeLimitListener::getTimeUsage() const {
+    return std::make_unique<TimeUsage>(
+        TimeUsage{
+            .realTimeUs = getRealTimeUsage(),
+            .processTimeUs = getProcessTimeUsage()
+        }
+    );
+}
 
 } // namespace limits
 } // namespace s2j

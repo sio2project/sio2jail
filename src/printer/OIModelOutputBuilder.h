@@ -10,6 +10,7 @@ public:
     OIModelOutputBuilder();
 
     OutputBuilder& setCyclesUsed(uint64_t cyclesUsed) override;
+    OutputBuilder& setRealTimeMicroseconds(uint64_t time) override;
     OutputBuilder& setMemoryPeak(uint64_t memoryPeakKb) override;
     OutputBuilder& setExitStatus(uint32_t exitStatus) override;
     OutputBuilder& setKillSignal(uint32_t killSignal) override;
@@ -20,6 +21,7 @@ protected:
     static const uint64_t CYCLES_PER_SECOND = 2'000'000'000;
 
     uint64_t milliSecondsElapsed_;
+    uint64_t realMilliSecondsElapsed_;
     uint64_t memoryPeakKb_;
     uint64_t syscallsCounter_;
     uint32_t exitStatus_;

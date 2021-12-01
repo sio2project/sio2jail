@@ -5,6 +5,7 @@ namespace printer {
 
 OIModelOutputBuilder::OIModelOutputBuilder()
         : milliSecondsElapsed_(0)
+        , realMilliSecondsElapsed_(0)
         , memoryPeakKb_(0)
         , syscallsCounter_(0)
         , exitStatus_(0)
@@ -12,6 +13,11 @@ OIModelOutputBuilder::OIModelOutputBuilder()
 
 OutputBuilder& OIModelOutputBuilder::setCyclesUsed(uint64_t cyclesUsed) {
     milliSecondsElapsed_ = cyclesUsed * 1'000 / CYCLES_PER_SECOND;
+    return *this;
+}
+
+OutputBuilder& OIModelOutputBuilder::setRealTimeMicroseconds(uint64_t time) {
+    realMilliSecondsElapsed_ = time / 1000;
     return *this;
 }
 
