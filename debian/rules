@@ -9,13 +9,15 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh $@ --buildsystem=cmake
 
 CCACHE := $(shell ccache --version 2>/dev/null)
-
 ifdef CCACHE
 	CC := ccache
 endif
 
+OPTIONS = -DCMAKE_BUILD_TYPE=Release -DARCH=$(DEB_TARGET_ARCH) -DCMAKE_CXX_COMPILER_LAUNCHER=$(CC) -DWITH_DOCS=YES
+DEPENDENCIES_CONFIG = -DLINK=STATIC -DLIBCAP_BUILD_OWN=YES -DLIBSECCOMP_BUILD_OWN=YES -DLIBTCLAP_BUILD_OWN=YES -DSCDOC_BUILD_OWN=YES
+
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DLINK=DYNAMIC -DLIBSECCOMP_BUILD_OWN=NO -DLIBSECCOMP_PREFIX=/usr/lib/x86_64-linux-gnu -DARCH=$(DEB_TARGET_ARCH) -DCMAKE_CXX_COMPILER_LAUNCHER=$(CC)
+	dh_auto_configure -- $(OPTIONS) $(DEPENDENCIES_CONFIG)
 
 override_dh_auto_test:
 	echo Tests skipped
