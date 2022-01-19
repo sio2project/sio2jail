@@ -1,8 +1,25 @@
 sio2jail
 ========
 
+Building in Docker
+--------
 
-building
+Available commands: 
+
+* `make release-docker ` - build sio2jail binary and 
+.deb package. 
+
+* `make install-docker` - build sio2jail binary.
+
+* `make deb-docker` - build sio2jail .deb package.
+
+* `make clean-docker` - clean up all temporary files.
+
+The output files are placed in `./out/` directory.
+
+For further reference and configuration see `./Makefile`.
+
+Building manually
 --------
 
 You need a CMake, a C/C++ compiler with multilib support and python2. Any
@@ -14,6 +31,9 @@ install files to ~/local directory run:
     
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/local ..
     make && make install
+
+For building with default configuration, see scripts in
+`./Makefile`.
 
 Our sio2jail uses some external libraries and programs:
   * libcap
@@ -55,7 +75,7 @@ option (STATIC by default):
 There is also a possibility to control whether output binary should run on other
 architecture than the default one (or force given architecture):
 
-    -DARCH=i386|x86_64
+    -DARCH=i386|amd64
 
 Note, that when using ARCH other than build host architecture it may be necessary
 (depending on libraries installation) to build sio2jail with custom libseccomp (more
@@ -66,7 +86,7 @@ ignore system libseccomp run:
 
     cmake -DWITH_DOCS=NO -DLIBTCLAP_PREFIX=/opt/tclap -DLIBSECCOMP_BUILD_OWN=YES ..
 
-running
+Running
 -------
 
 You may need to run
@@ -80,14 +100,14 @@ Additionally, if you want to use sandboxing on older Debian kernels, you'll need
 For both settings, you may also put these options in your /etc/sysctl.conf.
 This will make the settings persist across reboots.
 
-running tests
+Running tests
 -------------
 
 To run test suit use 'check' target, e.g in build directory run:
 
     make check
 
-notes for developers
+Notes for developers
 --------------------
 
 To manually run clang-format on each file run:

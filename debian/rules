@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE = 1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+%:
+	dh $@ --buildsystem=cmake
+
+CCACHE := $(shell ccache --version 2>/dev/null)
+ifdef CCACHE
+	CC := ccache
+endif
+
+OPTIONS = -DCMAKE_BUILD_TYPE=Release -DARCH=$(DEB_TARGET_ARCH) -DCMAKE_CXX_COMPILER_LAUNCHER=$(CC) -DWITH_DOCS=YES
+DEPENDENCIES_CONFIG = -DLINK=STATIC -DLIBCAP_BUILD_OWN=YES -DLIBSECCOMP_BUILD_OWN=YES -DLIBTCLAP_BUILD_OWN=YES -DSCDOC_BUILD_OWN=YES
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(OPTIONS) $(DEPENDENCIES_CONFIG)
+
+override_dh_auto_test:
+	echo Tests skipped
