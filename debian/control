@@ -11,4 +11,6 @@ Vcs-Git: https://github.com/sio2project/sio2jail.git
 Package: sio2jail
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: A tool for supervising execution of programs submitted in algorithmic competitions
+Description: Sandbox for programming contests.
+  A tool for supervising execution of programs 
+  submitted in algorithmic competitions.

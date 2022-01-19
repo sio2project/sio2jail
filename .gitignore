@@ -28,3 +28,10 @@ debian/files
 debian/*.substvars
 debian/sio2jail/
 obj-*/
+ccache/
+install/
+obj-x86*
+out/
+
+.vscode/
+.devcontainer/
