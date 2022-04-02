@@ -55,5 +55,6 @@ clean:
 	- rm debian/sio2jail.substvars
 
 clean-docker:
+	docker build -t sio2jail-dev .
 	- docker run -v $(shell pwd):/app --rm --name $(CONTAINER_NAME) -d -it sio2jail-dev bash
 	docker exec $(CONTAINER_NAME) make clean
