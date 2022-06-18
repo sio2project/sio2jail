@@ -202,7 +202,7 @@ std::tuple<TraceAction, int> TraceExecutor::handleTraceeSignal(
         // Since our child is pid 1 we have to kill on delivery on uncaught
         // signal in favour of kernel.
         uint64_t caughtSignals =
-                procfs::readProcFS(tracee.getPid(), procfs::Field::SIG_CGT);
+                procfs::readProcFS(tracee.getPid(), procfs::Field::SIG_CGT) << 1;
         caughtSignals |= IGNORED_SIGNALS;
         if ((caughtSignals & (1 << signal)) == 0U) {
             outputBuilder_->setKillSignal(signal);
