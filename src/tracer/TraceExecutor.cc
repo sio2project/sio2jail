@@ -201,6 +201,8 @@ std::tuple<TraceAction, int> TraceExecutor::handleTraceeSignal(
     else if (signal > 0) {
         // Since our child is pid 1 we have to kill on delivery on uncaught
         // signal in favour of kernel.
+        // Mask is shifted by one because the lowest bit of SigCgt mask
+        // corresponds to signal 1, not 0.
         uint64_t caughtSignals =
                 procfs::readProcFS(tracee.getPid(), procfs::Field::SIG_CGT) << 1;
         caughtSignals |= IGNORED_SIGNALS;
