@@ -92,9 +92,8 @@ const FactoryMap<s2j::printer::OutputBuilder>
                   std::make_shared<s2j::printer::OITimeToolOutputBuilder>},
                  {"oiaug",
                   std::make_shared<s2j::printer::AugmentedOIOutputBuilder>},
-                  {"oireal",
-                  std::make_shared<s2j::printer::RealTimeOIOutputBuilder>}
-                  });
+                 {"oireal",
+                  std::make_shared<s2j::printer::RealTimeOIOutputBuilder>}});
 const std::string ApplicationSettings::DEFAULT_OUTPUT_FORMAT = "oitt";
 
 const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy>

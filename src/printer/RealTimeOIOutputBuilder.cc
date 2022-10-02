@@ -17,8 +17,7 @@ std::string RealTimeOIOutputBuilder::dump() const {
 
     std::stringstream ss;
     ss << killReasonName(reason) << " " << exitStatus_ << " "
-       << realMilliSecondsElapsed_ << " " 
-       << 0ULL << " " << memoryPeakKb_ << " "
+       << realMilliSecondsElapsed_ << " " << 0ULL << " " << memoryPeakKb_ << " "
        << syscallsCounter_ << std::endl;
     dumpStatus(ss);
     ss << std::endl;
