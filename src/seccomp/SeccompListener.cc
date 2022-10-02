@@ -193,6 +193,9 @@ std::string SeccompListener::resolveSyscallNumber(
     char* name = seccomp_syscall_resolve_num_arch(
             SeccompContext::SECCOMP_FILTER_ARCHITECTURES.at(arch),
             syscallNumber);
+    if (name == NULL)
+        throw Exception("Can't resolve the name of syscall number " \
+                        + std::to_string(syscallNumber));
     std::string syscallName(name);
     free(name);
     return syscallName;
