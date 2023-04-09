@@ -86,6 +86,10 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
         rules_.emplace_back(SeccompRule(syscall, action::ActionTrace()));
     }
 
+    for (const auto& syscall: {"rseq"}) {
+        rules_.emplace_back(SeccompRule(syscall, action::ActionErrno(ENOSYS)));
+    }
+
     if (allowFork) {
         allowSyscalls({"fork"});
     }
