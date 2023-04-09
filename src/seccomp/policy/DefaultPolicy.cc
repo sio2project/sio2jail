@@ -44,8 +44,7 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
              "clock_nanosleep",
              "open",
              "epoll_create1",
-             "openat"
-             });
+             "openat"});
 
     rules_.emplace_back(SeccompRule(
             "set_thread_area", action::ActionTrace([](auto& /* tracee */) {
@@ -85,6 +84,10 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
                  "exit_group",
          }) {
         rules_.emplace_back(SeccompRule(syscall, action::ActionTrace()));
+    }
+
+    for (const auto& syscall: {"rseq"}) {
+        rules_.emplace_back(SeccompRule(syscall, action::ActionErrno(ENOSYS)));
     }
 
     if (allowFork) {

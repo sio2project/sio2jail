@@ -17,14 +17,17 @@ auto stoull = static_cast<
         std::stoull);
 const std::map<s2j::procfs::Field, FieldReader> FIELD_READERS = {
         {s2j::procfs::Field::VM_PEAK,
-         FieldReader{"VmPeak",
-                     std::bind(stoull, std::placeholders::_1, nullptr, 10)}},
+         FieldReader{
+                 "VmPeak",
+                 std::bind(stoull, std::placeholders::_1, nullptr, 10)}},
         {s2j::procfs::Field::VM_SIZE,
-         FieldReader{"VmSize",
-                     std::bind(stoull, std::placeholders::_1, nullptr, 10)}},
+         FieldReader{
+                 "VmSize",
+                 std::bind(stoull, std::placeholders::_1, nullptr, 10)}},
         {s2j::procfs::Field::SIG_CGT,
-         FieldReader{"SigCgt",
-                     std::bind(stoull, std::placeholders::_1, nullptr, 16)}}};
+         FieldReader{
+                 "SigCgt",
+                 std::bind(stoull, std::placeholders::_1, nullptr, 16)}}};
 
 } // namespace
 
