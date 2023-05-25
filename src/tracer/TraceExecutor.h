@@ -10,6 +10,7 @@
 #include "executor/ExecuteEventListener.h"
 #include "printer/OutputSource.h"
 
+#include <cstdint>
 #include <memory>
 #include <tuple>
 #include <vector>

@@ -4,6 +4,7 @@
 #include "filter/LibSeccompFilter.h"
 #include "filter/SyscallFilter.h"
 
+#include <cstdint>
 #include <memory>
 #include <type_traits>
 

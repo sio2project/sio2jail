@@ -21,6 +21,7 @@
 #include "seccomp/SeccompListener.h"
 #include "tracer/TraceExecutor.h"
 
+#include <cstdint>
 #include <iostream>
 #include <list>
 #include <utility>

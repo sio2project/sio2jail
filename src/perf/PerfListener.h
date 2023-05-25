@@ -4,6 +4,8 @@
 #include "executor/ExecuteEventListener.h"
 #include "printer/OutputSource.h"
 
+#include <cstdint>
+
 namespace s2j {
 namespace perf {
 

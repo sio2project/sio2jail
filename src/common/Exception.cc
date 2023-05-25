@@ -2,6 +2,7 @@
 
 #include "logger/Logger.h"
 
+#include <cstdint>
 #include <cstring>
 
 namespace s2j {

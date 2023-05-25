@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <chrono>
 #include <csignal>
+#include <cstdint>
 #include <ctime>
 #include <fstream>
 #include <limits>

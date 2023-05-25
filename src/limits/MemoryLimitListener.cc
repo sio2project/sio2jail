@@ -12,6 +12,7 @@
 #include <sys/time.h>
 
 #include <csignal>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 

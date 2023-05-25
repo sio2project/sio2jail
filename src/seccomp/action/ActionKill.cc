@@ -1,5 +1,7 @@
 #include "ActionKill.h"
 
+#include <cstdint>
+
 namespace s2j {
 namespace seccomp {
 namespace action {

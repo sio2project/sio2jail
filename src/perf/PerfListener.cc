@@ -11,6 +11,7 @@
 #include <sys/mman.h>
 
 #include <csignal>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 

@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 
 #include <csignal>
+#include <cstdint>
 
 namespace s2j {
 namespace tracer {

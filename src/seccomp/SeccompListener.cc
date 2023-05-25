@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cerrno>
 #include <csignal>
+#include <cstdint>
 #include <utility>
 
 namespace s2j {

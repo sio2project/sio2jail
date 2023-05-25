@@ -1,5 +1,6 @@
 #include "ActionTrace.h"
 
+#include <cstdint>
 #include <iostream>
 
 namespace s2j {

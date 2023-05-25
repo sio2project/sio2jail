@@ -9,6 +9,7 @@
 #include "seccomp/policy/DefaultPolicy.h"
 #include "seccomp/policy/PermissivePolicy.h"
 
+#include <cstdint>
 #include <seccomp.h>
 #include <sstream>
 

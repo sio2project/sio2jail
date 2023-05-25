@@ -4,6 +4,7 @@
 
 #include <seccomp.h>
 
+#include <cstdint>
 #include <functional>
 
 namespace s2j {

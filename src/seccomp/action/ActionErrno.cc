@@ -2,6 +2,8 @@
 
 #include "common/Exception.h"
 
+#include <cstdint>
+
 namespace s2j {
 namespace seccomp {
 namespace action {
