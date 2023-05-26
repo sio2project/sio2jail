@@ -190,6 +190,9 @@ void Executor::executeParent() {
     for (auto& listener: eventListeners_) {
         listener->onPostExecute();
     }
+    // This is needed, as most earlier waits have the WNOWAIT flag.
+    withErrnoCheck(
+            "final waitpid failed: ", {ECHILD}, waitpid, -1, nullptr, WNOHANG);
 }
 
 void Executor::setupSignalHandling() {
