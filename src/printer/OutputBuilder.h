@@ -36,6 +36,12 @@ public:
     virtual OutputBuilder& setRealTimeMicroseconds(uint64_t time) {
         return *this;
     }
+    virtual OutputBuilder& setUserTimeMicroseconds(uint64_t time) {
+        return *this;
+    }
+    virtual OutputBuilder& setSysTimeMicroseconds(uint64_t time) {
+        return *this;
+    }
     virtual OutputBuilder& setMemoryPeak(uint64_t memoryPeakKb) {
         return *this;
     }

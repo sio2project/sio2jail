@@ -13,6 +13,8 @@ public:
 
     OutputBuilder& setCyclesUsed(uint64_t cyclesUsed) override;
     OutputBuilder& setRealTimeMicroseconds(uint64_t time) override;
+    OutputBuilder& setUserTimeMicroseconds(uint64_t time) override;
+    OutputBuilder& setSysTimeMicroseconds(uint64_t time) override;
     OutputBuilder& setMemoryPeak(uint64_t memoryPeakKb) override;
     OutputBuilder& setExitStatus(uint32_t exitStatus) override;
     OutputBuilder& setKillSignal(uint32_t killSignal) override;
@@ -24,6 +26,8 @@ protected:
 
     uint64_t milliSecondsElapsed_;
     uint64_t realMilliSecondsElapsed_;
+    uint64_t userMilliSecondsElapsed_;
+    uint64_t sysMilliSecondsElapsed_;
     uint64_t memoryPeakKb_;
     uint64_t syscallsCounter_;
     uint32_t exitStatus_;

@@ -24,6 +24,16 @@ OutputBuilder& OIModelOutputBuilder::setRealTimeMicroseconds(uint64_t time) {
     return *this;
 }
 
+OutputBuilder& OIModelOutputBuilder::setUserTimeMicroseconds(uint64_t time) {
+    userMilliSecondsElapsed_ = time / 1000;
+    return *this;
+}
+
+OutputBuilder& OIModelOutputBuilder::setSysTimeMicroseconds(uint64_t time) {
+    sysMilliSecondsElapsed_ = time / 1000;
+    return *this;
+}
+
 OutputBuilder& OIModelOutputBuilder::setMemoryPeak(uint64_t memoryPeakKb) {
     memoryPeakKb_ = memoryPeakKb;
     return *this;
