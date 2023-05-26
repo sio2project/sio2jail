@@ -1,6 +1,7 @@
 #include "OIModelOutputBuilder.h"
 
 #include <cstdint>
+#include <sstream>
 
 namespace s2j {
 namespace printer {
@@ -53,6 +54,21 @@ OutputBuilder& OIModelOutputBuilder::setKillReason(
     }
 
     return *this;
+}
+
+void OIModelOutputBuilder::dumpStatus(std::ostream& ss) const {
+    if (killReason_ != KillReason::NONE) {
+        ss << killReasonComment_;
+    }
+    else if (killSignal_ > 0) {
+        ss << "process exited due to signal " << killSignal_;
+    }
+    else if (exitStatus_ > 0) {
+        ss << "runtime error " << exitStatus_;
+    }
+    else {
+        ss << "ok";
+    }
 }
 
 } // namespace printer

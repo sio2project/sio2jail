@@ -31,6 +31,8 @@ protected:
 
     KillReason killReason_ = KillReason::NONE;
     std::string killReasonComment_;
+
+    void dumpStatus(std::ostream& ss) const;
 };
 
 } // namespace printer

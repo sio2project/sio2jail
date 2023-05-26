@@ -12,7 +12,6 @@ public:
     const static std::string FORMAT_NAME;
 
 private:
-    void dumpStatus(std::ostream& ss) const;
     int encodeStatusCode() const;
 };
 
