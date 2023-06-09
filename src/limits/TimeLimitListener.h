@@ -4,6 +4,7 @@
 #include "printer/OutputSource.h"
 
 #include <chrono>
+#include <cstdint>
 
 namespace s2j {
 namespace limits {

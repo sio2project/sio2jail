@@ -3,6 +3,7 @@
 #include "tracer/TraceAction.h"
 #include "tracer/Tracee.h"
 
+#include <cstdint>
 #include <seccomp.h>
 
 namespace s2j {

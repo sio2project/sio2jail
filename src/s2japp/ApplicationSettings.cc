@@ -4,11 +4,14 @@
 
 #include "common/Utils.h"
 #include "printer/AugmentedOIOutputBuilder.h"
+#include "printer/HumanReadableOIOutputBuilder.h"
 #include "printer/OITimeToolOutputBuilder.h"
 #include "printer/RealTimeOIOutputBuilder.h"
+#include "printer/UserTimeOIOutputBuilder.h"
 #include "seccomp/policy/DefaultPolicy.h"
 #include "seccomp/policy/PermissivePolicy.h"
 
+#include <cstdint>
 #include <seccomp.h>
 #include <sstream>
 
@@ -90,8 +93,12 @@ const FactoryMap<s2j::printer::OutputBuilder>
         ApplicationSettings::OUTPUT_FORMATS(
                 {{"oitt",
                   std::make_shared<s2j::printer::OITimeToolOutputBuilder>},
+                 {"human",
+                  std::make_shared<s2j::printer::HumanReadableOIOutputBuilder>},
                  {"oiaug",
                   std::make_shared<s2j::printer::AugmentedOIOutputBuilder>},
+                 {"oiuser",
+                  std::make_shared<s2j::printer::UserTimeOIOutputBuilder>},
                  {"oireal",
                   std::make_shared<s2j::printer::RealTimeOIOutputBuilder>}});
 const std::string ApplicationSettings::DEFAULT_OUTPUT_FORMAT = "oitt";

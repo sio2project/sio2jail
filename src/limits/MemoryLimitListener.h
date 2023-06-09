@@ -5,6 +5,8 @@
 #include "seccomp/policy/SyscallPolicy.h"
 #include "tracer/TraceEventListener.h"
 
+#include <cstdint>
+
 namespace s2j {
 namespace limits {
 

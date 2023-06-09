@@ -6,6 +6,7 @@
 
 #include <seccomp.h>
 
+#include <cstdint>
 #include <list>
 #include <map>
 

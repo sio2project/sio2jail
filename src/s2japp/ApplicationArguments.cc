@@ -1,6 +1,7 @@
 #include "ApplicationArguments.h"
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <sstream>
 #include <string>
 #include <tclap/CmdLine.h>

@@ -14,6 +14,7 @@
 #include "tracer/TraceEventListener.h"
 #include "tracer/Tracee.h"
 
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <vector>

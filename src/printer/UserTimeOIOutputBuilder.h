@@ -5,14 +5,11 @@
 namespace s2j {
 namespace printer {
 
-class OITimeToolOutputBuilder : public OIModelOutputBuilder {
+class UserTimeOIOutputBuilder : public OIModelOutputBuilder {
 public:
     std::string dump() const override;
 
     const static std::string FORMAT_NAME;
-
-private:
-    int encodeStatusCode() const;
 };
 
 } // namespace printer

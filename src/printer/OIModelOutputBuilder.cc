@@ -1,5 +1,8 @@
 #include "OIModelOutputBuilder.h"
 
+#include <cstdint>
+#include <sstream>
+
 namespace s2j {
 namespace printer {
 
@@ -18,6 +21,16 @@ OutputBuilder& OIModelOutputBuilder::setCyclesUsed(uint64_t cyclesUsed) {
 
 OutputBuilder& OIModelOutputBuilder::setRealTimeMicroseconds(uint64_t time) {
     realMilliSecondsElapsed_ = time / 1000;
+    return *this;
+}
+
+OutputBuilder& OIModelOutputBuilder::setUserTimeMicroseconds(uint64_t time) {
+    userMilliSecondsElapsed_ = time / 1000;
+    return *this;
+}
+
+OutputBuilder& OIModelOutputBuilder::setSysTimeMicroseconds(uint64_t time) {
+    sysMilliSecondsElapsed_ = time / 1000;
     return *this;
 }
 
@@ -51,6 +64,21 @@ OutputBuilder& OIModelOutputBuilder::setKillReason(
     }
 
     return *this;
+}
+
+void OIModelOutputBuilder::dumpStatus(std::ostream& ss) const {
+    if (killReason_ != KillReason::NONE) {
+        ss << killReasonComment_;
+    }
+    else if (killSignal_ > 0) {
+        ss << "process exited due to signal " << killSignal_;
+    }
+    else if (exitStatus_ > 0) {
+        ss << "runtime error " << exitStatus_;
+    }
+    else {
+        ss << "ok";
+    }
 }
 
 } // namespace printer

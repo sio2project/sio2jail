@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <chrono>
 #include <csignal>
+#include <cstdint>
 #include <ctime>
 #include <fstream>
 #include <limits>
@@ -96,6 +97,8 @@ void TimeLimitListener::onPostExecute() {
     // TODO: run this just after child exit
     auto time = getTimeUsage();
     outputBuilder_->setRealTimeMicroseconds(time->realTimeUs);
+    outputBuilder_->setUserTimeMicroseconds(time->processTimeUs.uTimeUs);
+    outputBuilder_->setSysTimeMicroseconds(time->processTimeUs.sTimeUs);
     verifyTimeUsage(move(time));
 }
 

@@ -4,6 +4,8 @@
 #include "printer/OutputSource.h"
 #include "seccomp/policy/SyscallPolicy.h"
 
+#include <cstdint>
+
 namespace s2j {
 namespace limits {
 

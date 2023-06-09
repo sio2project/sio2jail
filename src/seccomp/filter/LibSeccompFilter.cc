@@ -1,6 +1,7 @@
 #include "LibSeccompFilter.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <iostream>
 
 namespace s2j {

@@ -8,6 +8,7 @@
 #include "seccomp/filter/LibSeccompFilter.h"
 
 #include <csignal>
+#include <cstdint>
 #include <sys/resource.h>
 #include <sys/time.h>
 

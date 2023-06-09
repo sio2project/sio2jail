@@ -7,6 +7,8 @@
 #include "seccomp/action/ActionKill.h"
 #include "seccomp/filter/LibSeccompFilter.h"
 
+#include <cstdint>
+
 namespace s2j {
 namespace limits {
 

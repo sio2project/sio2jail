@@ -1,6 +1,8 @@
 #include "SeccompRule.h"
 #include "SeccompException.h"
 
+#include <cstdint>
+
 namespace s2j {
 namespace seccomp {
 

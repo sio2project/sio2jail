@@ -6,6 +6,7 @@
 #include "common/WithErrnoCheck.h"
 #include "logger/Logger.h"
 
+#include <cstdint>
 #include <fcntl.h>
 #include <linux/sched.h>
 #include <sys/mount.h>

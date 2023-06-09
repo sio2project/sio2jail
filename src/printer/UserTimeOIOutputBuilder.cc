@@ -1,13 +1,14 @@
-#include "RealTimeOIOutputBuilder.h"
+#include "UserTimeOIOutputBuilder.h"
+#include "common/Exception.h"
 
 #include <sstream>
 
 namespace s2j {
 namespace printer {
 
-const std::string RealTimeOIOutputBuilder::FORMAT_NAME = "oireal";
+const std::string UserTimeOIOutputBuilder::FORMAT_NAME = "oiuser";
 
-std::string RealTimeOIOutputBuilder::dump() const {
+std::string UserTimeOIOutputBuilder::dump() const {
     KillReason reason = killReason_;
     if (reason == KillReason::NONE) {
         if (killSignal_ > 0 || exitStatus_ > 0) {
@@ -17,7 +18,7 @@ std::string RealTimeOIOutputBuilder::dump() const {
 
     std::stringstream ss;
     ss << killReasonName(reason) << " " << exitStatus_ << " "
-       << realMilliSecondsElapsed_ << " " << 0ULL << " " << memoryPeakKb_ << " "
+       << userMilliSecondsElapsed_ << " " << 0ULL << " " << memoryPeakKb_ << " "
        << syscallsCounter_ << std::endl;
     dumpStatus(ss);
     ss << std::endl;

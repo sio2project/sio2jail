@@ -19,21 +19,6 @@ std::string OITimeToolOutputBuilder::dump() const {
     return ss.str();
 }
 
-void OITimeToolOutputBuilder::dumpStatus(std::ostream& ss) const {
-    if (killReason_ != KillReason::NONE) {
-        ss << killReasonComment_;
-    }
-    else if (killSignal_ > 0) {
-        ss << "process exited due to signal " << killSignal_;
-    }
-    else if (exitStatus_ > 0) {
-        ss << "runtime error " << exitStatus_;
-    }
-    else {
-        ss << "ok";
-    }
-}
-
 int OITimeToolOutputBuilder::encodeStatusCode() const {
     static const int CODE_SIG_BASE = 0;
     static const int CODE_RE_BASE = 200;

@@ -9,6 +9,7 @@
 
 #include <tclap/CmdLine.h>
 
+#include <cstdint>
 #include <string>
 
 namespace s2j {

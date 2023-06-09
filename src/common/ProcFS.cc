@@ -1,5 +1,6 @@
 #include "ProcFS.h"
 
+#include <cstdint>
 #include <fstream>
 #include <functional>
 #include <map>

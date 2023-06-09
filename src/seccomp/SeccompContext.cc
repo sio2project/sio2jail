@@ -4,6 +4,7 @@
 #include "common/FD.h"
 
 #include <algorithm>
+#include <cstdint>
 
 namespace s2j {
 namespace seccomp {

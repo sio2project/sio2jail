@@ -2,6 +2,7 @@
 
 #include "ProcessInfo.h"
 
+#include <cstdint>
 #include <string>
 
 #include <sys/user.h>
