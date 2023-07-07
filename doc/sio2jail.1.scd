@@ -33,21 +33,21 @@ of the hardware sio2jail runs on.
 
 *-s, --stderr*
 	Pass stderr from the sandboxed program,
-	instead of redirecting it to stderr.
+	instead of redirecting it to /dev/null.
 
 *-o* _format_, *--output* _format_
 	Use the specified _format_ for outputting the execution report.
 
-* --stimelimit* _limit_[*u*|*ms*|*s*|*m*|*h*|*d*] ++
-* --utimelimit* _limit_[*u*|*ms*|*s*|*m*|*h*|*d*] ++
+*--stimelimit*  _limit_[*u*|*ms*|*s*|*m*|*h*|*d*] ++
+*--utimelimit*  _limit_[*u*|*ms*|*s*|*m*|*h*|*d*] ++
 *--ustimelimit* _limit_[*u*|*ms*|*s*|*m*|*h*|*d*] ++
-* --rtimelimit* _limit_[*u*|*ms*|*s*|*m*|*h*|*d*] ++
+*--rtimelimit*  _limit_[*u*|*ms*|*s*|*m*|*h*|*d*]
 	Set system (*stimelimit*), user (*utimelimit*),
 	user+system (*ustimelimit*) or real (*rtimelimit*)
 	time limit to _limit_.
 
 	Use *u*/*ms*/*s*/*m*/*h*/*d* (case-insensitive) unit suffices
-	to specify time in microseconds, miliseconds, seconds, minutes,
+	to specify time in microseconds, milliseconds, seconds, minutes,
 	hours and days respectively.
 	Defaults to microseconds if unit is not specified.
 
@@ -56,8 +56,8 @@ of the hardware sio2jail runs on.
 *--output-limit* _limit_[*b*|*k*|*m*|*g*]
 	Set the output file size limit to _limit_.
 
-	Use with *k*/*m*/*g* (case-insensitive) unit suffices
-	for 1, 1024, 1024**2, 1024**3 bytes respectively. Default is kibibytes.
+	Use with *b*/*k*/*m*/*g* (case-insensitive) unit suffices
+	for 1024\*\*{0,1,2,3} bytes respectively. Default is kibibytes.
 
 	This is currently implemented as an rlimit of maximum created file
 	size (See: *RLIMIT\_FSIZE* in *getrlimit*(2)), which means:
@@ -82,7 +82,7 @@ of the hardware sio2jail runs on.
 *--instruction-count-limit* _limit_[*k*|*m*|*g*]
 	Set instruction count limit. Requires *--perf*.
 
-	Use with *k*/*m*/*g* sufixes for 10**{3,6,9} respectively.
+	Use with *k*/*m*/*g* suffixes for 10\*\*{3,6,9} respectively.
 
 	Use 0 for no limit (the default).
 
@@ -107,7 +107,7 @@ of the hardware sio2jail runs on.
 	To select syscall policy use *--policy*.
 
 *-p* _policy_, *--policy* _policy_
-	Select *seccomp*(2) syscall policy. Requires seccomp.
+	Select *seccomp*(2) syscall policy. Requires *--seccomp*.
 
 	_policy_ must be one of available syscall policies:
 
@@ -120,17 +120,17 @@ of the hardware sio2jail runs on.
 
 	Ptrace is used for two purposes:
 
-	- restoring normal singal behaviour when pid-namespaces are in use
+	- restoring normal signal behaviour when PID namespaces are in use
 
 	- providing seccomp policy more flexibility by using the *TRACE*
 	  seccomp action and making the decision whether to allow
 	  the syscall in userspace
 
 *-m* _limit_, *--memory-limit* _limit_
-	Set memory limit to _limit_. Requires seccomp.
+	Set memory limit to _limit_. Requires *--seccomp*.
 
-	Use with *k*/*m*/*g* (case-insensitive) unit suffices
-	for 1, 1024, 1024**2, 1024**3 bytes respectively. Default is kibibytes.
+	Use with *b*/*k*/*m*/*g* (case-insensitive) unit suffices
+	for 1024\*\*{0,1,2,3} bytes respectively. Default is kibibytes.
 
 	Use 0 for no limit.
 
@@ -156,9 +156,9 @@ of the hardware sio2jail runs on.
 	a separate view of the filesystem (kinda like chroot).
 
 	This prevents the sandboxed program from seeing or manipulating
-	files which were not explicitely made accessible to it,
+	files which were not explicitly made accessible to it,
 	and allows for use of runtime environments different than
-	those installed systemwite (eg. different compiler version).
+	those installed systemwide (eg. a different compiler version).
 
 *-b* _path-outside_:_path-inside_[:_flags_]
 *--bind* _path-outside_:_path-inside_[:_flags_]
@@ -168,19 +168,14 @@ of the hardware sio2jail runs on.
 	This option can be passed multiple times to define multiple
 	bind-mounts.
 
-	_path-inside_ must be a valid mountpoint.
-
-	This means that it must be either an empty directory,
-	if _path-outside_ is a directory
+	_path-inside_ must be a valid mountpoint. This means that it must be
+	either an empty directory, if _path-outside_ is a directory
 	or a regular file, if _path-outside_ is a regular file.
 
-	_flags_, if specified, must be of form (*ro*|*rw*)[*,dev*]
-
-	*ro* - mount read-only (the default)
-
-	*rw* - mount read-write
-
-	*dev* - allow the mounted file to behave as a device node
+	_flags_, if specified, must be of form (*ro*|*rw*)[*,dev*], where:
+	- *ro* - mount read-only (the default)
+	- *rw* - mount read-write
+	- *dev* - allow the mounted file to behave as a device node
 
 	By default, unless *-B* is specified, the file to be executed
 	is mounted read-only at /exe, as if the following was passed:
@@ -223,7 +218,7 @@ of the hardware sio2jail runs on.
 *--uts-namespace* *on*|*off*
 	Enable or disable use of UTS namespaces to eliminate the impact of
 	hostname and other UTS metadata on the sandboxed program.
-	Requiers *--user-namespace*. Enabled by default.
+	Requires *--user-namespace*. Enabled by default.
 
 	When enabled, this option sets the hostname and domainname
 	inside the sandbox to "sio2jail".
@@ -241,7 +236,7 @@ of the hardware sio2jail runs on.
 	network isolated from anything outside the sandbox.
 
 *--ipc-namespace* *on*|*off*
-	Enable or disable the ose of IPC namespaces.
+	Enable or disable the use of IPC namespaces.
 	Requires *--user-namespace*. Enabled by default.
 
 	This confines the sandboxed program to a view of IPC
