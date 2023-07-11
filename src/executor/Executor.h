@@ -20,6 +20,7 @@ public:
     Executor(
             std::string childProgramName,
             std::vector<std::string> childProgramArgv,
+            std::string childProgramWorkingDir,
             bool supportThreads = false);
 
     template<typename ProgramNameType>
@@ -45,6 +46,7 @@ private:
 
     std::string childProgramName_;
     std::vector<std::string> childProgramArgv_;
+    std::string childProgramWorkingDir_;
 
     pid_t childPid_;
     const bool supportThreads_;

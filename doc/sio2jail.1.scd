@@ -31,6 +31,9 @@ of the hardware sio2jail runs on.
 	Write the execution report to file descriptor _fd_,
 	instead of stderr.
 
+*-c* _dir_, *--chdir* _dir_
+	Change the working directory to _dir_ before running the program.
+
 *-s, --stderr*
 	Pass stderr from the sandboxed program,
 	instead of redirecting it to stderr.
