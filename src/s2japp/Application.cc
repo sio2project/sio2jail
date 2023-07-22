@@ -70,6 +70,7 @@ Application::ExitCode Application::handleRun() {
     auto executor = std::make_shared<s2j::executor::Executor>(
             settings_.programName,
             settings_.programArgv,
+            settings_.programWorkingDir,
             settings_.threadsLimit >= 0);
 
     auto traceExecutor = createListener<tracer::TraceExecutor>();

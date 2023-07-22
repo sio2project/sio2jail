@@ -39,9 +39,11 @@ namespace executor {
 Executor::Executor(
         std::string childProgramName,
         std::vector<std::string> childProgramArgv,
+        std::string childProgramWorkingDir,
         bool supportThreads)
         : childProgramName_(std::move(childProgramName))
         , childProgramArgv_(std::move(childProgramArgv))
+        , childProgramWorkingDir_(std::move(childProgramWorkingDir))
         , childPid_(0)
         , supportThreads_{supportThreads} {}
 
@@ -66,6 +68,14 @@ void Executor::executeChild() {
 
     for (auto& listener: eventListeners_) {
         listener->onPostForkChild();
+    }
+
+    // "" is the default value
+    if (!childProgramWorkingDir_.empty()) {
+        withErrnoCheck(
+                "chdir to " + childProgramWorkingDir_,
+                chdir,
+                childProgramWorkingDir_.c_str());
     }
 
     // Create plain C arrays with program arguments

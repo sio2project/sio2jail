@@ -302,6 +302,15 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
                 cmd,
                 false);
 
+        TCLAP::ValueArg<std::string> argProgramWorkingDir(
+                "c",
+                "chdir",
+                "Where to chdir to before running the program",
+                false,
+                "",
+                "dir",
+                cmd);
+
         TCLAP::ValueArg<std::string> argLoggerPath(
                 "l",
                 "log",
@@ -365,6 +374,7 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
 
         programName = argProgramName.getValue();
         programArgv = argProgramArgv.getValue();
+        programWorkingDir = argProgramWorkingDir.getValue();
 
         outputBuilderFactory = argOutputFormat.getValue().getFactory();
         syscallPolicyFactory = argSyscallPolicy.getValue().getFactory();

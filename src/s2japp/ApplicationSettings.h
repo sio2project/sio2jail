@@ -54,6 +54,7 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
 
     std::string programName;
     std::vector<std::string> programArgv;
+    std::string programWorkingDir;
 
     Factory<s2j::printer::OutputBuilder> outputBuilderFactory;
     Factory<s2j::seccomp::policy::BaseSyscallPolicy> syscallPolicyFactory;
