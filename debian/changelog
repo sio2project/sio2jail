@@ -1,3 +1,9 @@
+sio2jail (1.4.4) UNRELEASED; urgency=medium
+
+  * Version 1.4.4
+
+ -- Mateusz Masiarz <m.masiarz@fri.edu.pl>  Wed, 13 Sep 2023 12:23:31 +0100
+
 sio2jail (1.4.3) UNRELEASED; urgency=medium
 
   * Initial Release.
