@@ -26,7 +26,7 @@ ThreadsLimitListener::ThreadsLimitListener(int32_t threadsLimit)
         syscallRules_.emplace_back(
                 seccomp::SeccompRule("clone", seccomp::action::ActionKill{}));
         syscallRules_.emplace_back(
-                seccomp::SeccompRule("clone3", seccomp::action::ActionKill{})));
+                seccomp::SeccompRule("clone3", seccomp::action::ActionKill{}));
     }
     else {
         // Enable threads support
