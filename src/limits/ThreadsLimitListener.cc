@@ -25,6 +25,8 @@ ThreadsLimitListener::ThreadsLimitListener(int32_t threadsLimit)
         // Disable threads support
         syscallRules_.emplace_back(
                 seccomp::SeccompRule("clone", seccomp::action::ActionKill{}));
+        syscallRules_.emplace_back(
+                seccomp::SeccompRule("clone3", seccomp::action::ActionKill{})));
     }
     else {
         // Enable threads support
@@ -34,7 +36,16 @@ ThreadsLimitListener::ThreadsLimitListener(int32_t threadsLimit)
                 seccomp::action::ActionAllow{},
                 (Arg(2) & CLONE_VM) == CLONE_VM));
         syscallRules_.emplace_back(seccomp::SeccompRule(
+                "clone3",
+                seccomp::action::ActionAllow{},
+                (Arg(2) & CLONE_VM) == CLONE_VM));
+
+        syscallRules_.emplace_back(seccomp::SeccompRule(
                 "clone",
+                seccomp::action::ActionKill(),
+                (Arg(2) & CLONE_VM) == 0));
+        syscallRules_.emplace_back(seccomp::SeccompRule(
+                "clone3",
                 seccomp::action::ActionKill(),
                 (Arg(2) & CLONE_VM) == 0));
 
