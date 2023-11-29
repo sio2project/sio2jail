@@ -5,6 +5,7 @@
 #include "seccomp/SeccompRule.h"
 #include "seccomp/action/ActionAllow.h"
 #include "seccomp/action/ActionKill.h"
+#include "seccomp/action/ActionErrno.h"
 #include "seccomp/filter/LibSeccompFilter.h"
 
 #include <cstdint>
@@ -36,18 +37,13 @@ ThreadsLimitListener::ThreadsLimitListener(int32_t threadsLimit)
                 seccomp::action::ActionAllow{},
                 (Arg(2) & CLONE_VM) == CLONE_VM));
         syscallRules_.emplace_back(seccomp::SeccompRule(
-                "clone3",
-                seccomp::action::ActionAllow{},
-                (Arg(2) & CLONE_VM) == CLONE_VM));
-
-        syscallRules_.emplace_back(seccomp::SeccompRule(
                 "clone",
                 seccomp::action::ActionKill(),
                 (Arg(2) & CLONE_VM) == 0));
+
         syscallRules_.emplace_back(seccomp::SeccompRule(
                 "clone3",
-                seccomp::action::ActionKill(),
-                (Arg(2) & CLONE_VM) == 0));
+                seccomp::action::ActionErrno(ENOSYS)));
 
         // And various thread related
         syscallRules_.emplace_back(seccomp::SeccompRule(
