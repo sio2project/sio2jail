@@ -154,6 +154,7 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
             "stat64",
             "fstat",
             "fstat64",
+            "fstatat64",
             "newfstatat",
             "lstat",
             "lstat64",
