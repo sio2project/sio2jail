@@ -5,6 +5,13 @@
 #include "seccomp/policy/SyscallPolicy.h"
 #include "tracer/TraceEventListener.h"
 
+#include <sys/mman.h>
+
+#ifndef MREMAP_DONTUNMAP
+//Due to this flag being introduced in Linux 5.7 there are many system which do not define it
+#define MREMAP_DONTUNMAP 4
+#endif
+
 #include <cstdint>
 
 namespace s2j {
@@ -40,6 +47,7 @@ private:
     pid_t childPid_;
 
     std::vector<seccomp::SeccompRule> syscallRules_;
+    tracer::TraceAction handleMemoryAllocation(uint64_t allocatedMemoryKb);
 };
 
 } // namespace limits
