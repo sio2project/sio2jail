@@ -40,6 +40,7 @@ private:
     pid_t childPid_;
 
     std::vector<seccomp::SeccompRule> syscallRules_;
+    tracer::TraceAction handleMemoryAllocation(uint64_t allocatedMemoryKb);
 };
 
 } // namespace limits
