@@ -6,8 +6,8 @@ from base.paths import *
 
 
 class TestReportedTimes(unittest.TestCase):
-    SEC_PROGRAM_PATH = os.path.join(TEST_BIN_PATH, '1-sec-prog')
-    SEC_PROGRAM_TH_PATH = os.path.join(TEST_BIN_PATH, '1-sec-prog-th')
+    SEC_PROGRAM_PATH = os.path.join(TEST_BIN_PATH, '1-sec-fib')
+    SEC_PROGRAM_TH_PATH = os.path.join(TEST_BIN_PATH, '1-sec-fib-th')
 
     def setUp(self):
         self.sio2jail = SIO2Jail()

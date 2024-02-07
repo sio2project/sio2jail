@@ -7,14 +7,18 @@ SET(CMAKE_CXX_FLAGS_RELEASE "")
 
 # Time tests
 ADD_EXECUTABLE(1-sec-prog 1-sec-prog.c)
+ADD_EXECUTABLE(1-sec-fib 1-sec-fib.c)
 ADD_EXECUTABLE(infinite-loop infinite-loop.c)
 SET_TARGET_PROPERTIES(1-sec-prog
+                      1-sec-fib
                       infinite-loop
                       PROPERTIES COMPILE_FLAGS "-m32"
                                  LINK_FLAGS "-m32")
 
 ADD_EXECUTABLE(1-sec-prog-th 1-sec-prog-th.cc)
+ADD_EXECUTABLE(1-sec-fib-th 1-sec-fib-th.cc)
 SET_TARGET_PROPERTIES(1-sec-prog-th
+                      1-sec-fib-th
                       PROPERTIES COMPILE_FLAGS "-pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive"
                                  LINK_FLAGS "-pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
 
