@@ -15,7 +15,7 @@ clean_box() {
 }
 
 extract_deb() {
-    repo="http://ftp.debian.org/debian/pool/main"
+    repo="http://archive.debian.org/debian/pool/main"
     path="$1"
     dpkg=`basename "$path"`
 
