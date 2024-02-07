@@ -88,7 +88,7 @@ tracer::TraceAction MemoryLimitListener::handleMemoryAllocation(
             ", ",
             VAR(memoryPeakKb_));
 
-    if (memoryUsage > memoryLimitKb_) {
+    if (memoryLimitKb_ > 0 && memoryUsage > memoryLimitKb_) {
         outputBuilder_->setKillReason(
                 printer::OutputBuilder::KillReason::MLE,
                 "memory limit exceeded");
