@@ -23,7 +23,7 @@ Building manually
 --------
 
 You need a CMake, a C/C++ compiler with multilib support and python2. Any
-external libraries sio2jail use (see below) can be either installed
+external libraries that sio2jail uses (see below) can be either installed
 system-wide, or downloaded and built during the process. To build sio2jail and
 install files to ~/local directory run:
 
