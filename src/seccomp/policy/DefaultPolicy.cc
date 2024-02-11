@@ -154,6 +154,7 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
             "stat64",
             "fstat",
             "fstat64",
+            "fstatat64",
             "newfstatat",
             "lstat",
             "lstat64",
@@ -176,6 +177,7 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
                  "statfs64",
                  "fstatfs",
                  "fstatfs64",
+                 "statx",
          }) {
         rules_.emplace_back(SeccompRule(syscall, action::ActionErrno(ENOSYS)));
     }
