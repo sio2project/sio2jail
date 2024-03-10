@@ -5,6 +5,7 @@
 #include "printer/OutputSource.h"
 
 #include <cstdint>
+#include <vector>
 
 namespace s2j {
 namespace perf {
@@ -29,7 +30,7 @@ private:
 
     const uint64_t instructionCountLimit_;
     const uint64_t samplingFactor_;
-    int perfFd_;
+    std::vector<int> perfFds_;
     pid_t childPid_{};
 
     // Barrier used for synchronization
