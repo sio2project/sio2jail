@@ -205,7 +205,8 @@ std::tuple<TraceAction, int> TraceExecutor::handleTraceeSignal(
         // Mask is shifted by one because the lowest bit of SigCgt mask
         // corresponds to signal 1, not 0.
         uint64_t caughtSignals =
-                procfs::readProcFS(tracee.getPid(), procfs::Field::SIG_CGT) << 1;
+                procfs::readProcFS(tracee.getPid(), procfs::Field::SIG_CGT)
+                << 1;
         caughtSignals |= IGNORED_SIGNALS;
         if ((caughtSignals & (1 << signal)) == 0U) {
             outputBuilder_->setKillSignal(signal);
