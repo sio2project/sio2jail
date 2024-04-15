@@ -1,3 +1,11 @@
+sio2jail (1.5.0); urgency=medium
+
+  * Add support for Intel hybrid CPUs (https://github.com/sio2project/sio2jail/pull/46)
+  * Added mremap tracing and fixed a bug in MemoryLimitListener (https://github.com/sio2project/sio2jail/pull/43)
+  * Documentation improvements (https://github.com/sio2project/sio2jail/pull/37, https://github.com/sio2project/sio2jail/pull/44)
+
+ -- Mateusz Masiarz <m.masiarz@fri.edu.pl>  Mon, 15 Apr 2024 14:08:58 +0100
+
 sio2jail (1.4.4) UNRELEASED; urgency=medium
 
   * Version 1.4.4
