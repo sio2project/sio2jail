@@ -4,7 +4,7 @@ ADD_TEST(
     NAME
         python
     COMMAND
-        bash -c "SIO2JAIL_BUILD_PATH='${CMAKE_BINARY_DIR}' '${CMAKE_SOURCE_DIR}/test/testsuits/main.py' -v"
+        bash -c "SIO2JAIL_BUILD_PATH='${CMAKE_BINARY_DIR}' python3 -m unittest discover -s '${CMAKE_SOURCE_DIR}/test/testsuits/' -v"
     WORKING_DIRECTORY
         "${CMAKE_SOURCE_DIR}"
     )
