@@ -61,6 +61,7 @@ IF((NOT DEFINED LIBSECCOMP_BUILD_OWN AND (NOT EXISTS "${libseccomp_LIB_PATH}" OR
     ExternalProject_Add(seccomp_project
         URL https://github.com/seccomp/libseccomp/releases/download/v2.5.4/libseccomp-2.5.4.tar.gz
         URL_HASH SHA256=d82902400405cf0068574ef3dc1fe5f5926207543ba1ae6f8e7a1576351dcbdb
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 
         CONFIGURE_COMMAND
             CFLAGS=${EXTRA_FLAGS} CXXFLAGS=${EXTRA_FLAGS} <SOURCE_DIR>/configure

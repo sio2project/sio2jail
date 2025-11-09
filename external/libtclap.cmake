@@ -16,6 +16,7 @@ IF((NOT DEFINED LIBTCLAP_BUILD_OWN AND NOT EXISTS "${libtclap_INC_PATH}") OR LIB
     ExternalProject_Add(libtclap_project
         URL https://netcologne.dl.sourceforge.net/project/tclap/tclap-1.2.2.tar.gz
         URL_HASH SHA256=f5013be7fcaafc69ba0ce2d1710f693f61e9c336b6292ae4f57554f59fde5837
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 
         CONFIGURE_COMMAND
             <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
