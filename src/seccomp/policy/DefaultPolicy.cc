@@ -134,6 +134,19 @@ void DefaultPolicy::addInputOutputRules() {
     // Allow reading from any file descriptor
     allowSyscalls({"read", "readv", "dup", "fcntl", "fcntl64", "pread64"});
 
+    // Allow monitoring any file descriptor
+    allowSyscalls(
+            {"poll",
+             "ppoll",
+             "epoll_create",
+             "epoll_create1",
+             "epoll_ctl",
+             "epoll_pwait",
+             "epoll_pwait2",
+             "epoll_wait",
+             "select",
+             "pselect6"});
+
     rules_.emplace_back(SeccompRule("ioctl", action::ActionErrno(ENOTTY)));
 
     // Allow seeking any file other than stdin/stdou/stderr
