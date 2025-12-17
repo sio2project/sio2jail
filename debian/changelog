@@ -1,3 +1,9 @@
+sio2jail (1.5.2) UNRELEASED; urgency=medium
+
+  * Add support for clone3 syscall in threads limiter (https://github.com/sio2project/sio2jail/pull/40)
+
+ -- Mateusz Masiarz <m.masiarz@fri.edu.pl>  Wed, 17 Dec 2025 18:45:00 +0100
+
 sio2jail (1.5.1) UNRELEASED; urgency=medium
 
   * Fix running tests (https://github.com/sio2project/sio2jail/pull/47)
