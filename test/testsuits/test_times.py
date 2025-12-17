@@ -23,7 +23,6 @@ class TestReportedTimes(unittest.TestCase):
             extra_options=['-t', 1])
         self.assertAlmostEqual(result.time, 1.0)
 
-    @unittest.expectedFailure
     def test_1_sec_program_threads_15_flat(self):
         result = self.sio2jail.run(
             [self.SEC_PROGRAM_TH_PATH, 'flat', 15],
@@ -31,7 +30,6 @@ class TestReportedTimes(unittest.TestCase):
             extra_options=['-t', 15])
         self.assertAlmostEqual(result.time, 1.0)
 
-    @unittest.expectedFailure
     def test_1_sec_program_threads_15_deep(self):
         result = self.sio2jail.run(
             [self.SEC_PROGRAM_TH_PATH, 'deep', 15],
