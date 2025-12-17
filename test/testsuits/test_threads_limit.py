@@ -11,7 +11,6 @@ class TestThreadsLimit(unittest.TestCase):
     def setUp(self):
         self.sio2jail = SIO2Jail()
 
-    @unittest.expectedFailure
     def test_threads_limit_exceeded_flat_race_condition(self):
         result = self.sio2jail.run(
             [self.SEC_PROGRAM_TH_PATH, 'flat', 16],
@@ -19,7 +18,6 @@ class TestThreadsLimit(unittest.TestCase):
             extra_options=['-t', 15])
         self.assertEqual(result.message, 'threads limit exceeded')
 
-    @unittest.expectedFailure
     def test_threads_limit_exceeded_deep_race_condition(self):
         result = self.sio2jail.run(
             [self.SEC_PROGRAM_TH_PATH, 'deep', 16],
