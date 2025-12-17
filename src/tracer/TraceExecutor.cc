@@ -147,13 +147,24 @@ TraceAction TraceExecutor::onEventClone(
             &traceeChildPid);
     logger::debug(VAR(event.executeEvent.pid), VAR(traceeChildPid));
 
-    withErrnoCheck(
+    auto setoptsResult = withErrnoCheck(
             "ptrace setopts child",
+            {ESRCH},
             ptrace,
             PTRACE_SETOPTIONS,
             traceeChildPid,
             nullptr,
             PTRACE_OPTIONS);
+
+    if (setoptsResult.getErrnoCode() == ESRCH) {
+        // Clone syscall failed (e.g. clone3 returned ENOSYS), child doesn't
+        // exist. This is expected when glibc falls back from clone3 to clone.
+        logger::debug(
+                "Clone event for non-existent child ",
+                traceeChildPid,
+                ", clone syscall likely failed");
+        return TraceAction::CONTINUE;
+    }
 
     auto traceeChildInfo = tracee.getInfo()->addChild(traceeChildPid);
     Tracee traceeChild{traceeChildInfo};
