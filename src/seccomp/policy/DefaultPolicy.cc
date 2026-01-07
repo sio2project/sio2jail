@@ -118,7 +118,13 @@ void DefaultPolicy::addSystemInformationRules() {
                    "geteuid",   "geteuid32",     "getegid",      "getegid32",
                    "getrlimit", "ugetrlimit",    "getcpu",       "gettid",
                    "getcwd",    "uname",         "olduname",     "oldolduname",
-                   "sysinfo",   "clock_gettime", "gettimeofday", "time"});
+                   "sysinfo",   "clock_gettime", "clock_gettime64", "clock_getres",
+                   "clock_getres_time64", "gettimeofday", "time",
+                   "sched_getaffinity", "sched_setaffinity", "sched_yield"});
+
+    // Allow PR_SET_NAME (15) for thread naming - safe operation
+    rules_.emplace_back(SeccompRule(
+            "prctl", action::ActionAllow(), filter::SyscallArg(0) == 15));
 }
 
 void DefaultPolicy::addInputOutputRules() {
@@ -133,6 +139,13 @@ void DefaultPolicy::addInputOutputRules() {
 
     // Allow reading from any file descriptor
     allowSyscalls({"read", "readv", "dup", "fcntl", "fcntl64", "pread64"});
+
+    // Allow socket syscalls (needed for Java NIO internal operations)
+    // Safe because: network namespace isolation prevents external communication
+    allowSyscalls({"socket", "socketpair", "connect", "bind", "listen",
+                   "accept", "accept4", "getsockname", "getpeername",
+                   "sendto", "recvfrom", "sendmsg", "recvmsg",
+                   "shutdown", "setsockopt", "getsockopt"});
 
     // Allow monitoring any file descriptor
     allowSyscalls(
