@@ -103,12 +103,18 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
 void DefaultPolicy::addMemoryManagementRules() {
     allowSyscalls(
             {"brk",
-             "mmap",
-             "mmap2",
              "munmap",
              "mremap",
              "mprotect",
              "arch_prctl"});
+
+    // Allow mmap and mmap2 only on fd >= 3
+    for (const auto& syscall: {"mmap", "mmap2"}) {
+        rules_.emplace_back(SeccompRule(
+                syscall,
+                action::ActionAllow(),
+                filter::SyscallArg(4) >= 3));
+    }
 
     rules_.emplace_back(SeccompRule{"madvise", action::ActionErrno{EINVAL}});
 }
@@ -134,11 +140,19 @@ void DefaultPolicy::addInputOutputRules() {
                 syscall, action::ActionAllow(), filter::SyscallArg(0) > 0));
     }
 
+    // Allow dup only on fd >= 3
     rules_.emplace_back(SeccompRule(
-            "dup2", action::ActionAllow(), filter::SyscallArg(1) >= 3));
+            "dup", action::ActionAllow(), filter::SyscallArg(0) >= 3));
+    for (const auto& syscall: {"dup2", "dup3"}) {
+        rules_.emplace_back(SeccompRule(
+                syscall,
+                action::ActionAllow(),
+                filter::SyscallArg(0) >= 3 &&
+                filter::SyscallArg(1) >= 3));
+    }
 
     // Allow reading from any file descriptor
-    allowSyscalls({"read", "readv", "dup", "fcntl", "fcntl64", "pread64"});
+    allowSyscalls({"read", "readv", "fcntl", "fcntl64", "pread64"});
 
     // Allow socket syscalls (needed for Java NIO internal operations)
     // Safe because: network namespace isolation prevents external communication
