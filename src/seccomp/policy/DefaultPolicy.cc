@@ -42,9 +42,7 @@ void DefaultPolicy::addExecutionControlRules(bool allowFork) {
              "sigaltstack",
              "sigsuspend",
              "clock_nanosleep",
-             "open",
-             "epoll_create1",
-             "openat"});
+             "epoll_create1"});
 
     rules_.emplace_back(SeccompRule(
             "set_thread_area", action::ActionTrace([](auto& /* tracee */) {
@@ -218,6 +216,16 @@ void DefaultPolicy::addFileSystemAccessRules(bool readOnly) {
                 "openat",
                 action::ActionAllow(),
                 (filter::SyscallArg(2) & (O_RDWR | O_WRONLY)) == 0));
+        for (const auto& mode: {O_RDWR, O_WRONLY}) {
+            rules_.emplace_back(SeccompRule(
+                    "open",
+                    action::ActionErrno(EROFS),
+                    (filter::SyscallArg(1) & mode) == mode));
+            rules_.emplace_back(SeccompRule(
+                    "openat",
+                    action::ActionErrno(EROFS),
+                    (filter::SyscallArg(2) & mode) == mode));
+        }
 
         for (const auto& syscall: {
                      "unlink",
