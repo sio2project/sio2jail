@@ -15,7 +15,7 @@ namespace policy {
  */
 class DefaultPolicy : public BaseSyscallPolicy {
 public:
-    DefaultPolicy();
+    explicit DefaultPolicy(bool randomizeTime = false);
 
     const std::vector<SeccompRule>& getRules() const override;
 
@@ -58,6 +58,7 @@ private:
                signal != SIGKILL;
     }
 
+    bool randomizeTime_;
     std::vector<SeccompRule> rules_;
 };
 

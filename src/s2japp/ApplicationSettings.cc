@@ -340,6 +340,15 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
                 cmd);
 
 
+        TCLAP::ValueArg<std::string> argFakeTime(
+                "",
+                "fake-time",
+                "Fake time mode: off (default), random, or zero",
+                false,
+                "off",
+                "off|random|zero",
+                cmd);
+
         TCLAP::UnlabeledValueArg<std::string> argProgramName(
                 "path", "Name of program to run", true, "", "path", cmd);
         TCLAP::UnlabeledMultiArg<std::string> argProgramArgv(
@@ -426,6 +435,22 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         resultsFD = argResultsFD.getValue();
         threadsLimit = argThreadsLimit.getValue();
         perfOversamplingFactor = argPerfOversamplingFactor.getValue();
+
+        auto fakeTimeValue = argFakeTime.getValue();
+        if (fakeTimeValue == "random") {
+            timeMode = TimeMode::RANDOM;
+            features.insert(Feature::FAKE_TIME);
+        }
+        else if (fakeTimeValue == "zero") {
+            timeMode = TimeMode::ZERO;
+            features.insert(Feature::FAKE_TIME);
+        }
+        else if (fakeTimeValue != "off") {
+            throw TCLAP::CmdLineParseException(
+                    "Bad value '" + fakeTimeValue +
+                            "' for argument --fake-time",
+                    "fake-time");
+        }
     }
     catch (const TCLAP::ArgException& ex) {
         outputGenerator.failure(ex);

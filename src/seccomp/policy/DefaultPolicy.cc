@@ -11,8 +11,9 @@ namespace s2j {
 namespace seccomp {
 namespace policy {
 
-DefaultPolicy::DefaultPolicy()
-        : BaseSyscallPolicy(std::make_shared<action::ActionKill>()) {
+DefaultPolicy::DefaultPolicy(bool randomizeTime)
+        : BaseSyscallPolicy(std::make_shared<action::ActionKill>())
+        , randomizeTime_(randomizeTime) {
     addExecutionControlRules();
     addMemoryManagementRules();
     addSystemInformationRules();
@@ -118,9 +119,20 @@ void DefaultPolicy::addSystemInformationRules() {
                    "geteuid",   "geteuid32",     "getegid",      "getegid32",
                    "getrlimit", "ugetrlimit",    "getcpu",       "gettid",
                    "getcwd",    "uname",         "olduname",     "oldolduname",
-                   "sysinfo",   "clock_gettime", "clock_gettime64", "clock_getres",
-                   "clock_getres_time64", "gettimeofday", "time",
-                   "sched_getaffinity", "sched_yield"});
+                   "sysinfo",   "sched_getaffinity", "sched_yield"});
+
+    if (randomizeTime_) {
+        for (const auto& syscall :
+             {"clock_gettime", "clock_gettime64", "clock_getres",
+              "clock_getres_time64", "gettimeofday", "time"}) {
+            rules_.emplace_back(
+                    SeccompRule(syscall, action::ActionErrno(EPERM)));
+        }
+    }
+    else {
+        allowSyscalls({"clock_gettime", "clock_gettime64", "clock_getres",
+                       "clock_getres_time64", "gettimeofday", "time"});
+    }
 
     // Allow PR_SET_NAME (15) for thread naming - safe operation
     rules_.emplace_back(SeccompRule(

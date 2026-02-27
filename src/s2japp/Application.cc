@@ -19,6 +19,8 @@
 #include "perf/PerfListener.h"
 #include "priv/PrivListener.h"
 #include "seccomp/SeccompListener.h"
+#include "seccomp/TimeRandomizerListener.h"
+#include "seccomp/policy/DefaultPolicy.h"
 #include "tracer/TraceExecutor.h"
 
 #include <cstdint>
@@ -93,8 +95,15 @@ Application::ExitCode Application::handleRun() {
             settings_.programName,
             settings_.features.count(Feature::MOUNT_PROCFS) > 0);
     auto privListener = createListener<priv::PrivListener>();
-    auto seccompListener = createListener<seccomp::SeccompListener>(
-            settings_.syscallPolicyFactory());
+    auto timeRandomizer = createListener<seccomp::TimeRandomizerListener>(
+            settings_.timeMode == ApplicationSettings::TimeMode::ZERO);
+
+    bool fakeTime = settings_.features.count(Feature::FAKE_TIME) > 0;
+    auto seccompPolicy = fakeTime
+            ? std::make_shared<seccomp::policy::DefaultPolicy>(true)
+            : settings_.syscallPolicyFactory();
+    auto seccompListener =
+            createListener<seccomp::SeccompListener>(seccompPolicy);
     auto memoryLimitListener = std::make_shared<limits::MemoryLimitListener>(
             settings_.memoryLimitKb);
     auto outputLimitListener = std::make_shared<limits::OutputLimitListener>(
@@ -147,6 +156,7 @@ Application::ExitCode Application::handleRun() {
             netNsListener,
             mountNsListener,
             privListener,
+            timeRandomizer,
             filesListener,
             seccompListener);
 
@@ -159,6 +169,7 @@ Application::ExitCode Application::handleRun() {
                 loggerListener,
                 memoryLimitListener,
                 threadsLimitListener,
+                timeRandomizer,
                 seccompListener);
     }
 

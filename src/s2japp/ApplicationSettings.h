@@ -18,6 +18,7 @@ namespace app {
 
 struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     enum class Action { PRINT_HELP, PRINT_VERSION, RUN };
+    enum class TimeMode { OFF, RANDOM, ZERO };
 
     ApplicationSettings();
     ApplicationSettings(int argc, const char* argv[]);
@@ -60,6 +61,7 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     Factory<s2j::seccomp::policy::BaseSyscallPolicy> syscallPolicyFactory;
     std::set<Feature> features;
 
+    TimeMode timeMode{TimeMode::OFF};
     bool suppressStderr{};
 
 private:
