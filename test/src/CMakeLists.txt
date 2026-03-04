@@ -44,6 +44,7 @@ SET_TARGET_PROPERTIES(sum_c
 # Fake time tests
 ADD_EXECUTABLE(time-clock-gettime time-clock-gettime.c)
 ADD_EXECUTABLE(time-rdtsc time-rdtsc.c)
+ADD_EXECUTABLE(time-rdtscp time-rdtscp.c)
 ADD_EXECUTABLE(time-rdtsc-twice time-rdtsc-twice.c)
 ADD_EXECUTABLE(time-notime time-notime.c)
 
@@ -56,4 +57,4 @@ ADD_CUSTOM_TARGET(test-binaries
         leak-tiny_32 leak-huge_32 leak-dive_32
         leak-tiny_64 leak-huge_64 leak-dive_64
         sum_c sum_cxx stderr-write
-        time-clock-gettime time-rdtsc time-rdtsc-twice time-notime)
+        time-clock-gettime time-rdtsc time-rdtscp time-rdtsc-twice time-notime)

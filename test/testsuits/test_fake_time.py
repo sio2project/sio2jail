@@ -8,6 +8,7 @@ from base.paths import *
 class TestFakeTime(unittest.TestCase):
     CLOCK_GETTIME_PATH = os.path.join(TEST_BIN_PATH, 'time-clock-gettime')
     RDTSC_PATH = os.path.join(TEST_BIN_PATH, 'time-rdtsc')
+    RDTSCP_PATH = os.path.join(TEST_BIN_PATH, 'time-rdtscp')
     RDTSC_TWICE_PATH = os.path.join(TEST_BIN_PATH, 'time-rdtsc-twice')
     NOTIME_PATH = os.path.join(TEST_BIN_PATH, 'time-notime')
 
@@ -44,6 +45,20 @@ class TestFakeTime(unittest.TestCase):
     def test_rdtsc_emulated_zero(self):
         result = self.sio2jail.run(
             self.RDTSC_PATH,
+            extra_options=['--fake-time', 'zero'])
+        self.assertEqual(result.supervisor_return_code, 0)
+        self.assertTrue(any('TSC' in line for line in result.stdout))
+
+    def test_rdtscp_emulated_random(self):
+        result = self.sio2jail.run(
+            self.RDTSCP_PATH,
+            extra_options=['--fake-time', 'random'])
+        self.assertEqual(result.supervisor_return_code, 0)
+        self.assertTrue(any('TSC' in line for line in result.stdout))
+
+    def test_rdtscp_emulated_zero(self):
+        result = self.sio2jail.run(
+            self.RDTSCP_PATH,
             extra_options=['--fake-time', 'zero'])
         self.assertEqual(result.supervisor_return_code, 0)
         self.assertTrue(any('TSC' in line for line in result.stdout))
