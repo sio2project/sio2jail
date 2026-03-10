@@ -1,3 +1,9 @@
+sio2jail (1.5.4) UNRELEASED; urgency=medium
+
+  * Add --fake-time option to allow faking time syscalls
+
+ -- Mateusz Masiarz <m.masiarz@fri.edu.pl>  Tue, 10 Mar 2026 08:51:00 +0100
+
 sio2jail (1.5.3) UNRELEASED; urgency=medium
 
   * Add syscalls used by JVM
