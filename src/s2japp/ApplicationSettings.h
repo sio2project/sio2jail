@@ -19,6 +19,9 @@ namespace app {
 struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     enum class Action { PRINT_HELP, PRINT_VERSION, RUN };
     enum class TimeMode { OFF, RANDOM, ZERO };
+    struct TimeModeHolder {
+        TimeMode mode;
+    };
 
     ApplicationSettings();
     ApplicationSettings(int argc, const char* argv[]);
@@ -30,6 +33,8 @@ struct ApplicationSettings : public ns::MountNamespaceListener::Settings {
     static const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy>
             SYSCALL_POLICIES;
     static const std::string DEFAULT_SYSCALL_POLICY;
+    static const FactoryMap<TimeModeHolder> FAKE_TIME_MODES;
+    static const std::string DEFAULT_FAKE_TIME_MODE;
     static const std::map<std::string, std::pair<Feature, bool>>
             FEATURE_BY_NAME;
 
