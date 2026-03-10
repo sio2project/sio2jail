@@ -200,6 +200,10 @@ TraceAction TraceExecutor::onEventClone(
 std::tuple<TraceAction, int> TraceExecutor::handleTraceeSignal(
         const TraceEvent& event,
         Tracee& tracee) {
+    if (tracee.isSignalSuppressed()) {
+        return {TraceAction::CONTINUE, 0};
+    }
+
     static const uint64_t IGNORED_SIGNALS = (1 << SIGCHLD) | (1 << SIGCLD) |
                                             (1 << SIGURG) | (1 << SIGWINCH) |
                                             (1 << SIGSTOP) | (1 << SIGCONT);

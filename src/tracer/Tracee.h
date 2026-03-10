@@ -53,6 +53,12 @@ public:
 
     void cancelSyscall(reg_t returnValue);
 
+    reg_t getInstructionPointer() const;
+    void setRegisters(reg_t rip, reg_t rax, reg_t rdx);
+
+    void suppressSignal() { signalSuppressed_ = true; }
+    bool isSignalSuppressed() const { return signalSuppressed_; }
+
     std::string getMemoryString(uint64_t address, size_t sizeLimit = 512);
 
     // TODO: simple wrapper around ptrace syscall that simulates RW access to
@@ -62,6 +68,7 @@ public:
 private:
     std::shared_ptr<ProcessInfo> traceeInfo_;
     user_regs_struct regs_{};
+    bool signalSuppressed_ = false;
 
     Arch syscallArch_;
 };

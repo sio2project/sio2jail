@@ -13,7 +13,8 @@ enum class Feature {
     USER_NAMESPACE,
     MOUNT_NAMESPACE,
     MOUNT_PROCFS,
-    CAPABILITY_DROP
+    CAPABILITY_DROP,
+    FAKE_TIME
 };
 
 }

@@ -111,6 +111,25 @@ const FactoryMap<s2j::seccomp::policy::BaseSyscallPolicy>
                   std::make_shared<s2j::seccomp::policy::PermissivePolicy>}});
 const std::string ApplicationSettings::DEFAULT_SYSCALL_POLICY = "default";
 
+const FactoryMap<ApplicationSettings::TimeModeHolder>
+        ApplicationSettings::FAKE_TIME_MODES(
+                {{"off",
+                  []() {
+                      return std::make_shared<TimeModeHolder>(
+                              TimeModeHolder{TimeMode::OFF});
+                  }},
+                 {"random",
+                  []() {
+                      return std::make_shared<TimeModeHolder>(
+                              TimeModeHolder{TimeMode::RANDOM});
+                  }},
+                 {"zero",
+                  []() {
+                      return std::make_shared<TimeModeHolder>(
+                              TimeModeHolder{TimeMode::ZERO});
+                  }}});
+const std::string ApplicationSettings::DEFAULT_FAKE_TIME_MODE = "off";
+
 const std::map<std::string, std::pair<Feature, bool>>
         ApplicationSettings::FEATURE_BY_NAME(
                 {{"ptrace", {Feature::PTRACE, true}},
@@ -340,6 +359,17 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
                 cmd);
 
 
+        args::ImplementationNameArgument<TimeModeHolder> fakeTimeMode(
+                "fake time mode", DEFAULT_FAKE_TIME_MODE, FAKE_TIME_MODES);
+        TCLAP::ValueArg<decltype(fakeTimeMode)> argFakeTime(
+                "",
+                "fake-time",
+                "Fake time mode",
+                false,
+                fakeTimeMode,
+                &fakeTimeMode,
+                cmd);
+
         TCLAP::UnlabeledValueArg<std::string> argProgramName(
                 "path", "Name of program to run", true, "", "path", cmd);
         TCLAP::UnlabeledMultiArg<std::string> argProgramArgv(
@@ -426,6 +456,11 @@ ApplicationSettings::ApplicationSettings(int argc, const char* argv[])
         resultsFD = argResultsFD.getValue();
         threadsLimit = argThreadsLimit.getValue();
         perfOversamplingFactor = argPerfOversamplingFactor.getValue();
+
+        timeMode = argFakeTime.getValue().getFactory()()->mode;
+        if (timeMode != TimeMode::OFF) {
+            features.insert(Feature::FAKE_TIME);
+        }
     }
     catch (const TCLAP::ArgException& ex) {
         outputGenerator.failure(ex);

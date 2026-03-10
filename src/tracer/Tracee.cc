@@ -177,6 +177,37 @@ std::string Tracee::getMemoryString(
     */
 }
 
+reg_t Tracee::getInstructionPointer() const {
+#if defined(__x86_64__)
+    return regs_.rip;
+#elif defined(__i386__)
+    return regs_.eip;
+#else
+#error "arch not supported"
+#endif
+}
+
+void Tracee::setRegisters(reg_t rip, reg_t rax, reg_t rdx) {
+#if defined(__x86_64__)
+    regs_.rip = rip;
+    regs_.rax = rax;
+    regs_.rdx = rdx;
+#elif defined(__i386__)
+    regs_.eip = rip;
+    regs_.eax = rax;
+    regs_.edx = rdx;
+#else
+#error "arch not supported"
+#endif
+    withErrnoCheck(
+            "ptrace setregs",
+            ptrace,
+            PTRACE_SETREGS,
+            getPid(),
+            nullptr,
+            &regs_);
+}
+
 void Tracee::cancelSyscall(reg_t returnValue) {
 #if defined(__x86_64__)
     regs_.orig_rax = -1;
