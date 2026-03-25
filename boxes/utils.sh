@@ -70,10 +70,12 @@ minimize_system() {
     sudo umount "$chroot_dir/sys" || true
     sudo umount "$chroot_dir/dev" || true
 
-    sudo rm -rf "$chroot_dir/dev"
+    # Remove mount points but keep /tmp and /dev (needed by sio2jail bind mounts)
     sudo rm -rf "$chroot_dir/proc"
     sudo rm -rf "$chroot_dir/sys"
-    sudo rm -rf "$chroot_dir/tmp"
+    sudo mkdir -p "$chroot_dir/proc"
+    sudo mkdir -p "$chroot_dir/tmp"
+    sudo mkdir -p "$chroot_dir/dev"
 }
 
 create_archive() {
