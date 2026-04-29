@@ -1,3 +1,9 @@
+sio2jail (1.5.5) UNRELEASED; urgency=medium
+
+  * Block AF_ALG in socket syscalls
+
+ -- Mateusz Masiarz <m.masiarz@fri.edu.pl>  Wed, 29 Apr 2026 22:45:00 +0100
+
 sio2jail (1.5.4) UNRELEASED; urgency=medium
 
   * Add --fake-time option to allow faking time syscalls

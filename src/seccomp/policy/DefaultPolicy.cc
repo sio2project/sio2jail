@@ -159,6 +159,14 @@ void DefaultPolicy::addInputOutputRules() {
                    "sendto", "recvfrom", "sendmsg", "recvmsg",
                    "shutdown", "setsockopt", "getsockopt"});
 
+    // Block AF_ALG (kernel crypto socket)
+    for (const auto& syscall: {"socket", "socketpair"}) {
+        rules_.emplace_back(SeccompRule(
+                syscall,
+                action::ActionErrno(EAFNOSUPPORT),
+                filter::SyscallArg(0) == 38 /* AF_ALG */));
+    }
+
     // Allow monitoring any file descriptor
     allowSyscalls(
             {"poll",
