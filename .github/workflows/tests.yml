@@ -1,0 +1,54 @@
+name: tests
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # Self-hosted runner with perf counters: never run code from fork PRs on it.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
+    timeout-minutes: 30
+    container:
+      image: debian:trixie
+      # sio2jail needs perf_event_open, namespaces and seccomp.
+      options: --privileged
+    steps:
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential cmake g++-multilib gcc-multilib gperf \
+            libcap-dev libseccomp-dev libtclap-dev scdoc \
+            python3 wget ca-certificates git
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check perf counters
+        run: |
+          grep -qw arch_perfmon /proc/cpuinfo || { echo "::error::CPU does not expose perf counters (arch_perfmon)"; exit 1; }
+          paranoid=$(cat /proc/sys/kernel/perf_event_paranoid)
+          [ "$paranoid" = -1 ] || { echo "::error::kernel.perf_event_paranoid is $paranoid, expected -1"; exit 1; }
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: make -C build -j"$(nproc)" sio2jail test-binaries boxes
+
+      - name: Test
+        run: make -C build check
