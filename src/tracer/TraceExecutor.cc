@@ -157,13 +157,36 @@ TraceAction TraceExecutor::onEventClone(
             PTRACE_OPTIONS);
 
     if (setoptsResult.getErrnoCode() == ESRCH) {
-        // Clone syscall failed (e.g. clone3 returned ENOSYS), child doesn't
-        // exist. This is expected when glibc falls back from clone3 to clone.
+        // PTRACE_EVENT_CLONE is reported only for a successful clone, so the
+        // child exists but may not have reached its initial ptrace stop yet.
+        // Wait for it, leaving the status for the main wait loop.
         logger::debug(
-                "Clone event for non-existent child ",
+                "Child ", traceeChildPid, " not stopped yet, waiting for it");
+        siginfo_t childInfo{};
+        while (withErrnoCheck(
+                       "waitid for cloned child",
+                       {EINTR},
+                       waitid,
+                       P_PID,
+                       traceeChildPid,
+                       &childInfo,
+                       WEXITED | WSTOPPED | WNOWAIT | __WALL)
+                       .getErrnoCode() == EINTR) {
+        }
+        if (childInfo.si_code == CLD_EXITED ||
+            childInfo.si_code == CLD_KILLED ||
+            childInfo.si_code == CLD_DUMPED) {
+            logger::debug("Cloned child ", traceeChildPid, " already exited");
+            return TraceAction::CONTINUE;
+        }
+        withErrnoCheck(
+                "ptrace setopts child",
+                {ESRCH},
+                ptrace,
+                PTRACE_SETOPTIONS,
                 traceeChildPid,
-                ", clone syscall likely failed");
-        return TraceAction::CONTINUE;
+                nullptr,
+                PTRACE_OPTIONS);
     }
 
     auto traceeChildInfo = tracee.getInfo()->addChild(traceeChildPid);
