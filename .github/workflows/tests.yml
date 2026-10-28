@@ -3,7 +3,7 @@ on:
   push:
     branches: [master]
   pull_request:
-  workflow_dispatch:
+    branches: [master]
 
 permissions:
   contents: read
@@ -14,8 +14,6 @@ concurrency:
 
 jobs:
   test:
-    # Self-hosted runner with perf counters: never run code from fork PRs on it.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: self-hosted
     timeout-minutes: 30
     container:
