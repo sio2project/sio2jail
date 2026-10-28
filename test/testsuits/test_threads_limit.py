@@ -21,6 +21,9 @@ class TestThreadsLimit(unittest.TestCase):
     def test_threads_limit_exceeded_deep_race_condition(self):
         result = self.sio2jail.run(
             [self.SEC_PROGRAM_TH_PATH, 'deep', 16],
-            memory='1G',
+            # Each thread here allocates and gets its own glibc malloc arena
+            # (64 MiB of address space), which exceeds 1G before the threads
+            # limit is hit.
+            memory='2G',
             extra_options=['-t', 15])
         self.assertEqual(result.message, 'threads limit exceeded')
