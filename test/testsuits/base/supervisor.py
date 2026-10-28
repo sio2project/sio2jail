@@ -6,6 +6,7 @@ from .paths import *
 
 class Supervisor(object):
     SUPERVISOR_BIN = None
+    TIMEOUT = 120
 
     class Result(object):
         def __init__(self):
@@ -34,7 +35,13 @@ class Supervisor(object):
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        (stdout, stderr) = process.communicate(stdin)
+        try:
+            (stdout, stderr) = process.communicate(stdin, timeout=self.TIMEOUT)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+            raise AssertionError(
+                "supervisor did not finish in {} seconds".format(self.TIMEOUT))
         stdout = stdout.decode('utf-8')
         stderr = stderr.decode('utf-8')
 
