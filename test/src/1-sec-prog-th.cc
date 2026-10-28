@@ -6,8 +6,11 @@
 void do1secloop(int divisor) {
     int i = 2;
     int j = i;
-    for (; i < 500000000 / divisor; ++i)
+    for (; i < 500000000 / divisor; ++i) {
         j += i;
+        // See 1-sec-prog.c.
+        __asm__ volatile("" : "+r"(j));
+    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds{100});
     std::cout << (j - 1711656321 == 1 ? 1 : 0) << std::endl;
